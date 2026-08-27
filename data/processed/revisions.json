@@ -1,0 +1,373 @@
+{
+  "description": "Same (organism, antibiotic, year) reported with different susceptibility percentages by different ICMR report editions. This reflects revision/de-duplication in ICMR's own publications, not an extraction error.",
+  "attribution": "Derived from publicly available ICMR AMRSN annual reports (2017-2024). Independent, unofficial analysis - not endorsed by or affiliated with ICMR.",
+  "generated": "2026-08-26",
+  "count": 17,
+  "revisions": [
+    {
+      "kind": "count_revision",
+      "organism": "MRSA",
+      "antibiotic": "tigecycline",
+      "year": 2022,
+      "susceptible_pct_by_report": {
+        "2022": 100.0,
+        "2023": 93.3,
+        "2024": 93.3
+      },
+      "susceptible_n_by_report": {
+        "2022": 1281,
+        "2023": 1195,
+        "2024": 1195
+      },
+      "tested_n_by_report": {
+        "2022": 1281,
+        "2023": 1281,
+        "2024": 1281
+      },
+      "pct_spread_pp": 6.7,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tigecycline",
+      "year": 2022,
+      "susceptible_pct_by_report": {
+        "2022": 100.0,
+        "2023": 94.4,
+        "2024": 94.4
+      },
+      "susceptible_n_by_report": {
+        "2022": 2452,
+        "2023": 2314,
+        "2024": 2314
+      },
+      "tested_n_by_report": {
+        "2022": 2452,
+        "2023": 2452,
+        "2024": 2452
+      },
+      "pct_spread_pp": 5.6,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tigecycline",
+      "year": 2023,
+      "susceptible_pct_by_report": {
+        "2023": 100.0,
+        "2024": 95.7
+      },
+      "susceptible_n_by_report": {
+        "2023": 2470,
+        "2024": 2365
+      },
+      "tested_n_by_report": {
+        "2023": 2470,
+        "2024": 2470
+      },
+      "pct_spread_pp": 4.3,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "MRSA",
+      "antibiotic": "tigecycline",
+      "year": 2023,
+      "susceptible_pct_by_report": {
+        "2023": 100.0,
+        "2024": 96.1
+      },
+      "susceptible_n_by_report": {
+        "2023": 1364,
+        "2024": 1311
+      },
+      "tested_n_by_report": {
+        "2023": 1364,
+        "2024": 1364
+      },
+      "pct_spread_pp": 3.9,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "MRSA",
+      "antibiotic": "cefoxitin",
+      "year": 2022,
+      "susceptible_pct_by_report": {
+        "2022": 0.0,
+        "2023": 3.4,
+        "2024": 3.4
+      },
+      "susceptible_n_by_report": {
+        "2022": 0,
+        "2023": 132,
+        "2024": 132
+      },
+      "tested_n_by_report": {
+        "2022": 3862,
+        "2023": 3862,
+        "2024": 3862
+      },
+      "pct_spread_pp": 3.4,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "MRSA",
+      "antibiotic": "oxacillin",
+      "year": 2022,
+      "susceptible_pct_by_report": {
+        "2022": 0.0,
+        "2023": 2.9,
+        "2024": 2.9
+      },
+      "susceptible_n_by_report": {
+        "2022": 0,
+        "2023": 39,
+        "2024": 39
+      },
+      "tested_n_by_report": {
+        "2022": 1366,
+        "2023": 1366,
+        "2024": 1366
+      },
+      "pct_spread_pp": 2.9,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "MRSA",
+      "antibiotic": "vancomycin",
+      "year": 2022,
+      "susceptible_pct_by_report": {
+        "2022": 100.0,
+        "2023": 99.0,
+        "2024": 99.0
+      },
+      "susceptible_n_by_report": {
+        "2022": 3348,
+        "2023": 3315,
+        "2024": 3315
+      },
+      "tested_n_by_report": {
+        "2022": 3348,
+        "2023": 3348,
+        "2024": 3348
+      },
+      "pct_spread_pp": 1.0,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "MRSA",
+      "antibiotic": "vancomycin",
+      "year": 2023,
+      "susceptible_pct_by_report": {
+        "2023": 100.0,
+        "2024": 99.4
+      },
+      "susceptible_n_by_report": {
+        "2023": 4311,
+        "2024": 4286
+      },
+      "tested_n_by_report": {
+        "2023": 4311,
+        "2024": 4311
+      },
+      "pct_spread_pp": 0.6,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "vancomycin",
+      "year": 2022,
+      "susceptible_pct_by_report": {
+        "2022": 100.0,
+        "2023": 100.0,
+        "2024": 99.4
+      },
+      "susceptible_n_by_report": {
+        "2022": 7731,
+        "2023": 7731,
+        "2024": 7684
+      },
+      "tested_n_by_report": {
+        "2022": 7731,
+        "2023": 7731,
+        "2024": 7731
+      },
+      "pct_spread_pp": 0.6,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "vancomycin",
+      "year": 2023,
+      "susceptible_pct_by_report": {
+        "2023": 100.0,
+        "2024": 99.5
+      },
+      "susceptible_n_by_report": {
+        "2023": 8850,
+        "2024": 8810
+      },
+      "tested_n_by_report": {
+        "2023": 8850,
+        "2024": 8850
+      },
+      "pct_spread_pp": 0.5,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "MRSA",
+      "antibiotic": "teicoplanin",
+      "year": 2023,
+      "susceptible_pct_by_report": {
+        "2023": 100.0,
+        "2024": 99.8
+      },
+      "susceptible_n_by_report": {
+        "2023": 2402,
+        "2024": 2397
+      },
+      "tested_n_by_report": {
+        "2023": 2402,
+        "2024": 2402
+      },
+      "pct_spread_pp": 0.2,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "teicoplanin",
+      "year": 2023,
+      "susceptible_pct_by_report": {
+        "2023": 100.0,
+        "2024": 99.9
+      },
+      "susceptible_n_by_report": {
+        "2023": 4277,
+        "2024": 4272
+      },
+      "tested_n_by_report": {
+        "2023": 4277,
+        "2024": 4277
+      },
+      "pct_spread_pp": 0.1,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "Escherichia coli",
+      "antibiotic": "piperacillin-tazobactam",
+      "year": 2022,
+      "susceptible_pct_by_report": {
+        "2022": 35.1,
+        "2023": 35.1,
+        "2024": 35.1
+      },
+      "susceptible_n_by_report": {
+        "2022": 5170,
+        "2023": 5170,
+        "2024": 5170
+      },
+      "tested_n_by_report": {
+        "2022": 14729,
+        "2023": 14729,
+        "2024": 14728
+      },
+      "pct_spread_pp": 0.0,
+      "tested_n_spread": 1
+    },
+    {
+      "kind": "count_revision",
+      "organism": "MRSA",
+      "antibiotic": "cefoxitin",
+      "year": 2023,
+      "susceptible_pct_by_report": {
+        "2024": 1.7
+      },
+      "susceptible_n_by_report": {
+        "2023": 0,
+        "2024": 53
+      },
+      "tested_n_by_report": {
+        "2023": 3116,
+        "2024": 3116
+      },
+      "pct_spread_pp": 0.0,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "MRSA",
+      "antibiotic": "oxacillin",
+      "year": 2023,
+      "susceptible_pct_by_report": {
+        "2024": 2.0
+      },
+      "susceptible_n_by_report": {
+        "2023": 0,
+        "2024": 48
+      },
+      "tested_n_by_report": {
+        "2023": 2383,
+        "2024": 2383
+      },
+      "pct_spread_pp": 0.0,
+      "tested_n_spread": 0
+    },
+    {
+      "kind": "count_revision",
+      "organism": "Pseudomonas aeruginosa",
+      "antibiotic": "piperacillin-tazobactam",
+      "year": 2022,
+      "susceptible_pct_by_report": {
+        "2022": 68.5,
+        "2023": 68.5,
+        "2024": 68.5
+      },
+      "susceptible_n_by_report": {
+        "2022": 9017,
+        "2023": 9017,
+        "2024": 9017
+      },
+      "tested_n_by_report": {
+        "2022": 113156,
+        "2023": 113156,
+        "2024": 13156
+      },
+      "pct_spread_pp": 0.0,
+      "tested_n_spread": 100000
+    },
+    {
+      "kind": "percentage_revision",
+      "organism": "Acinetobacter baumannii",
+      "antibiotic": "minocycline",
+      "year": 2022,
+      "susceptible_pct_by_report": {
+        "2022": 58.5,
+        "2023": 58.8,
+        "2024": 58.8
+      },
+      "susceptible_n_by_report": {
+        "2022": 6207,
+        "2023": 6207,
+        "2024": 6207
+      },
+      "tested_n_by_report": {
+        "2022": 10542,
+        "2023": 10542,
+        "2024": 10542
+      },
+      "pct_spread_pp": 0.3,
+      "tested_n_spread": 0
+    }
+  ]
+}

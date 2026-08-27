@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: "ICMR-AMRSN Trend Tracker"
+message: "If you use this software or dataset, please cite it, and also cite the underlying ICMR AMRSN annual reports."
+type: software
+authors:
+  - given-names: Yashita
+    family-names: Thakur
+    orcid: "https://orcid.org/0009-0004-7895-5250"
+repository-code: "https://github.com/yashita-thakur/icmr-amrsn-trend-tracker"
+abstract: >-
+  An open-source, reproducible pipeline that extracts national antimicrobial
+  susceptibility trend tables from the Indian Council of Medical Research (ICMR)
+  Antimicrobial Resistance Surveillance Network (AMRSN) annual reports and
+  publishes them as structured, fully provenance-annotated data. Every extracted
+  value carries the source report year and table number, enabling detection of
+  cross-report revisions of the same underlying year.
+keywords:
+  - antimicrobial resistance
+  - AMR
+  - surveillance
+  - India
+  - ICMR
+  - AMRSN
+  - open data
+  - reproducible research
+license: MIT
+version: 0.1.0
+date-released: "2026-08-25"

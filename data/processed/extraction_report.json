@@ -1,0 +1,316 @@
+{
+  "generated": "2026-08-26",
+  "attribution": "Derived from publicly available ICMR AMRSN annual reports (2017-2024). Independent, unofficial analysis - not endorsed by or affiliated with ICMR.",
+  "total_rows": 1286,
+  "sources": [
+    {
+      "report_year": 2024,
+      "edition": "8th",
+      "url": "https://www.icmr.gov.in/icmrobject/uploads/Report/1763981012_icmramrsnannualreport2024.pdf",
+      "sha256": "9a078ba24e7dc052a1bf4b0f623ab5ea3e5bad8d4787c584d96008b55d24d852"
+    },
+    {
+      "report_year": 2023,
+      "edition": "7th",
+      "url": "https://www.icmr.gov.in/icmrobject/uploads/Documents/1725536060_annual_report_2023.pdf",
+      "sha256": "09c5afde7a7d1401d275993f60e97ae4b5f12630ba29497331429fa09430dbdc"
+    },
+    {
+      "report_year": 2022,
+      "edition": "6th",
+      "url": "https://www.icmr.gov.in/icmrobject/custom_data/pdf/resource-guidelines/AMRSN_Annual_Report_2022.pdf",
+      "sha256": "cf669d2a8193cdd28987f1e88b983c4474fbeb2ead08ca9352f831f39b272482"
+    }
+  ],
+  "parsed": [
+    {
+      "report_year": 2024,
+      "organism": "Escherichia coli",
+      "source_table": "Table 2.6",
+      "rows": 80,
+      "antibiotics": 10,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ]
+    },
+    {
+      "report_year": 2024,
+      "organism": "Klebsiella pneumoniae",
+      "source_table": "Table 2.7",
+      "rows": 80,
+      "antibiotics": 10,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ]
+    },
+    {
+      "report_year": 2024,
+      "organism": "Acinetobacter baumannii",
+      "source_table": "Table 3.6",
+      "rows": 72,
+      "antibiotics": 9,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ]
+    },
+    {
+      "report_year": 2024,
+      "organism": "Pseudomonas aeruginosa",
+      "source_table": "Table 3.3",
+      "rows": 88,
+      "antibiotics": 11,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ]
+    },
+    {
+      "report_year": 2024,
+      "organism": "Staphylococcus aureus",
+      "source_table": "Table 6.4",
+      "rows": 88,
+      "antibiotics": 11,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ]
+    },
+    {
+      "report_year": 2024,
+      "organism": "MRSA",
+      "source_table": "Table 6.9",
+      "rows": 72,
+      "antibiotics": 9,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ]
+    },
+    {
+      "report_year": 2023,
+      "organism": "Escherichia coli",
+      "source_table": "Table 3.6",
+      "rows": 70,
+      "antibiotics": 10,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+      ]
+    },
+    {
+      "report_year": 2023,
+      "organism": "Klebsiella pneumoniae",
+      "source_table": "Table 3.7",
+      "rows": 70,
+      "antibiotics": 10,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+      ]
+    },
+    {
+      "report_year": 2023,
+      "organism": "Acinetobacter baumannii",
+      "source_table": "Table 4.3",
+      "rows": 63,
+      "antibiotics": 9,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+      ]
+    },
+    {
+      "report_year": 2023,
+      "organism": "Pseudomonas aeruginosa",
+      "source_table": "Table 4.6",
+      "rows": 77,
+      "antibiotics": 11,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+      ]
+    },
+    {
+      "report_year": 2023,
+      "organism": "Staphylococcus aureus",
+      "source_table": "Table 7.4",
+      "rows": 77,
+      "antibiotics": 11,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+      ]
+    },
+    {
+      "report_year": 2023,
+      "organism": "MRSA",
+      "source_table": "Table 7.9",
+      "rows": 77,
+      "antibiotics": 11,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+      ]
+    },
+    {
+      "report_year": 2022,
+      "organism": "Escherichia coli",
+      "source_table": "Table 3.6",
+      "rows": 60,
+      "antibiotics": 10,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022
+      ]
+    },
+    {
+      "report_year": 2022,
+      "organism": "Klebsiella pneumoniae",
+      "source_table": "Table 3.7",
+      "rows": 60,
+      "antibiotics": 10,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022
+      ]
+    },
+    {
+      "report_year": 2022,
+      "organism": "Acinetobacter baumannii",
+      "source_table": "Table 5.6",
+      "rows": 54,
+      "antibiotics": 9,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022
+      ]
+    },
+    {
+      "report_year": 2022,
+      "organism": "Pseudomonas aeruginosa",
+      "source_table": "Table 5.3",
+      "rows": 66,
+      "antibiotics": 11,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022
+      ]
+    },
+    {
+      "report_year": 2022,
+      "organism": "Staphylococcus aureus",
+      "source_table": "Table 6.4",
+      "rows": 66,
+      "antibiotics": 11,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022
+      ]
+    },
+    {
+      "report_year": 2022,
+      "organism": "MRSA",
+      "source_table": "Table 6.9",
+      "rows": 66,
+      "antibiotics": 11,
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022
+      ]
+    }
+  ],
+  "failed": []
+}

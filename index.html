@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICMR-AMRSN Trend Tracker</title>
+<meta name="description" content="India's national antimicrobial resistance trends, extracted from ICMR AMRSN report PDFs into checkable, citable data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#110c08;
+    --surface:#1c150e;
+    --surface-2:#251b12;
+    --parchment:#ece2ce;
+    --muted:#a3906f;
+    --brass:#c9a45f;
+    --brass-dim:#8a6f3f;
+    --patina:#84af92;
+    --patina-dim:#547562;
+    --rule:#3a2c1c;
+    --warn:#c97a5f;
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+  }
+  body{
+    margin:0;
+    background:var(--void);
+    color:var(--parchment);
+    font-family:'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    font-size:17px;
+    line-height:1.65;
+  }
+  ::selection{ background:var(--brass); color:var(--void); }
+  a{ color:inherit; }
+  h1,h2,h3{ font-family:'Fraunces', Georgia, serif; font-weight:500; letter-spacing:-0.01em; margin:0; text-wrap:balance; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  .wrap{ max-width:960px; margin:0 auto; padding:0 clamp(1.25rem, 4vw, 2.5rem); }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--patina);
+    text-transform:lowercase; letter-spacing:0.02em; margin-bottom:1.2rem;
+    display:flex; align-items:center; gap:0.6em;
+  }
+  .eyebrow::before{ content:"//"; color:var(--brass-dim); }
+
+  nav.top{
+    position:sticky; top:0; z-index:50;
+    background:rgba(17,12,8,0.9); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--rule);
+  }
+  nav.top .wrap{ display:flex; align-items:center; justify-content:space-between; padding:0.9rem clamp(1.25rem,4vw,2.5rem); max-width:1100px; }
+  nav.top .brand{ font-family:'IBM Plex Mono', monospace; font-size:0.85rem; text-decoration:none; color:var(--parchment); }
+  nav.top .brand span{ color:var(--brass); }
+  nav.top ul{ list-style:none; display:flex; gap:clamp(0.8rem,2vw,1.5rem); margin:0; padding:0; font-family:'IBM Plex Mono', monospace; font-size:0.76rem; }
+  nav.top a.link{ text-decoration:none; color:var(--muted); border-bottom:1px solid transparent; transition:color .15s; }
+  nav.top a.link:hover, nav.top a.link:focus-visible{ color:var(--brass); border-bottom-color:var(--brass-dim); }
+  @media (max-width:640px){ nav.top ul{ display:none; } }
+
+  header.hero{ padding:5rem 0 3rem; border-bottom:1px solid var(--rule); }
+  h1.title{ font-size:clamp(2.1rem, 3vw + 1.2rem, 3.4rem); line-height:1.05; }
+  h1.title em{ font-style:italic; color:var(--brass); }
+  .subtitle{ margin-top:1rem; max-width:60ch; font-size:1.08rem; color:var(--parchment); }
+  .byline{ margin-top:1.4rem; font-family:'IBM Plex Mono', monospace; font-size:0.82rem; color:var(--muted); }
+  .byline a{ color:var(--patina); text-decoration:none; border-bottom:1px solid var(--patina-dim); }
+
+  .notice{
+    margin-top:1.8rem;
+    border:1px solid var(--warn);
+    background:rgba(201,122,95,0.08);
+    color:#e4b6a4;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.82rem;
+    padding:0.9rem 1.1rem;
+    border-radius:3px;
+    max-width:68ch;
+  }
+  .notice strong{ color:var(--warn); }
+
+  .stats{
+    margin-top:2.4rem;
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    border-top:1px solid var(--rule);
+    border-left:1px solid var(--rule);
+  }
+  .stat{ border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:1rem 1rem; }
+  .stat .n{ font-family:'IBM Plex Mono', monospace; font-size:1.5rem; color:var(--brass); display:block; }
+  .stat .l{ font-family:'IBM Plex Mono', monospace; font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; }
+  @media (max-width:760px){ .stats{ grid-template-columns:repeat(2,1fr); } }
+
+  section{ padding:4.5rem 0; border-bottom:1px solid var(--rule); }
+  h2.section-title{ font-size:clamp(1.5rem, 1.2vw + 1.1rem, 2.1rem); margin-bottom:1.6rem; }
+
+  .honesty{
+    display:grid; grid-template-columns:1fr 1fr; gap:2.5rem;
+  }
+  @media (max-width:700px){ .honesty{ grid-template-columns:1fr; } }
+  .honesty h3{ font-family:'IBM Plex Mono', monospace; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.9rem; }
+  .honesty .yes h3{ color:var(--patina); }
+  .honesty .no h3{ color:var(--warn); }
+  .honesty ul{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:0.8rem; }
+  .honesty li{ padding-left:1.3rem; position:relative; color:var(--parchment); font-size:0.96rem; }
+  .honesty .yes li::before{ content:"✓"; position:absolute; left:0; color:var(--patina); font-family:'IBM Plex Mono',monospace; }
+  .honesty .no li::before{ content:"✕"; position:absolute; left:0; color:var(--warn); font-family:'IBM Plex Mono',monospace; }
+
+  figure{ margin:0 0 3rem; }
+  figure:last-child{ margin-bottom:0; }
+  figure img{ width:100%; height:auto; display:block; border:1px solid var(--rule); border-radius:4px; background:#fff; }
+  figcaption{ margin-top:0.7rem; font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--muted); max-width:70ch; }
+
+  .bugs{ display:flex; flex-direction:column; gap:1.6rem; }
+  .bug{ border-top:1px solid var(--rule); padding-top:1.4rem; }
+  .bug:first-child{ border-top:none; padding-top:0; }
+  .bug-tag{ font-family:'IBM Plex Mono', monospace; font-size:0.72rem; color:var(--warn); text-transform:uppercase; letter-spacing:0.05em; }
+  .bug h3{ font-size:1.15rem; margin:0.3rem 0 0.5rem; font-weight:500; }
+  .bug p{ margin:0; color:var(--muted); font-size:0.95rem; max-width:68ch; }
+  .bug code{ font-family:'IBM Plex Mono', monospace; background:var(--surface); padding:0.1em 0.4em; border-radius:2px; color:var(--patina); font-size:0.88em; }
+
+  .schema{
+    background:var(--surface); border:1px solid var(--rule); border-radius:6px;
+    padding:1.3rem 1.5rem; font-family:'IBM Plex Mono', monospace; font-size:0.82rem;
+    overflow-x:auto; color:var(--parchment); line-height:1.55;
+  }
+  .schema .k{ color:var(--patina); }
+  .schema .s{ color:var(--brass); }
+  .schema .c{ color:var(--muted); }
+
+  .steps{ margin:1.6rem 0 0; padding-left:1.3rem; color:var(--parchment); font-size:0.95rem; }
+  .steps li{ margin-bottom:0.5rem; }
+  .steps li:last-child{ margin-bottom:0; }
+
+  .roadmap-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+  .roadmap-list li{
+    display:flex; gap:1rem; padding:1rem 0; border-top:1px solid var(--rule);
+    align-items:baseline; flex-wrap:wrap;
+  }
+  .roadmap-list li:first-child{ border-top:none; }
+  .rm-tag{ font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--brass); min-width:4.5rem; }
+  .rm-tag.current{ color:var(--patina); }
+  .rm-desc{ color:var(--parchment); font-size:0.95rem; }
+
+  .terminal-box{
+    background:var(--surface); border:1px solid var(--rule); border-radius:6px;
+    padding:1.5rem clamp(1.2rem,3vw,2rem); font-family:'IBM Plex Mono', monospace; font-size:0.88rem;
+  }
+  .terminal-box .row{ display:flex; flex-wrap:wrap; gap:0.6em; padding:0.5rem 0; border-bottom:1px dashed var(--rule); }
+  .terminal-box .row:last-child{ border-bottom:none; }
+  .terminal-box .cmd{ color:var(--patina); }
+  .terminal-box .arrow{ color:var(--brass-dim); }
+  .terminal-box a{ color:var(--brass); text-decoration:none; border-bottom:1px solid var(--brass-dim); }
+  .terminal-box a:hover{ color:var(--patina); border-color:var(--patina); }
+
+  footer{
+    padding:2.5rem 0 4rem; color:var(--muted); font-family:'IBM Plex Mono', monospace; font-size:0.75rem;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.6rem;
+  }
+  a:focus-visible{ outline:2px solid var(--patina); outline-offset:3px; }
+  .reflist{ margin:0; padding-left:1.4rem; font-size:0.86rem; line-height:1.75; color:var(--muted); }
+  .reflist li{ margin-bottom:0.75rem; }
+  .reflist a{ color:var(--patina); word-break:break-all; text-decoration:none; border-bottom:1px solid var(--patina-dim); }
+  .reflist a:hover{ color:var(--brass); border-bottom-color:var(--brass); }
+  .maint{ border:1px solid var(--rule); border-left:3px solid var(--brass-dim); background:var(--surface);
+          padding:0.85rem 1.1rem; font-size:0.88rem; color:var(--muted); margin-top:1.4rem; }
+  .maint strong{ color:var(--parchment); }
+
+  /* ---- interactive charts (progressive enhancement over the PNGs) ---- */
+  .chart-live{ display:none; }
+  .js-charts .chart-live.ready{ display:block; }
+  .js-charts .chart-figure.live .chart-static{ display:none; }
+  .chart-shell{ position:relative; border:1px solid var(--rule); border-radius:4px;
+                background:var(--surface); padding:0.6rem 0.6rem 0.2rem; }
+  .chart-shell svg{ display:block; width:100%; height:auto; overflow:visible; }
+  .chart-toolbar{ position:absolute; top:0.55rem; right:0.6rem; display:flex; align-items:center;
+                  gap:0.5rem; font-family:'IBM Plex Mono',monospace; font-size:0.7rem; z-index:2; }
+  .chart-mode{ color:var(--patina); }
+  .reset-btn{ font-family:'IBM Plex Mono',monospace; font-size:0.7rem; color:var(--muted);
+              background:var(--surface-2); border:1px solid var(--rule); border-radius:3px;
+              padding:0.25rem 0.6rem; cursor:pointer; visibility:hidden; }
+  .reset-btn:hover, .reset-btn:focus-visible{ color:var(--brass); border-color:var(--brass-dim); }
+  .chart-shell.filtered .reset-btn{ visibility:visible; }
+  .series{ transition:opacity .18s ease; }
+  @media (prefers-reduced-motion: reduce){ .series{ transition:none; } }
+  .chart-shell.filtered .series:not(.on){ opacity:0.08; }
+  .legend{ display:flex; flex-wrap:wrap; gap:0.3rem; margin:0.5rem 0 0.6rem; padding:0; list-style:none; }
+  .legend button{ display:inline-flex; align-items:center; gap:0.4em; cursor:pointer;
+                  font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--muted);
+                  background:transparent; border:1px solid var(--rule); border-radius:3px;
+                  padding:0.2rem 0.5rem; }
+  .legend button:hover{ color:var(--parchment); border-color:var(--brass-dim); }
+  .legend button[aria-pressed="true"]{ color:var(--parchment); border-color:var(--brass);
+                                       background:var(--surface-2); }
+  .legend .sw{ width:0.75em; height:0.75em; border-radius:2px; flex:none; }
+  .legend button[aria-pressed="false"] .sw{ opacity:0.55; }
+  .chart-hint{ font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--muted); margin:0 0 0.2rem; }
+
+  /* ---- scroll reveal ---- */
+  /* Hidden ONLY once JS has taken over. Without this scoping a script failure
+     would leave the whole page at opacity 0 -- invisible, with no error. */
+  .js-charts .reveal{ opacity:0; transform:translateY(14px);
+                      transition:opacity .5s ease, transform .5s ease; }
+  .js-charts .reveal.in{ opacity:1; transform:none; }
+  /* Hard backstop: drops the transition entirely, so visibility never depends
+     on an animation actually running to completion. */
+  .js-charts.reveal-done .reveal{ opacity:1; transform:none; transition:none; }
+  @media (prefers-reduced-motion: reduce){
+    .js-charts .reveal{ opacity:1; transform:none; transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">amr<span>_</span>tracker</a>
+    <ul>
+      <li><a class="link" href="#scope">scope</a></li>
+      <li><a class="link" href="#charts">charts</a></li>
+      <li><a class="link" href="#method">method</a></li>
+      <li><a class="link" href="#roadmap">roadmap</a></li>
+      <li><a class="link" href="#cite">cite</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow">v1 · icmr-amrsn trend tracker</div>
+    <h1 class="title">National AMR trends, <em>read by hand-checkable rule</em>.</h1>
+    <p class="subtitle">ICMR publishes India's antimicrobial resistance surveillance results only as annual report PDFs — no API, no bulk download. This project turns the published national trend tables into structured data where every number carries the report edition and table it came from, so it can be traced back and checked against the source PDF.</p>
+    <p class="byline">Yashita Thakur · <a href="https://orcid.org/0009-0004-7895-5250" target="_blank" rel="noopener">ORCID 0009-0004-7895-5250</a> · MIT licensed code</p>
+
+    <div class="notice">
+      <strong>Independent, unofficial analysis.</strong> Not endorsed by or affiliated with ICMR. Where this dataset and an ICMR report disagree, the report is right and this is a bug.
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="n">1,286</span><span class="l">rows, v1.1</span></div>
+      <div class="stat"><span class="n">2017–24</span><span class="l">years covered</span></div>
+      <div class="stat"><span class="n">3</span><span class="l">report editions</span></div>
+      <div class="stat"><span class="n">83</span><span class="l">tests, pytest</span></div>
+      <div class="stat"><span class="n">17 / 432</span><span class="l">genuine revisions found</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section id="scope" class="reveal" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">scope</div>
+      <h2 class="section-title">What this is — and isn't</h2>
+      <div class="honesty">
+        <div class="yes">
+          <h3>This is</h3>
+          <ul>
+            <li>National trend data for <em>E. coli</em> and <em>K. pneumoniae</em> against a 10-drug Enterobacterales panel, 2017–2024, from AMRSN's own printed tables.</li>
+            <li>Fully provenance-annotated: every value cites its report edition and table number.</li>
+            <li>Cross-checked three ways — internal arithmetic, narrative cross-check against report prose, and structural assertions.</li>
+          </ul>
+        </div>
+        <div class="no">
+          <h3>This is not</h3>
+          <ul>
+            <li>Community prevalence — these are tertiary-care lab isolates, a hospital-skewed population.</li>
+            <li>Patient-level data, or a national burden/incidence estimate.</li>
+            <li>NARS-Net data. AMRSN and NCDC's NARS-Net are different networks and are never pooled here.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="charts" class="reveal" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">charts</div>
+      <h2 class="section-title">The trends</h2>
+
+      <figure class="chart-figure reveal" data-slug="escherichia_coli">
+        <img class="chart-static" src="docs/figures/trend_escherichia_coli.png" alt="E. coli national susceptibility trend, 2017–2024, ten antibiotics">
+        <div class="chart-live"></div>
+        <figcaption>Carbapenems (imipenem, meropenem, ertapenem) drifting down alongside everything else — none of the ten drugs in this panel is trending upward.</figcaption>
+      </figure>
+
+      <figure class="chart-figure reveal" data-slug="klebsiella_pneumoniae">
+        <img class="chart-static" src="docs/figures/trend_klebsiella_pneumoniae.png" alt="Klebsiella pneumoniae national susceptibility trend, 2017–2024, ten antibiotics">
+        <div class="chart-live"></div>
+        <figcaption>K. pneumoniae, same panel. Points with fewer than 30 isolates tested, or where ICMR suppressed the percentage, are omitted rather than estimated.</figcaption>
+      </figure>
+
+      <figure class="chart-figure reveal" data-slug="acinetobacter_baumannii">
+        <img class="chart-static" src="docs/figures/trend_acinetobacter_baumannii.png" alt="Acinetobacter baumannii national susceptibility trend, 2017-2024">
+        <div class="chart-live"></div>
+        <figcaption>A. baumannii. Almost everything sits below 25%; meropenem reaches 9.0% by 2024, the 91.0% resistance quoted in the report's own summary. Minocycline is the outlier. Colistin is not plotted &mdash; the source reports it as intermediate susceptibility, not susceptibility.</figcaption>
+      </figure>
+
+      <figure class="chart-figure reveal" data-slug="pseudomonas_aeruginosa">
+        <img class="chart-static" src="docs/figures/trend_pseudomonas_aeruginosa.png" alt="Pseudomonas aeruginosa national susceptibility trend, 2017-2024">
+        <div class="chart-live"></div>
+        <figcaption>P. aeruginosa, an 11-drug panel that differs from A. baumannii's: gentamicin, tobramycin and ciprofloxacin in place of minocycline.</figcaption>
+      </figure>
+
+      <figure class="chart-figure reveal" data-slug="staphylococcus_aureus">
+        <img class="chart-static" src="docs/figures/trend_staphylococcus_aureus.png" alt="Staphylococcus aureus national susceptibility trend, 2017-2024">
+        <div class="chart-live"></div>
+        <figcaption>S. aureus, an entirely different drug-class mix. Vancomycin, teicoplanin and linezolid hold near 100%; cefoxitin and erythromycin fall away.</figcaption>
+      </figure>
+
+      <figure class="chart-figure reveal" data-slug="mrsa">
+        <img class="chart-static" src="docs/figures/trend_mrsa.png" alt="MRSA national susceptibility trend, 2017-2024">
+        <div class="chart-live"></div>
+        <figcaption>MRSA isolates only &mdash; how susceptible they are to each drug, not how common MRSA is. Cefoxitin sits at 0%, which is definitional: MRSA is methicillin/cefoxitin-resistant, so any other value would mean the wrong table had been read.</figcaption>
+      </figure>
+
+      <figure class="reveal">
+        <img src="docs/figures/cross_report_revisions.png" alt="Chart showing a count revision between report editions for E. coli piperacillin-tazobactam 2022">
+        <figcaption>Where editions disagree about the same year. 17 genuine revisions across 432 comparable (organism, antibiotic, year) combinations. Shown here are the count revisions &mdash; changes to the numerator or denominator itself, which a percentage-only comparison would miss entirely.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="method" class="reveal" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">method</div>
+      <h2 class="section-title">Three ways this PDF fights back</h2>
+      <p style="color:var(--muted); max-width:68ch; margin-bottom:2rem;">Regex over <code class="mono">pdftotext</code> output silently produces plausible-looking wrong numbers on these reports. Extraction goes through <code class="mono">pdfplumber</code>'s table detection instead, and still had to defend against three specific failure modes found in the actual PDFs:</p>
+
+      <div class="bugs">
+        <div class="bug">
+          <div class="bug-tag">found in the 2023 edition</div>
+          <h3>Column indices lie</h3>
+          <p>The header row carries an extra leading cell, so <code>Year-2017</code> sits at index 4 while its data sits at index 3. Fix: cells are matched to years by x-coordinate overlap, never by column position.</p>
+        </div>
+        <div class="bug">
+          <div class="bug-tag">found in the 2022 edition</div>
+          <h3>Digits get clipped</h3>
+          <p>A ruled box narrower than the digits inside it makes <code>5170 / 14729</code> come back as <code>170 / 1472</code> — off by an order of magnitude, while the percentage still looks fine. Fix: cell contents are assembled from whole words by centre point, so no digit can be cut off mid-cell.</p>
+        </div>
+        <div class="bug">
+          <div class="bug-tag">found across editions</div>
+          <h3>Wrapped labels create phantom rows</h3>
+          <p>"Piperacillin-/tazobactam" wrapping to two lines makes the table library report a nested extra row, which then overwrites the next antibiotic's percentage. Fix: row bands wholly contained inside another band are discarded.</p>
+        </div>
+      </div>
+
+      <p style="color:var(--muted); font-size:0.9rem; margin-top:2rem;">Full writeup, including how table locations are found across editions that renumber their own chapters, is in <code class="mono">README.md</code>.</p>
+
+      <h3 style="font-family:'IBM Plex Mono',monospace; font-size:0.85rem; color:var(--patina); text-transform:uppercase; letter-spacing:0.04em; margin:3rem 0 1rem;">Reproduce any number by hand</h3>
+      <ol class="steps">
+        <li>Read <code class="mono">source_url</code> and <code class="mono">source_report_year</code> in the row — that's the report PDF.</li>
+        <li>Read <code class="mono">source_table</code> — e.g. Table 2.6.</li>
+        <li>Open that PDF, find the caption matching that table.</li>
+        <li>Find the antibiotic row and the year column.</li>
+        <li>The printed cell should match <code class="mono">susceptible_n</code>, <code class="mono">tested_n</code>, and <code class="mono">susceptible_pct</code> exactly.</li>
+      </ol>
+
+      <h3 style="font-family:'IBM Plex Mono',monospace; font-size:0.85rem; color:var(--patina); text-transform:uppercase; letter-spacing:0.04em; margin:3rem 0 1rem;">Row schema</h3>
+      <div class="schema">
+<span class="c">{</span><br>
+&nbsp;&nbsp;<span class="k">"organism"</span>: <span class="s">"Klebsiella pneumoniae"</span>,<br>
+&nbsp;&nbsp;<span class="k">"antibiotic"</span>: <span class="s">"meropenem"</span>,<br>
+&nbsp;&nbsp;<span class="k">"year"</span>: 2024,<br>
+&nbsp;&nbsp;<span class="k">"susceptible_n"</span>: 4276, <span class="k">"tested_n"</span>: 12189,<br>
+&nbsp;&nbsp;<span class="k">"susceptible_pct"</span>: 35.1, <span class="c">// as printed by ICMR — null if ICMR suppressed it</span><br>
+&nbsp;&nbsp;<span class="k">"computed_pct"</span>: 35.08, <span class="c">// derived, labelled as such</span><br>
+&nbsp;&nbsp;<span class="k">"source_report_year"</span>: 2024, <span class="k">"source_table"</span>: <span class="s">"Table 2.7"</span>,<br>
+&nbsp;&nbsp;<span class="k">"flags"</span>: <span class="s">""</span><br>
+<span class="c">}</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="roadmap" class="reveal" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">roadmap</div>
+      <h2 class="section-title">Where this goes next</h2>
+      <ul class="roadmap-list">
+        <li><span class="rm-tag current">v1 — now</span><span class="rm-desc"><em>E. coli</em> and <em>K. pneumoniae</em>, 2017–2024, 3 editions.</span></li>
+        <li><span class="rm-tag">v1.1</span><span class="rm-desc"><em>A. baumannii</em>, <em>P. aeruginosa</em> (non-fermenters), then <em>S. aureus</em>/MRSA.</span></li>
+        <li><span class="rm-tag">v2</span><span class="rm-desc">Regional Centre breakdowns — flagging years that aren't comparable rather than silently averaging them.</span></li>
+        <li><span class="rm-tag">v3</span><span class="rm-desc">Cross-reference against NCDC NARS-Net where both networks report the same pathogen/antibiotic, surfacing disagreement rather than pooling.</span></li>
+        <li><span class="rm-tag">v4</span><span class="rm-desc">Extend the series back to 2014 — 2019 and 2021 editions confirmed reachable as plain PDFs, unfetched so far.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="cite" class="reveal" class="reveal" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="eyebrow">cite / connect</div>
+      <h2 class="section-title">Using this</h2>
+      <div class="terminal-box">
+        <div class="row"><span class="cmd">$ cite --project</span><span class="arrow">→</span><span>see CITATION.cff — cite this project and the specific ICMR report edition/table for each value used</span></div>
+        <div class="row"><span class="cmd">$ license --code</span><span class="arrow">→</span><span>MIT</span></div>
+        <div class="row"><span class="cmd">$ license --data</span><span class="arrow">→</span><span>see DATA_LICENSE.md — fetched at run time, never redistributed here</span></div>
+        <div class="row"><span class="cmd">$ connect --github</span><span class="arrow">→</span><a href="https://github.com/yashita-thakur" target="_blank" rel="noopener">github.com/yashita-thakur</a></div>
+        <div class="row"><span class="cmd">$ connect --orcid</span><span class="arrow">→</span><a href="https://orcid.org/0009-0004-7895-5250" target="_blank" rel="noopener">orcid.org/0009-0004-7895-5250</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="references" class="reveal" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="eyebrow">sources</div>
+      <h2 class="section-title">References</h2>
+      <!-- REFERENCES:START (generated by src/references.py) -->
+      <ol class="reflist">
+        <li class="ref">Indian Council of Medical Research. Annual report: Antimicrobial Resistance Research and Surveillance Network, January 2022 to December 2022. 6th ed. New Delhi: Indian Council of Medical Research; 2022. Available from: <a href="https://www.icmr.gov.in/icmrobject/custom_data/pdf/resource-guidelines/AMRSN_Annual_Report_2022.pdf">https://www.icmr.gov.in/icmrobject/custom_data/pdf/resource-guidelines/AMRSN_Annual_Report_2022.pdf</a></li>
+        <li class="ref">Indian Council of Medical Research. Annual report: Antimicrobial Resistance Research and Surveillance Network, January 2023 to December 2023. 7th ed. New Delhi: Indian Council of Medical Research; 2023. Available from: <a href="https://www.icmr.gov.in/icmrobject/uploads/Documents/1725536060_annual_report_2023.pdf">https://www.icmr.gov.in/icmrobject/uploads/Documents/1725536060_annual_report_2023.pdf</a></li>
+        <li class="ref">Indian Council of Medical Research. Annual report: Antimicrobial Resistance Research and Surveillance Network, January 2024 to December 2024. 8th ed. New Delhi: Indian Council of Medical Research; 2024. Available from: <a href="https://www.icmr.gov.in/icmrobject/uploads/Report/1763981012_icmramrsnannualreport2024.pdf">https://www.icmr.gov.in/icmrobject/uploads/Report/1763981012_icmramrsnannualreport2024.pdf</a></li>
+        <li class="ref">Kaur J, Dhama AS, Buttolia H, Kaur J, Walia K, Ohri V, Kumar V, Lynn AM, Srivastava A, Singh H. ICMR's Antimicrobial Resistance Surveillance system (i-AMRSS): a promising tool for global antimicrobial resistance surveillance. JAC Antimicrob Resist. 2021;3(1):dlab023. doi:10.1093/jacamr/dlab023. Available from: <a href="https://doi.org/10.1093/jacamr/dlab023">https://doi.org/10.1093/jacamr/dlab023</a></li>
+      </ol>
+      <!-- REFERENCES:END -->
+      <div class="maint">
+        <strong>Scope and maintenance.</strong> Data is current through the ICMR AMRSN
+        8th edition (2024). This repository is not actively maintained against future
+        editions &mdash; for anything published after 2024, check the
+        <a href="https://iamrsn.icmr.org.in/">ICMR AMRSN site</a> directly.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; width:100%; flex-wrap:wrap; gap:0.6rem;">
+    <span>ICMR-AMRSN Trend Tracker · v1</span>
+    <span>independent &amp; unofficial · not affiliated with ICMR</span>
+  </div>
+</footer>
+
+
+<script>
+// AMR_INTERACTIVE_CHARTS
+(function () {
+  "use strict";
+
+  // The page is fully readable without this script: every chart already has a
+  // rendered PNG. Everything below is progressive enhancement, and if the data
+  // file cannot be loaded the static images simply stay in place.
+
+  var PALETTE = ["#c9a45f", "#84af92", "#c97a5f", "#8fa9c9", "#b98fc9",
+                 "#d4b86a", "#6fa8a0", "#cf8f8f", "#9fbf7a", "#c9a0c0",
+                 "#7f9fd0"];
+  var reduced = window.matchMedia &&
+                window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---- scroll reveal, driven by position not by a timer -------------------
+  function initReveal() {
+    var items = document.querySelectorAll(".reveal");
+    function showAll() {
+      Array.prototype.forEach.call(items, function (el) { el.classList.add("in"); });
+      document.documentElement.classList.add("reveal-done");
+    }
+    if (!("IntersectionObserver" in window) || reduced) { showAll(); return; }
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.06 });
+    Array.prototype.forEach.call(items, function (el) { io.observe(el); });
+
+    // Reveal anything already on screen without waiting for a callback, and
+    // keep a backstop timer regardless. An observer that never fires -- a
+    // non-compositing tab, a prerender, a browser quirk -- would otherwise
+    // leave the entire page at opacity 0 with no error anywhere. Content
+    // being visible must never depend on an animation firing.
+    requestAnimationFrame(function () {
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      Array.prototype.forEach.call(items, function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.top < vh && r.bottom > 0) { el.classList.add("in"); io.unobserve(el); }
+      });
+    });
+    setTimeout(showAll, 2500);
+  }
+
+  // ---- chart rendering ----------------------------------------------------
+  var NS = "http://www.w3.org/2000/svg";
+  function el(name, attrs) {
+    var n = document.createElementNS(NS, name);
+    for (var k in attrs) { if (attrs[k] !== null) n.setAttribute(k, attrs[k]); }
+    return n;
+  }
+
+  function buildChart(host, org, years) {
+    var W = 900, H = 470, M = { t: 26, r: 22, b: 54, l: 60 };
+    var x0 = years[0], span = years[years.length - 1] - years[0] || 1;
+    var px = function (y) { return M.l + (y - x0) * (W - M.l - M.r) / span; };
+    var py = function (v) { return M.t + (100 - v) * (H - M.t - M.b) / 100; };
+
+    var shell = document.createElement("div");
+    shell.className = "chart-shell";
+
+    var bar = document.createElement("div");
+    bar.className = "chart-toolbar";
+    var mode = document.createElement("span");
+    mode.className = "chart-mode";
+    var reset = document.createElement("button");
+    reset.type = "button";
+    reset.className = "reset-btn";
+    reset.textContent = "reset";
+    bar.appendChild(mode);
+    bar.appendChild(reset);
+    shell.appendChild(bar);
+
+    var svg = el("svg", {
+      viewBox: "0 0 " + W + " " + H, role: "img",
+      "aria-label": org.name + " susceptibility trend, 2017 to 2024"
+    });
+
+    // gridlines + y axis
+    for (var v = 0; v <= 100; v += 20) {
+      svg.appendChild(el("line", {
+        x1: M.l, x2: W - M.r, y1: py(v), y2: py(v),
+        stroke: "#3a2c1c", "stroke-width": 1,
+        "stroke-dasharray": v === 0 ? null : "2 4"
+      }));
+      var lab = el("text", {
+        x: M.l - 10, y: py(v) + 4, "text-anchor": "end",
+        fill: "#a3906f", "font-size": 12, "font-family": "IBM Plex Mono, monospace"
+      });
+      lab.textContent = v + "%";
+      svg.appendChild(lab);
+    }
+    // x axis labels
+    years.forEach(function (yr) {
+      var t = el("text", {
+        x: px(yr), y: H - M.b + 22, "text-anchor": "middle",
+        fill: "#a3906f", "font-size": 12, "font-family": "IBM Plex Mono, monospace"
+      });
+      t.textContent = yr;
+      svg.appendChild(t);
+    });
+    var ylab = el("text", {
+      x: 16, y: H / 2, fill: "#a3906f", "font-size": 12,
+      "font-family": "IBM Plex Mono, monospace", "text-anchor": "middle",
+      transform: "rotate(-90 16 " + (H / 2) + ")"
+    });
+    ylab.textContent = "% susceptible";
+    svg.appendChild(ylab);
+
+    // series
+    var groups = {};
+    org.series.forEach(function (s, i) {
+      var colour = PALETTE[i % PALETTE.length];
+      var g = el("g", { class: "series", "data-drug": s.drug });
+      var pts = s.points.map(function (p) { return px(p[0]) + "," + py(p[1]); }).join(" ");
+      g.appendChild(el("polyline", {
+        points: pts, fill: "none", stroke: colour,
+        "stroke-width": s.carbapenem ? 2.6 : 1.6,
+        "stroke-dasharray": s.carbapenem ? null : "5 4",
+        "stroke-linejoin": "round", "stroke-linecap": "round"
+      }));
+      s.points.forEach(function (p) {
+        g.appendChild(el("circle", {
+          cx: px(p[0]), cy: py(p[1]), r: 3, fill: colour
+        }));
+      });
+      var title = el("title");
+      title.textContent = s.drug;
+      g.appendChild(title);
+      svg.appendChild(g);
+      groups[s.drug] = { g: g, colour: colour };
+    });
+    shell.appendChild(svg);
+
+    // legend
+    var legend = document.createElement("ul");
+    legend.className = "legend";
+    var selected = Object.create(null);
+    var count = 0;
+
+    function apply() {
+      shell.classList.toggle("filtered", count > 0);
+      Object.keys(groups).forEach(function (drug) {
+        groups[drug].g.classList.toggle("on", !!selected[drug]);
+      });
+      if (count === 0) {
+        mode.textContent = "";
+      } else if (count === 1) {
+        mode.textContent = "1 selected";
+      } else {
+        mode.textContent = "comparing " + count;
+      }
+    }
+
+    org.series.forEach(function (s) {
+      var li = document.createElement("li");
+      var b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("aria-pressed", "false");
+      var sw = document.createElement("span");
+      sw.className = "sw";
+      sw.style.background = groups[s.drug].colour;
+      b.appendChild(sw);
+      b.appendChild(document.createTextNode(s.drug));
+      b.addEventListener("click", function () {
+        if (selected[s.drug]) { delete selected[s.drug]; count--; }
+        else { selected[s.drug] = true; count++; }
+        b.setAttribute("aria-pressed", selected[s.drug] ? "true" : "false");
+        apply();
+      });
+      li.appendChild(b);
+      legend.appendChild(li);
+    });
+
+    reset.addEventListener("click", function () {
+      selected = Object.create(null);
+      count = 0;
+      Array.prototype.forEach.call(legend.querySelectorAll("button"), function (b) {
+        b.setAttribute("aria-pressed", "false");
+      });
+      apply();
+      reset.blur();
+    });
+
+    var hint = document.createElement("p");
+    hint.className = "chart-hint";
+    hint.textContent = "Select antibiotics to compare; the rest fade back.";
+
+    host.appendChild(hint);
+    host.appendChild(shell);
+    host.appendChild(legend);
+    host.classList.add("ready");
+    apply();
+  }
+
+  function init(payload) {
+    var byslug = {};
+    payload.organisms.forEach(function (o) { byslug[o.slug] = o; });
+    var figures = document.querySelectorAll(".chart-figure[data-slug]");
+    Array.prototype.forEach.call(figures, function (fig) {
+      var org = byslug[fig.getAttribute("data-slug")];
+      var host = fig.querySelector(".chart-live");
+      if (!org || !host) { return; }
+      try {
+        buildChart(host, org, payload.years);
+        fig.classList.add("live");
+      } catch (err) {
+        // Leave the PNG in place rather than showing a broken chart.
+        host.innerHTML = "";
+        host.classList.remove("ready");
+      }
+    });
+  }
+
+  document.documentElement.classList.add("js-charts");
+  initReveal();
+
+  if (!window.fetch) { return; }
+  fetch("docs/data/trends.json", { cache: "no-cache" })
+    .then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); })
+    .then(init)
+    .catch(function () { /* static PNGs remain */ });
+})();
+</script>
+</body>
+</html>

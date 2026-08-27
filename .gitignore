@@ -1,0 +1,20 @@
+# Spec §7: raw ICMR PDFs are copyrighted and must NEVER be committed.
+data/raw/
+*.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.coverage
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
