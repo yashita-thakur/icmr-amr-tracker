@@ -11,7 +11,8 @@ Design notes (these encode findings from the source PDFs, spec section 4):
   that edition.
 
 * Organism names are not spelled consistently either -- the 2022 edition prints
-  "Klebsiella pneumonia" (sic). Organism patterns must tolerate this.
+  "Klebsiella pneumonia" (without the trailing e). Organism patterns must
+  tolerate this.
 
 * The extracted text layer of these PDFs does NOT preserve row/column
   alignment: antibiotic labels and their values land in separate blocks, and

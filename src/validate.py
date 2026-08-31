@@ -242,7 +242,7 @@ def check_fixtures(records, fixtures=None):
 
 
 def internal_consistency(records):
-    """Flag records where the printed percentage disagrees with numerator/denominator."""
+    """Flag records where the printed percentage does not fully reconcile with numerator/denominator."""
     return [r for r in records if any(f.startswith("pct_mismatch") for f in r.flags)]
 
 

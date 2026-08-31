@@ -47,14 +47,14 @@ Any use of the processed dataset must cite **both**:
 > Independent, unofficial analysis — not endorsed by or affiliated with ICMR.
 
 This dataset is **not** a substitute for the official reports. Where this dataset and an
-ICMR report disagree, **the report is correct and this dataset has a bug** — please open
-an issue.
+ICMR report differ, **the ICMR report is authoritative and the difference is a limitation
+of this extraction** — please open an issue.
 
 ## What this data is NOT
 
 - Not community prevalence — these are hospital laboratory isolates from tertiary-care
   centres, a heavily selected population.
-- Not patient-level data. ICMR does not release isolate-level records publicly.
+- Not patient-level data. Isolate-level records are not part of the public release.
 - Not a national incidence or burden estimate.
 - Not comparable to NCDC NARS-Net figures without explicit labelling — that is a
   different surveillance network with a different site panel.

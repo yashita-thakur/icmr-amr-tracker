@@ -54,9 +54,9 @@ def icmr_report_references():
 def methodology_references():
     """Sources underpinning claims made in this repository's own prose.
 
-    The i-AMRSS paper is what substantiates the statement, repeated in the
-    README and DATA_LICENSE.md, that isolate-level data is not public. It says
-    so in terms: "The data in the system are not yet publicly available.
+    The i-AMRSS paper is what substantiates the note, repeated in the
+    README and DATA_LICENSE.md, that isolate-level data is not yet publicly
+    released. It says so in terms: "The data in the system are not yet publicly available.
     However, the reports generated from the data are annually updated on the
     ICMR's Antimicrobial Resistance website."
     """

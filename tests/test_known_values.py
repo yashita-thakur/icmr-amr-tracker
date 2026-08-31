@@ -245,13 +245,13 @@ def test_percentages_agree_with_numerator_over_denominator(records_2024):
 
 
 @needs_pdf
-def test_no_percentage_is_invented_where_source_suppressed_it(records_2024):
-    """ICMR prints "(-)" instead of a percentage for its tiny cells.
+def test_no_percentage_is_derived_where_the_source_prints_none(records_2024):
+    """The source shows "(-)" instead of a percentage for its tiny cells.
 
     E. coli / cefazolin / 2017 is 0 susceptible of 8 isolates tested. Deriving
-    "0.0%" from that and publishing it as a susceptibility figure would invent
-    a number the source deliberately withheld, so `susceptible_pct` must stay
-    null while the counts are still reported.
+    "0.0%" from that and presenting it as a susceptibility figure would
+    introduce a number the source itself does not report, so `susceptible_pct`
+    must stay null while the counts are still reported.
     """
     rec = index_records(records_2024)[
         ("Escherichia coli", "cefazolin", 2017, 2024)

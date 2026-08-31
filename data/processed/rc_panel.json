@@ -1,0 +1,216 @@
+{
+  "description": "Regional Centre codes (RC1..RCn) are de-identified in the reports, and the code-to-institution mapping is not part of the published tables. Treat them as edition-scoped: an RC that appears in two editions need not be the same laboratory, and a change in numbering between editions would not be signposted. This file records, per organism, the RC set each edition printed and how it differs from that organism's earliest edition. Every data row from an edition listed under 'changes' also carries an rc_panel_changed(...) flag.",
+  "attribution": "Derived from publicly available ICMR AMRSN annual reports (2017-2024). Independent, unofficial analysis - not endorsed by or affiliated with ICMR.",
+  "generated": "2026-08-31",
+  "panel_by_edition": {
+    "Escherichia coli": {
+      "2023": [
+        "RC1",
+        "RC2",
+        "RC3",
+        "RC4",
+        "RC5",
+        "RC6",
+        "RC7",
+        "RC8",
+        "RC9",
+        "RC10",
+        "RC11",
+        "RC12",
+        "RC13",
+        "RC14",
+        "RC15",
+        "RC16",
+        "RC17",
+        "RC18",
+        "RC19",
+        "RC20",
+        "RC21"
+      ],
+      "2024": [
+        "RC1",
+        "RC2",
+        "RC3",
+        "RC4",
+        "RC5",
+        "RC6",
+        "RC7",
+        "RC8",
+        "RC9",
+        "RC10",
+        "RC11",
+        "RC12",
+        "RC13",
+        "RC14",
+        "RC16",
+        "RC17",
+        "RC18",
+        "RC19",
+        "RC20",
+        "RC21"
+      ]
+    },
+    "Klebsiella pneumoniae": {
+      "2023": [
+        "RC1",
+        "RC2",
+        "RC3",
+        "RC4",
+        "RC5",
+        "RC6",
+        "RC7",
+        "RC8",
+        "RC9",
+        "RC10",
+        "RC11",
+        "RC12",
+        "RC13",
+        "RC14",
+        "RC15",
+        "RC16",
+        "RC17",
+        "RC18",
+        "RC19",
+        "RC20",
+        "RC21"
+      ],
+      "2024": [
+        "RC1",
+        "RC2",
+        "RC3",
+        "RC4",
+        "RC5",
+        "RC6",
+        "RC7",
+        "RC8",
+        "RC9",
+        "RC10",
+        "RC11",
+        "RC12",
+        "RC13",
+        "RC14",
+        "RC16",
+        "RC17",
+        "RC18",
+        "RC19",
+        "RC20",
+        "RC21"
+      ]
+    },
+    "Staphylococcus aureus": {
+      "2022": [
+        "RC1",
+        "RC2",
+        "RC3",
+        "RC4",
+        "RC5",
+        "RC6",
+        "RC7",
+        "RC8",
+        "RC9",
+        "RC10",
+        "RC11",
+        "RC12",
+        "RC13",
+        "RC14",
+        "RC15",
+        "RC16",
+        "RC17",
+        "RC18",
+        "RC19",
+        "RC20",
+        "RC21"
+      ],
+      "2023": [
+        "RC1",
+        "RC2",
+        "RC3",
+        "RC4",
+        "RC5",
+        "RC6",
+        "RC7",
+        "RC8",
+        "RC9",
+        "RC10",
+        "RC11",
+        "RC12",
+        "RC13",
+        "RC14",
+        "RC15",
+        "RC16",
+        "RC17",
+        "RC19",
+        "RC20",
+        "RC21"
+      ],
+      "2024": [
+        "RC2",
+        "RC3",
+        "RC4",
+        "RC5",
+        "RC6",
+        "RC7",
+        "RC8",
+        "RC9",
+        "RC10",
+        "RC11",
+        "RC12",
+        "RC13",
+        "RC14",
+        "RC16",
+        "RC17",
+        "RC19",
+        "RC20",
+        "RC21"
+      ]
+    }
+  },
+  "changes": [
+    {
+      "organism": "Escherichia coli",
+      "baseline_edition": 2023,
+      "edition": 2024,
+      "baseline_rc_count": 21,
+      "edition_rc_count": 20,
+      "added": [],
+      "dropped": [
+        "RC15"
+      ]
+    },
+    {
+      "organism": "Klebsiella pneumoniae",
+      "baseline_edition": 2023,
+      "edition": 2024,
+      "baseline_rc_count": 21,
+      "edition_rc_count": 20,
+      "added": [],
+      "dropped": [
+        "RC15"
+      ]
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "baseline_edition": 2022,
+      "edition": 2023,
+      "baseline_rc_count": 21,
+      "edition_rc_count": 20,
+      "added": [],
+      "dropped": [
+        "RC18"
+      ]
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "baseline_edition": 2022,
+      "edition": 2024,
+      "baseline_rc_count": 21,
+      "edition_rc_count": 18,
+      "added": [],
+      "dropped": [
+        "RC1",
+        "RC15",
+        "RC18"
+      ]
+    }
+  ]
+}

@@ -138,10 +138,10 @@ def export_chart_data(rows, series, out_path):
         "attribution": ATTRIBUTION,
         "min_tested": MIN_TESTED_FOR_CHART,
         "excluded": (
-            "Points with fewer than {} isolates tested, points where ICMR "
-            "suppressed the percentage, and colistin in the non-fermenter "
-            "tables (reported as intermediate susceptibility) are not "
-            "plotted.".format(MIN_TESTED_FOR_CHART)
+            "Points with fewer than {} isolates tested, points where the "
+            "source does not print a percentage, and colistin in the "
+            "non-fermenter tables (reported as intermediate susceptibility) "
+            "are not plotted.".format(MIN_TESTED_FOR_CHART)
         ),
         "years": years,
         "organisms": organisms,
@@ -207,9 +207,9 @@ def chart_organism(series, organism, out_path):
     _footer(
         fig,
         "Carbapenems shown as solid lines. Not plotted: points with fewer than "
-        "{} isolates tested, points where ICMR suppressed the percentage, and "
-        "colistin in the non-fermenter tables (reported as intermediate "
-        "susceptibility, not susceptibility).".format(MIN_TESTED_FOR_CHART),
+        "{} isolates tested, points where the source does not print a "
+        "percentage, and colistin in the non-fermenter tables (reported as "
+        "intermediate susceptibility, not susceptibility).".format(MIN_TESTED_FOR_CHART),
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=150)

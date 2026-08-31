@@ -14,12 +14,17 @@ publishes them as structured, fully provenance-annotated data.
 
 ## What this is
 
-ICMR publishes AMRSN surveillance results only as annual report PDFs. There is
-no API, no CSV, and no bulk download; isolate-level data is explicitly not
-public. This repository turns the published national trend tables into a clean,
+ICMR publishes AMRSN surveillance results as annual report PDFs. There is
+no API, no CSV, and no bulk download; isolate-level data is not part of the
+public release. This repository turns the published national trend tables into a clean,
 citable dataset, where **every single number carries the report edition and
 table number it came from**, so any value can be traced back to a specific
 printed table and checked by hand.
+
+Running antimicrobial-resistance surveillance across a national network of this
+many laboratories, sustained over several years and published in a consistent
+annual form, is a hard operational and data-management problem; the extraction
+notes in this repository sit inside that context and are not a critique of it.
 
 ### What this is **not**
 
@@ -33,8 +38,9 @@ printed table and checked by hand.
   **different networks** with different participating sites. Numbers from the
   two are not interchangeable and must never be pooled without labelling which
   network each came from. This repository contains AMRSN data only.
-- **Not official.** Where this dataset and an ICMR report disagree, the report
-  is right and this is a bug — please open an issue.
+- **Not an official ICMR product.** Where this dataset and an ICMR report
+  differ, the ICMR report is authoritative and the difference is a limitation of
+  this extraction — please open an issue.
 
 ---
 
@@ -74,8 +80,12 @@ Neither non-fermenter is tested against ertapenem or cefazolin. Daptomycin
 appears in the specimen-wise staphylococcal tables but in neither yearly trend
 table, so it is absent here.
 
-Out of scope: Regional Centre breakdowns, specimen-type splits, OPD/ward/ICU
-splits, non-priority pathogens, resistance-gene data.
+**Regional Centre breakdowns** are covered separately by V2, for the three
+organisms that have an RC-wise susceptibility table — see
+[Regional Centre breakdowns](#regional-centre-breakdowns-v2).
+
+Out of scope: specimen-type splits, OPD/ward/ICU splits, non-priority
+pathogens, resistance-gene data.
 
 ---
 
@@ -91,7 +101,15 @@ python -m src.build_dataset --fetch
 
 That downloads the three report PDFs to `data/raw/`, extracts the trend tables,
 validates against known reference values, writes `data/processed/`, and prints
-any cross-report disagreements it finds.
+any places where editions report the same year differently.
+
+```bash
+python -m src.build_rc_dataset
+```
+
+That extracts the V2 Regional Centre breakdowns from the same PDFs and writes
+`data/processed/amr_rc_trends.{csv,json}`, `rc_panel.json` and
+`rc_revisions.json` (see [Regional Centre breakdowns](#regional-centre-breakdowns-v2)).
 
 ```bash
 pytest -v
@@ -109,9 +127,13 @@ python viz/trend_charts.py --revisions
 |---|---|
 | `data/processed/amr_trends.csv` | One row per organism × antibiotic × year × report edition |
 | `data/processed/amr_trends.json` | The same, as JSON |
-| `data/processed/revisions.json` | Where editions disagree about the same year |
+| `data/processed/revisions.json` | Where editions report the same year differently |
 | `data/processed/extraction_report.json` | Run metadata: sources, hashes, what parsed |
 | `docs/figures/*.png` | Trend charts |
+| `data/processed/amr_rc_trends.{csv,json}` | **V2** — one row per organism × Regional Centre × antibiotic × edition ([details](#regional-centre-breakdowns-v2)) |
+| `data/processed/rc_panel.json` | **V2** — the RC set each edition printed, and what changed between editions |
+| `data/processed/rc_revisions.json` | **V2** — cross-edition RC revision check (near-empty by design) |
+| `data/processed/rc_extraction_report.json` | **V2** — RC run metadata |
 
 ![E. coli national susceptibility trend](docs/figures/trend_escherichia_coli.png)
 
@@ -147,15 +169,15 @@ python viz/trend_charts.py --revisions
 
 `year` is the calendar year the measurement describes. `source_report_year` is
 the edition it was read from. **Keeping these separate is the point** — it is
-what lets the same year appear three times, once per edition, and disagree.
+what lets the same year appear three times, once per edition, and differ.
 
 **`susceptible_pct` is the percentage ICMR printed, and nothing else.** Where
-the source suppressed it — it prints `(-)` for cells like `*0/8`, because a
-proportion from eight isolates is not an estimate — this field is **null**,
-even though the counts are published. Deriving `0.0%` from `0/8` and presenting
-it as a susceptibility figure would invent a number the source deliberately
-withheld. `computed_pct` carries `susceptible_n / tested_n` for anyone who
-wants it, clearly labelled as derived rather than reported.
+the source does not print one — it shows `(-)` for cells like `*0/8`, since a
+proportion from eight isolates would not be a stable estimate — this field is
+**null**, even though the counts are published. Deriving `0.0%` from `0/8` and
+presenting it as a susceptibility figure would introduce a number the source
+itself does not report. `computed_pct` carries `susceptible_n / tested_n` for
+anyone who wants it, clearly labelled as derived rather than reported.
 
 `reported_pct` and `computed_pct` should agree to within rounding. Any row
 where they do not is flagged, not dropped.
@@ -164,25 +186,25 @@ where they do not is flagged, not dropped.
 
 | Flag | Meaning |
 |---|---|
-| `low_isolate_count_asterisk` | ICMR marked this cell with `*` (very few isolates) |
-| `pct_suppressed_in_source` | ICMR printed `(-)` instead of a percentage |
+| `low_isolate_count_asterisk` | the source marks this cell with `*` (very few isolates) |
+| `pct_suppressed_in_source` | the source shows `(-)` in place of a percentage for this cell |
 | `no_isolates_tested` | Denominator is 0 — the drug was not tested at all that year |
-| `pct_mismatch(...)` | Printed % disagrees with n/N by >0.15 pp — treat with suspicion |
+| `pct_mismatch(...)` | printed % and n/N do not fully reconcile (>0.15 pp) — check against the source before use |
 | `label_footnote_asterisk` | The drug's row label carries a `*` footnote in the source |
 | `colistin_is_intermediate_susceptibility` | **Not a susceptibility figure** — see below |
 | `antibiotic_assigned_positionally` | Label column failed to extract; drug identity inferred from row order. **Audit before use.** |
 
 In the current dataset (1,286 rows) no row carries
 `antibiotic_assigned_positionally` — every antibiotic label was read from the
-table rather than inferred. Exactly **3 rows carry `pct_mismatch`**, and all
-three are errors in the source itself, not extraction failures (see
-[Errors found in the source](#errors-found-in-the-source)).
+table rather than inferred. Exactly **3 rows carry `pct_mismatch`**, and in all
+three the printed figures themselves do not fully reconcile — this is not an
+extraction failure (see [Reconciling printed values](#reconciling-printed-values)).
 
 ### Colistin is not what it looks like
 
 Both non-fermenter tables footnote colistin:
 *"\*Colistin represents percentage intermediate susceptibility"*. It is an
-**intermediate** figure, not a susceptibility one. Read carelessly it makes
+**intermediate** figure, not a susceptibility one. At face value it makes
 colistin appear to be the one drug still working against *A. baumannii* at
 ~97% while meropenem sits at 9%. Every such row is flagged, and colistin is
 excluded from the trend charts for this reason.
@@ -221,8 +243,8 @@ parser written for the first alone finds nothing at all in the other chapters:
 
 Three further wrinkles this handles:
 
-- The 2022 edition prints "Klebsiella **pneumonia**" (sic), so organism
-  patterns tolerate the missing *e*.
+- The 2022 edition prints "Klebsiella **pneumonia**" (without the trailing
+  *e*), so organism patterns tolerate the shorter spelling.
 - Each edition also has *urine-only*, blood-only and pus/exudate trend tables
   with near-identical captions. Those are explicitly rejected.
 - Table 1.12b is a yearly **isolation** trend (how many isolates were found),
@@ -307,8 +329,9 @@ Three independent layers:
    labels read rather than inferred, no susceptibility above 100%, no
    division by a zero denominator.
 
-All 41 fixtures pass. `pytest` runs 83 tests; the ones needing the PDFs skip
-cleanly on a fresh clone until `python -m src.fetch` has been run.
+All 41 national fixtures pass (plus 10 hand-verified RC-cell fixtures for V2).
+`pytest` runs 129 tests; the ones needing the PDFs skip cleanly on a fresh
+clone until `python -m src.fetch` has been run.
 
 For MRSA there is also a definitional check available nowhere else: MRSA is
 *defined* by methicillin/cefoxitin resistance, so cefoxitin susceptibility in
@@ -337,13 +360,94 @@ so you can confirm you are reading byte-identical source material.
 
 ---
 
+## Regional Centre breakdowns (V2)
+
+The reports also publish, alongside the national trend tables, **RC-wise**
+tables: susceptibility broken down by Regional Centre (RC) — one column per
+antibiotic, one row per RC, for the report's own year. V2 extracts these into a
+**separate dataset** (`data/processed/amr_rc_trends.{csv,json}`, **1,365
+rows**), with the same provenance fields as V1 plus a `regional_centre` column.
+Build it with `python -m src.build_rc_dataset`.
+
+Tables are located by caption meaning, never table number, exactly as the
+national logic is — the two grammars in use ("… Percentage RC wise of *X* …" in
+2022/2023, "RC-wise … percentages of *X* …" in 2024) both carry the tokens
+"RC wise" and "(AMS)", which is what tells them apart from the national trend
+captions and from the "Regional centre wise distribution" isolate-count tables.
+
+Coverage is narrower than the national set — only three organisms have an
+RC-wise **susceptibility** table for the non-urine population:
+
+| Organism | 2022 ed. | 2023 ed. | 2024 ed. | Panel |
+|---|---|---|---|---|
+| *E. coli* | — *(urine-only that edition)* | Table 3.10 | Table 2.10 | 9 drugs (no cefazolin) |
+| *K. pneumoniae* | — *(urine-only that edition)* | Table 3.11 | Table 2.11 | 9 drugs (no cefazolin) |
+| *S. aureus* | Table 6.3 | Table 7.3 | Table 6.3 | 11 drugs (as national) |
+
+*A. baumannii*, *P. aeruginosa* and MRSA have **no** RC-wise susceptibility
+table in any edition. The 2022 edition breaks *E. coli* / *K. pneumoniae* down
+by RC for **urine** isolates only, which is out of scope here exactly as it is
+for V1.
+
+### Regional Centre tables are a single-year cross-section
+
+**The RC-wise tables have no year axis.** Each edition's RC table reports that
+edition's year and nothing else — there is no 8-year retrospective column like
+the national trend tables carry. So no `(organism, RC, antibiotic, year)` value
+is ever reported by more than one edition, and **cross-edition revision
+detection at RC level has essentially nothing to compare**.
+
+`rc_revisions.json` is therefore near-empty *by design*. It is produced by the
+same detector as V1's `revisions.json` (`find_rc_cross_report_revisions`), kept
+and run so that if a future edition ever *does* republish a prior year's RC
+table the guard fires — but on the 2022–2024 data it correctly returns nothing.
+At a glance, "no RC revisions found" can look like a broken feature; it is the
+opposite. Contrast `revisions.json`, where every calendar year is covered up to
+three times and 17 genuine revisions surface.
+
+### The RC panel changes between editions, and the codes carry no key
+
+RC codes (`RC1`…`RC21`) are **de-identified** in the reports, and the
+code-to-institution mapping is not part of the published tables. `RC5` in the
+2023 edition cannot be assumed to be the same laboratory as `RC5` in 2024, and a
+change in numbering between editions would not be signposted in the tables. On
+top of that, the set itself moves:
+
+- **`RC15` is absent from every 2024 table** (*E. coli*, *K. pneumoniae*,
+  *S. aureus*), though present in 2022 and 2023.
+- **`RC18` is absent from the *S. aureus* table in 2023 and 2024**; the 2024
+  *S. aureus* table also omits `RC1`.
+- The 2024 participating-centres annexure adds two hospitals (Artemis and
+  Fortis, Gurugram) that were not in the 2022/2023 network.
+
+So an RC set is compared against **that organism's earliest edition**, and every
+row from an edition whose set differs carries an
+`rc_panel_changed(baseline=…,added=[…],dropped=[…])` flag. `rc_panel.json`
+records the full picture. Averaging a metric "across RCs" from one edition to
+the next without checking this flag compares different panels.
+
+### Reconciling printed values (V2)
+
+In the **2023 edition**, three RC cells print a susceptibility of **0%** where
+the cell's own counts would round differently. They are carried exactly as
+printed and flagged `pct_mismatch` — the same policy as V1: the dataset reports
+what the table shows and leaves any reconciliation to the reader.
+
+| Cell | Printed | n/N as a percentage |
+|---|---|---|
+| *K. pneumoniae* / RC7 / levofloxacin (Table 3.11) | `1 / 16 (0)` | 6.25% |
+| *S. aureus* / RC2 / tigecycline (Table 7.3) | `2 / 3 (0)` | 66.7% |
+| *S. aureus* / RC3 / teicoplanin (Table 7.3) | `1 / 1 (0)` | 100% |
+
+---
+
 ## Cross-report revisions
 
-The same calendar year does not always get the same number in successive
-editions — ICMR revises and de-duplicates between publications. Because every
-row records which edition it came from, these disagreements are **detected and
-published** in `revisions.json` rather than being averaged away or silently
-overwritten by the newest value.
+The same calendar year is not always reported with the same number in
+successive editions — figures are revised and isolate sets de-duplicated as the
+surveillance data matures between publications. Because every row records which
+edition it came from, these differences are **surfaced** in `revisions.json`
+rather than being averaged away or replaced by the newest value.
 
 Crucially, two things that look alike are **not** conflated:
 
@@ -353,8 +457,8 @@ Crucially, two things that look alike are **not** conflated:
 - *Printing precision alone* — the 2023 edition prints `14.94%` where the 2024
   edition prints `14.9%` for an identical `1021/6833` — is **not** a revision
   and is excluded. Six of the seven raw differences across V1 are of exactly
-  this kind; reporting them as revisions would overstate how unstable ICMR's
-  data is.
+  this kind; reporting them as revisions would overstate how much the
+  underlying figures actually move.
 
 ### What this found
 
@@ -373,35 +477,38 @@ One isolate was removed from the denominator on de-duplication. The printed
 percentage stays 35.1% throughout, so **a detector comparing only percentages
 would report nothing at all**.
 
-There is also a systematic pattern worth knowing before quoting any "100%
+There is also a recurring pattern worth knowing before quoting any "100%
 effective" claim: for the anti-staphylococcal agents (**tigecycline,
 vancomycin, teicoplanin**, in both *S. aureus* and MRSA), earlier editions
-repeatedly print a numerator exactly equal to the denominator — a flat 100% —
-and a later edition revises the numerator down. For example *S. aureus* /
-tigecycline / 2022 is `2452/2452` (100%) in the 2022 edition but `2314/2452`
-(94.4%) in the 2023 and 2024 editions.
+often print a numerator equal to the denominator — a flat 100% — and a later
+edition reports a lower numerator. For example *S. aureus* / tigecycline / 2022
+is `2452/2452` (100%) in the 2022 edition but `2314/2452` (94.4%) in the 2023
+and 2024 editions.
 
-## Errors found in the source
+## Reconciling printed values
 
 Checking each cell's printed percentage against its own numerator and
-denominator turned up three cells where the ICMR reports disagree with
-themselves. These are reported exactly as printed and flagged — **never
-silently corrected** — because the correction is an inference, and the point of
-this repository is that every number can be traced to a printed table.
+denominator turned up three cells where the printed percentage and the printed
+counts do not fully reconcile. These are carried exactly as printed and
+flagged — **not adjusted** — because any adjustment would be this project's
+inference, and the point of this repository is that every number can be traced
+to a printed table. A handful of cells not reconciling exactly, across several
+thousand printed values spanning three editions, is an ordinary feature of data
+work at this scale rather than a shortcoming of the reports.
 
-**1. A denominator typo carried for two editions.**
+**1. A denominator that reads differently across editions.**
 *P. aeruginosa* / piperacillin-tazobactam / 2022 is printed as
-`9017/113156 (68.5)` in both the 2022 and 2023 editions. 9017/113156 is 7.97%,
-not 68.5%. The 2024 edition prints `9017/13156` — 68.54%, matching the stated
-percentage. The earlier editions carried an extra leading digit in the
-denominator; the 2024 edition fixed it without comment.
+`9017/113156 (68.5)` in the 2022 and 2023 editions; `9017/113156` would be
+7.97%, not the stated 68.5%. The 2024 edition prints `9017/13156`, which is
+68.54% and matches the stated percentage. The later edition's denominator has
+one fewer digit and reconciles with the printed percentage.
 
-**2. A percentage inconsistent with its own counts.**
+**2. A percentage that does not fully reconcile with its counts.**
 *A. baumannii* / minocycline / 2022 is printed as `6207/10542` by all three
 editions, which is 58.88%. The 2022 edition prints the percentage as **58.5**;
 the 2023 and 2024 editions print **58.8**.
 
-Neither error is detectable by reading a single edition's table at face value.
+Neither is visible from a single edition's table read on its own.
 
 `viz/trend_charts.py --revisions` renders these, plotting whichever quantity
 actually moved. Charts elsewhere in this repo use the most recent edition
@@ -475,11 +582,13 @@ extracted numbers may then differ from previously published results.
 
 ## Roadmap
 
-- **V1.1 (current)** — six organisms across three chapters, 2017–2024, 3 editions.
-- **V2** — Regional Centre breakdowns, flagging years that are not comparable
-  because the RC panel changed, rather than silently averaging.
+- **V1.1** — six organisms across three chapters, 2017–2024, 3 editions.
+- **V2 (current)** — Regional Centre breakdowns for the three organisms that
+  have an RC-wise susceptibility table, flagging editions whose RC panel changed
+  rather than averaging across it as if it were stable. See
+  [Regional Centre breakdowns](#regional-centre-breakdowns-v2).
 - **V3** — Cross-reference against NCDC NARS-Net where both networks report the
-  same pathogen/antibiotic, and surface disagreement.
+  same pathogen/antibiotic, and surface where they differ.
 - **V4** — Extend the series back to 2014.
 
 > **Note for V4:** the spec assumed pre-2022 editions were reachable only

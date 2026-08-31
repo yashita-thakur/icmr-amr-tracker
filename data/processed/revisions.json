@@ -1,5 +1,5 @@
 {
-  "description": "Same (organism, antibiotic, year) reported with different susceptibility percentages by different ICMR report editions. This reflects revision/de-duplication in ICMR's own publications, not an extraction error.",
+  "description": "Same (organism, antibiotic, year) reported with different susceptibility percentages by different ICMR report editions. This reflects ordinary revision and isolate de-duplication between successive editions, not an extraction error.",
   "attribution": "Derived from publicly available ICMR AMRSN annual reports (2017-2024). Independent, unofficial analysis - not endorsed by or affiliated with ICMR.",
   "generated": "2026-08-26",
   "count": 17,

@@ -1,0 +1,7 @@
+{
+  "note": "The RC-wise AMS tables are single-year cross-sections: each edition reports its own year only, with no retrospective trend axis. No (organism, regional_centre, antibiotic, year) key is therefore covered by more than one edition, so cross-edition revision detection has almost nothing to compare. An empty or near-empty result here is BY DESIGN, not a sign the check failed -- contrast revisions.json (V1), where every year is covered up to three times. See the README section 'Regional Centre tables are a single-year cross-section'.",
+  "attribution": "Derived from publicly available ICMR AMRSN annual reports (2017-2024). Independent, unofficial analysis - not endorsed by or affiliated with ICMR.",
+  "generated": "2026-08-31",
+  "count": 0,
+  "revisions": []
+}

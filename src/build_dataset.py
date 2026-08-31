@@ -8,7 +8,7 @@ Usage:
 Exports to data/processed/:
     amr_trends.csv         one row per organism x antibiotic x year x report
     amr_trends.json        same, as a JSON array
-    revisions.json         cross-report disagreements (spec section 2.1)
+    revisions.json         cross-report differences (spec section 2.1)
     extraction_report.json run metadata: what was parsed, from where, and how
 """
 
@@ -116,8 +116,9 @@ def export(records, parsed, failed, extracted_date, revisions):
                 "description": (
                     "Same (organism, antibiotic, year) reported with different "
                     "susceptibility percentages by different ICMR report "
-                    "editions. This reflects revision/de-duplication in ICMR's "
-                    "own publications, not an extraction error."
+                    "editions. This reflects ordinary revision and isolate "
+                    "de-duplication between successive editions, not an "
+                    "extraction error."
                 ),
                 "attribution": ATTRIBUTION,
                 "generated": extracted_date,
@@ -181,8 +182,8 @@ def main(argv=None) -> int:
     mismatches = internal_consistency(records)
     if mismatches:
         print(
-            "\n  {} record(s) where the printed % disagrees with n/N "
-            "(flagged, not dropped):".format(len(mismatches))
+            "\n  {} record(s) where the printed % and n/N do not fully "
+            "reconcile (flagged, not dropped):".format(len(mismatches))
         )
         for r in mismatches[:10]:
             print(
@@ -196,9 +197,8 @@ def main(argv=None) -> int:
     if not revisions:
         print("  none detected")
     else:
-        print("  {} (organism, antibiotic, year) disagree between editions".format(
-            len(revisions)
-        ))
+        print("  {} (organism, antibiotic, year) reported differently between "
+              "editions".format(len(revisions)))
         for rev in revisions[:10]:
             print(
                 "    [{}] {} {} {}".format(

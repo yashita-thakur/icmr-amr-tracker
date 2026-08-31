@@ -39,7 +39,7 @@ SPECS = {
     ),
     "Klebsiella pneumoniae": OrganismSpec(
         name="Klebsiella pneumoniae",
-        # The 2022 edition prints "Klebsiella pneumonia" (sic).
+        # The 2022 edition prints "Klebsiella pneumonia" (without the trailing e).
         pattern=r"\b(?:K\.?\s*pneumoniae?|Klebsiella\s+pneumoniae?)\b",
         panel=CANONICAL_PANEL,
     ),
