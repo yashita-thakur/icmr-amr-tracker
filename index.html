@@ -83,7 +83,7 @@
   .stats{
     margin-top:2.4rem;
     display:grid;
-    grid-template-columns:repeat(5, 1fr);
+    grid-template-columns:repeat(6, 1fr);
     border-top:1px solid var(--rule);
     border-left:1px solid var(--rule);
   }
@@ -219,6 +219,7 @@
     <ul>
       <li><a class="link" href="#scope">scope</a></li>
       <li><a class="link" href="#charts">charts</a></li>
+      <li><a class="link" href="#rc">regions</a></li>
       <li><a class="link" href="#method">method</a></li>
       <li><a class="link" href="#roadmap">roadmap</a></li>
       <li><a class="link" href="#cite">cite</a></li>
@@ -228,7 +229,7 @@
 
 <header class="hero" id="top">
   <div class="wrap">
-    <div class="eyebrow">v1 · icmr-amrsn trend tracker</div>
+    <div class="eyebrow">v2 · icmr-amrsn trend tracker</div>
     <h1 class="title">National AMR trends, <em>read by hand-checkable rule</em>.</h1>
     <p class="subtitle">ICMR publishes India's antimicrobial resistance surveillance results only as annual report PDFs — no API, no bulk download. This project turns the published national trend tables into structured data where every number carries the report edition and table it came from, so it can be traced back and checked against the source PDF.</p>
     <p class="byline">Yashita Thakur · <a href="https://orcid.org/0009-0004-7895-5250" target="_blank" rel="noopener">ORCID 0009-0004-7895-5250</a> · MIT licensed code</p>
@@ -238,10 +239,11 @@
     </div>
 
     <div class="stats">
-      <div class="stat"><span class="n">1,286</span><span class="l">rows, v1.1</span></div>
+      <div class="stat"><span class="n">1,286</span><span class="l">national rows</span></div>
+      <div class="stat"><span class="n">1,365</span><span class="l">RC rows, v2</span></div>
       <div class="stat"><span class="n">2017–24</span><span class="l">years covered</span></div>
       <div class="stat"><span class="n">3</span><span class="l">report editions</span></div>
-      <div class="stat"><span class="n">83</span><span class="l">tests, pytest</span></div>
+      <div class="stat"><span class="n">129</span><span class="l">tests, pytest</span></div>
       <div class="stat"><span class="n">17 / 432</span><span class="l">genuine revisions found</span></div>
     </div>
   </div>
@@ -318,6 +320,29 @@
       <figure class="reveal">
         <img src="docs/figures/cross_report_revisions.png" alt="Chart showing a count revision between report editions for E. coli piperacillin-tazobactam 2022">
         <figcaption>Where editions report the same year differently. 17 genuine revisions across 432 comparable (organism, antibiotic, year) combinations. Shown here are the count revisions &mdash; changes to the numerator or denominator itself, which a percentage-only comparison would miss entirely.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="rc" class="reveal" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">regional centres</div>
+      <h2 class="section-title">By Regional Centre</h2>
+      <p style="color:var(--muted); max-width:68ch; margin-bottom:2rem;">The RC-wise tables are a single-year snapshot with no year axis, so cross-edition revision detection at RC level is empty by design, not an unfinished feature.</p>
+
+      <figure class="reveal">
+        <img src="docs/figures/rc_escherichia_coli.png" alt="E. coli susceptibility by Regional Centre, 2024 edition, nine antibiotics">
+        <figcaption><em>E. coli</em>, 2024 edition, nine drugs (no cefazolin). RC15 was dropped from the 2024 table and breaks every line; RC1 and RC18 appear but are tested against fewer than 30 isolates each, so no point is drawn for them.</figcaption>
+      </figure>
+
+      <figure class="reveal">
+        <img src="docs/figures/rc_klebsiella_pneumoniae.png" alt="Klebsiella pneumoniae susceptibility by Regional Centre, 2024 edition, nine antibiotics">
+        <figcaption><em>K. pneumoniae</em>, same 2024 panel and the same RC15 break. Susceptibility swings hard between centres &mdash; meropenem alone runs from 1.4% to 65.8%.</figcaption>
+      </figure>
+
+      <figure class="reveal">
+        <img src="docs/figures/rc_staphylococcus_aureus.png" alt="Staphylococcus aureus susceptibility by Regional Centre, 2024 edition, eleven antibiotics">
+        <figcaption><em>S. aureus</em>, 2024 edition, eleven drugs. Three centres &mdash; RC1, RC15 and RC18 &mdash; are absent from the 2024 table and break their lines. Vancomycin, teicoplanin and tigecycline hold a flat 100% wherever they are reported; ciprofloxacin sits near 15%.</figcaption>
       </figure>
     </div>
   </section>
@@ -426,7 +451,7 @@
 
 <footer>
   <div class="wrap" style="display:flex; justify-content:space-between; width:100%; flex-wrap:wrap; gap:0.6rem;">
-    <span>ICMR-AMRSN Trend Tracker · v1</span>
+    <span>ICMR-AMRSN Trend Tracker · v2</span>
     <span>independent &amp; unofficial · not affiliated with ICMR</span>
   </div>
 </footer>

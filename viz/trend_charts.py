@@ -7,6 +7,11 @@ By default each (organism, antibiotic, year) point is taken from the most
 recent report edition that reports it, since later editions supersede earlier
 ones. `--revisions` additionally draws a chart showing where editions disagree.
 
+The V2 Regional Centre dataset gets the same treatment: one chart per organism
+that has an RC-wise table, susceptibility % by Regional Centre for that
+organism's most recent RC edition, one line per antibiotic. The RC-wise tables
+carry no year axis, so these are single-edition cross-sections, not trends.
+
 Usage:
     python viz/trend_charts.py
     python viz/trend_charts.py --revisions
@@ -46,6 +51,16 @@ def load_rows():
     if not csv_path.exists():
         raise SystemExit(
             "{} not found. Run `python -m src.build_dataset` first.".format(csv_path)
+        )
+    with open(csv_path, encoding="utf-8") as fh:
+        return list(csv.DictReader(fh))
+
+
+def load_rc_rows():
+    csv_path = PROCESSED_DIR / "amr_rc_trends.csv"
+    if not csv_path.exists():
+        raise SystemExit(
+            "{} not found. Run `python -m src.build_rc_dataset` first.".format(csv_path)
         )
     with open(csv_path, encoding="utf-8") as fh:
         return list(csv.DictReader(fh))
@@ -217,6 +232,131 @@ def chart_organism(series, organism, out_path):
     return out_path
 
 
+def rc_editions(rc_rows, organism):
+    """Report years that carry an RC-wise table for this organism, oldest first."""
+    return sorted(
+        {int(r["source_report_year"]) for r in rc_rows if r["organism"] == organism}
+    )
+
+
+def rc_baseline_panel(rc_rows, organism):
+    """The RC set from this organism's earliest RC edition, in RC-number order.
+
+    This is the x-axis every RC chart for the organism is drawn against, so that
+    a Regional Centre a later edition stopped reporting still occupies its slot
+    on the axis instead of silently vanishing.
+    """
+    base = rc_editions(rc_rows, organism)[0]
+    rcs = {
+        r["regional_centre"]
+        for r in rc_rows
+        if r["organism"] == organism and int(r["source_report_year"]) == base
+    }
+    return sorted(rcs, key=lambda s: int(s[2:]))
+
+
+def latest_rc_cross_section(rc_rows, organism):
+    """From the most recent RC edition: the RC set the table actually printed,
+    and one susceptibility value per (regional_centre, antibiotic).
+
+    Same presentational filter as `latest_edition_series`: points the source did
+    not print a percentage for, marked low-count, or resting on fewer than
+    `MIN_TESTED_FOR_CHART` isolates are not charted, and `pct_mismatch` cells --
+    where the printed percentage does not reconcile with its own counts -- are
+    dropped here too, the same way suppressed percentages are. They remain in the
+    dataset; this filter is presentational only.
+
+    The RC set is taken before that filter, so a Regional Centre the edition did
+    print but only with tiny denominators is not mistaken for one the edition
+    dropped from its panel.
+    """
+    latest = rc_editions(rc_rows, organism)[-1]
+    edition_panel = set()
+    values = {}
+    for r in rc_rows:
+        if r["organism"] != organism or int(r["source_report_year"]) != latest:
+            continue
+        edition_panel.add(r["regional_centre"])
+        flags = r.get("flags") or ""
+        if not r["susceptible_pct"]:
+            continue
+        if "low_isolate_count_asterisk" in flags:
+            continue
+        if "pct_mismatch" in flags:
+            continue
+        try:
+            if int(r["tested_n"]) < MIN_TESTED_FOR_CHART:
+                continue
+        except (TypeError, ValueError):
+            continue
+        values[(r["regional_centre"], r["antibiotic"])] = float(r["susceptible_pct"])
+    return latest, edition_panel, values
+
+
+def chart_organism_rc(rc_rows, organism, out_path):
+    edition, edition_panel, values = latest_rc_cross_section(rc_rows, organism)
+    abx = sorted({a for (_rc, a) in values})
+    if not abx:
+        return None
+
+    panel = rc_baseline_panel(rc_rows, organism)
+    dropped = [rc for rc in panel if rc not in edition_panel]
+
+    fig, ax = plt.subplots(figsize=(9, 5.5))
+    cmap = plt.get_cmap("tab10")
+    xs = list(range(len(panel)))
+    for i, antibiotic in enumerate(abx):
+        # A Regional Centre absent from this edition -- or a cell the filter
+        # above removed -- leaves a gap the line breaks across, rather than
+        # bridging two RCs that were never adjacent measurements. The RC keeps
+        # its slot on the axis, so the break is visible.
+        vals = [values.get((rc, antibiotic), float("nan")) for rc in panel]
+        if sum(1 for v in vals if v == v) < 2:
+            continue
+        ax.plot(
+            xs,
+            vals,
+            marker="o",
+            markersize=4,
+            linewidth=2.0 if antibiotic in CARBAPENEMS else 1.3,
+            linestyle="-" if antibiotic in CARBAPENEMS else "--",
+            color=cmap(i % 10),
+            label=antibiotic,
+        )
+
+    ax.set_title(
+        "{}: susceptibility by Regional Centre".format(organism),
+        fontsize=13,
+        style="italic",
+    )
+    ax.set_xlabel("Regional Centre")
+    ax.set_ylabel("% susceptible")
+    ax.set_ylim(0, 100)
+    ax.set_xticks(xs)
+    ax.set_xticklabels([rc[2:] for rc in panel], fontsize=8)
+    ax.grid(alpha=0.25, linestyle=":")
+    ax.legend(
+        fontsize=8, ncol=2, loc="upper right", frameon=True, title="Antibiotic"
+    )
+    fig.tight_layout(rect=(0, 0.08, 1, 1))
+    dropped_note = (
+        " RC {} not in this edition's panel.".format(", ".join(rc[2:] for rc in dropped))
+        if dropped
+        else ""
+    )
+    _footer(
+        fig,
+        "{} edition; these RC-wise tables have no year axis. Carbapenems shown "
+        "as solid lines. Not plotted: points with fewer than {} isolates "
+        "tested, points where the source does not print a percentage, and cells "
+        "flagged pct_mismatch.{}".format(edition, MIN_TESTED_FOR_CHART, dropped_note),
+    )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+    return out_path
+
+
 def chart_revisions(out_path, top_n=12):
     """Show where different report editions disagree about the same year.
 
@@ -335,6 +475,13 @@ def main(argv=None) -> int:
     for organism in organisms:
         slug = organism.lower().replace(" ", "_").replace(".", "")
         out = chart_organism(series, organism, FIGURES_DIR / "trend_{}.png".format(slug))
+        if out:
+            written.append(out)
+
+    rc_rows = load_rc_rows()
+    for organism in sorted({r["organism"] for r in rc_rows}):
+        slug = organism.lower().replace(" ", "_").replace(".", "")
+        out = chart_organism_rc(rc_rows, organism, FIGURES_DIR / "rc_{}.png".format(slug))
         if out:
             written.append(out)
 
