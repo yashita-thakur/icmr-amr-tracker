@@ -233,6 +233,55 @@ numerator can be back-computed as denominator × %R, but %R is rounded to whole 
 recovered numerator carries roughly ±0.5% of the denominator in error. That is a derived quantity and should be
 labelled as such, in the same way `computed_pct` already is.
 
+### Correction: running the check on 2019 and 2020 — 8 cells of 108 do not reconcile
+
+The statement above that the check is *possible* throughout 2019 and 2020 holds: every cell in those four tables
+prints a numerator, a denominator and a percentage. Running it is a separate matter, and the paragraph above is too
+strong in implying that the cells therefore agree. They do not, in eight places.
+
+This was established during V3 extraction by reading all 108 printed cells by eye off the rendered pages —
+`narsnet_2019.pdf` p24 (Table 4, S. aureus) and p29 (Table 6, E. coli), `narsnet_2020.pdf` p25 (Table 5, S. aureus)
+and p33 (Table 8, E. coli) — independently of this document, so that a transcription slip here could not propagate
+into the finding. A cell is counted as reconciling when the printed percentage is within half of its own printed
+precision of numerator over denominator: 0.5 for a percentage printed as a whole number, 0.05 for one printed to one
+decimal. **All eight cells below are carried in the dataset exactly as printed, and flagged. Neither the numerator nor
+the percentage is corrected.**
+
+**Seven marginal cases, all in the same direction.** Each computes to between .46 and .49 above a whole number and is
+printed as the next integer up:
+
+| Edition | Organism | Drug | Specimen | Printed counts | Computed | Printed %R |
+|---|---|---|---|---|---|---|
+| 2019 | S. aureus | Gentamicin | Blood | 1,163 / 4,390 | 26.49 | 27 |
+| 2020 | S. aureus | Cefoxitin | PA+OSBF | 2,357 / 4,580 | 51.46 | 52 |
+| 2020 | S. aureus | Ciprofloxacin | Blood+PA+OSBF | 4,798 / 7,110 | 67.48 | 68 |
+| 2020 | S. aureus | Ciprofloxacin | PA+OSBF | 2,922 / 4,087 | 71.49 | 72 |
+| 2020 | E. coli | Ampicillin | PA+OSBF | 2,291 / 2,590 | 88.46 | 89 |
+| 2020 | E. coli | Cefotaxime | Urine | 6,169 / 8,068 | 76.46 | 77 |
+| 2020 | E. coli | Imipenem | Blood | 330 / 1,049 | 31.46 | 32 |
+
+The consistency of the pattern — seven cells, all rounding up from .46–.49, none rounding down — is more consistent
+with the percentage having been computed from a slightly different set of isolates than the counts printed beside it
+than with either figure being wrong. The discrepancy is at most 0.54 percentage points in every case.
+
+**One case of a different kind.** In the 2020 edition, Table 5, *S. aureus*, doxycycline, Blood column: the printed
+counts are **24 resistant of 2,638 tested**, which is 0.91%, printed beside a **%R of 12**. This is not a rounding
+difference. For context, the same row prints 725 resistant in the Blood+PA+OSBF column and 402 in PA+OSBF, and
+725 − 402 = 323, which against 2,638 is 12.2% — so the Blood numerator behaves like a printing defect of the same
+family as the 2021 E. coli Blood column recorded in B5, rather than like a disagreement between two calculations.
+The printed `%R` and `Number Tested` are consistent with the rest of the table.
+
+**A cross-column disagreement in 2019, not covered by the within-cell check.** In the 2019 edition, Table 6,
+*E. coli*, nitrofurantoin is reported for urine only; the Blood and PA+OSBF blocks are greyed out. The pooled
+Blood+Urine+PA+OSBF column and the Urine column both print a denominator of **16,741**, which for a urine-only drug
+must be the same isolates, but the pooled column prints **2,026** resistant against the Urine column's **2,042**.
+Both round to 12%. Because this is a disagreement between two columns rather than inside one cell, the repository's
+per-cell reconciliation check does not see it; it needs a cross-column check at validator level.
+
+**Consequence for the V3 reconciliation window.** "2019 and 2020 reconcile fully" should be read as "the check can be
+run on every cell in 2019 and 2020", not as "every cell agrees". 100 of the 108 cells agree within their printed
+precision.
+
 Verbatim sample rows:
 
 ```

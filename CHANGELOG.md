@@ -44,6 +44,57 @@ comparison value.
   `docs/narsnet_investigation_artifacts.md`, and that the AMRSN registry is
   unchanged by the V3 edits. Test count 129 → 141.
 
+- **`src/parsers/narsnet_antibiotics.py`** — a second antibiotic alias table,
+  consulted before the shared one in `antibiotics.py`, which is not edited.
+  `normalise_antibiotic` ends in a substring scan over every alias, so a key
+  added to the shared table becomes a candidate substring for every AMRSN label
+  too; a separate table leaves the AMRSN path unchanged by construction. Seven
+  new keys cover the printed forms recorded in `docs/narsnet_v3_research.md` A2:
+  `TMP/SMX`, `TMP-SMX`, `TMP / SMX`; `Pip/Taz`, `Pip-Taz`; the 2017 `Gentamycin`
+  spelling; and `Ampicillin`, `Cefuroxime` and the four printed spellings of
+  amoxicillin-clavulanate. Three canonical names are new, for drugs NARS-Net
+  tests and AMRSN does not: `ampicillin`, `cefuroxime`,
+  `amoxicillin-clavulanate`. `tests/test_narsnet_antibiotics.py` checks the
+  no-drift guarantee in a subprocess that never imports the V3 module.
+  Test count 141 → 202.
+- **`NarsNetRecord` and `src/parsers/narsnet_parser.py`** — the schema and the
+  extractor for the **2019 and 2020** editions, *E. coli* and *S. aureus*. Those
+  two editions come first because they are the only ones printing a complete,
+  usable numerator, so every cell can be checked against its own printed
+  percentage before the geometry is pointed at editions that cannot be
+  self-checked.
+  - A separate dataclass, not an extension of `Record`. NARS-Net publishes
+    **% resistant** and there is deliberately **no field meaning the same thing
+    as `Record.susceptible_pct`**, so the two networks cannot be joined on a
+    shared comparison value by accident.
+  - `numerator_status` (`printed` / `not_printed_in_source` / `corrupt_in_source`)
+    keeps "not printed" and "zero" apart, and `reconcilable` records whether the
+    printed-percentage check could run at all, so an absent check is never
+    mistaken for a passed one. `ci_low` / `ci_high` are carried for the 2022+
+    editions and are null here. **No back-computed numerator field**: deriving
+    one from denominator × %R would be the only invented count in the repo, and
+    checking %R against it would be circular.
+  - `specimen` uses distinct values for atomic strata (`blood`, `urine`,
+    `pus_aspirate`, `osbf`) and composites, which name their constituents and
+    are the only values containing `+`. The 2019 *E. coli* pooled column includes
+    urine and the 2019 *S. aureus* one does not, so a single "pooled" label would
+    have merged two different denominators.
+  - A third table geometry: drugs down, specimen groups across, each split into
+    `Number tested` / `Number Resistant` / `%R`. `base.py`'s `parse_measurement`
+    does not apply — there is no `n / N (pct)` in a cell. Column centres are read
+    from the sub-header row; rows are banded on their value words because the
+    2019 edition prints each antibiotic label below its own value row.
+  - Table location matches on caption **and shape**: every edition repeats its
+    captions verbatim in a List of Tables, so a page qualifies only if it also
+    carries at least two `%R` columns. This is also what keeps the 2020 edition's
+    four-row "Overall resistance profile" summary from displacing its
+    specimen-wise Table 5.
+- `tests/test_narsnet_extraction.py` — **108 hand-read cells**, every printed
+  cell in the four tables, read by eye off the rendered PDF pages rather than
+  taken from `docs/narsnet_v3_research.md`, so a transcription slip in that
+  document cannot propagate into the fixtures. Pages read: `narsnet_2019.pdf`
+  p24 and p29, `narsnet_2020.pdf` p25 and p33. Test count 202 → 251.
+
 ### Changed
 
 - **`Content-Type` is no longer a hard gate in `src/fetch.py`.** A publisher may
@@ -78,6 +129,23 @@ They are therefore corrected in that same commit, not in a later docs pass:
   reports only its own reporting period, with no retrospective multi-year table,
   across all eight editions. A V3 revisions file is structurally empty by design,
   the same as `rc_revisions.json`, and will carry a `note` field saying so.
+- **The 2019 and 2020 editions do not reconcile quite completely.** The
+  investigation recorded these two as the editions that reconcile in full.
+  Extraction finds **8 cells of 108 where the printed percentage does not follow
+  from the printed counts**. Seven sit just past the half-point of the printed
+  precision (for example 2020 *E. coli* ampicillin PA+OSBF, 2,291 of 2,590 =
+  88.5%, printed 89) — the source rounding a percentage it did not compute from
+  the counts it printed. The eighth is a different kind: **2020 *S. aureus*,
+  doxycycline, blood — 24 resistant of 2,638 tested, printed as 12%**. All eight
+  carry `pct_mismatch` and are kept exactly as printed. This narrows the
+  reconciliation claim in `docs/narsnet_v3_research.md` A4; that document is
+  otherwise unchanged.
+- **2019 *E. coli*, nitrofurantoin: the pooled and urine columns disagree.** Both
+  print a denominator of 16,741 for what must be the same isolates — the drug is
+  reported for urine only, with the blood and PA+OSBF blocks greyed out — but the
+  pooled column prints 2,026 resistant against the urine column's 2,042. Both
+  round to 12%. This is a cross-column check rather than a within-cell one, so it
+  is recorded here rather than flagged on a row; the validator is not built yet.
 - **The `/uploads/pdf/amrNN.pdf` paths are the ones to use.** The `/wp-content/`
   copies also resolve, but the 2024 one truncates before Annexure I.
   `wp-content/uploads/2024/03/87909365291642417515.pdf` is a duplicate of the
