@@ -3,7 +3,90 @@
 Every ingested report edition and every revised value found is logged here
 (spec section 5).
 
-## [Unreleased] — 0.3.0 (V2 — Regional Centre breakdowns)
+## [Unreleased] — 0.4.0 (V3 — NARS-Net cross-reference)
+
+V3 cross-references the ICMR AMRSN series against NCDC's **NARS-Net**, a second,
+independent Indian national AMR surveillance network. Scope and constraints are
+settled in `docs/narsnet_v3_research.md` and
+`docs/narsnet_investigation_artifacts.md`.
+
+**The standing constraint:** NARS-Net publishes **% resistant**, AMRSN publishes
+**% susceptible**, and AMRSN publishes no % intermediate for *E. coli* or
+*S. aureus* — so an AMRSN % resistant cannot be computed. The two networks are
+presented as **parallel series** and are never joined on a single shared
+comparison value.
+
+### Added
+
+- **`NARSNET_SOURCES` in `src/sources.py`** — all eight NARS-Net annual report
+  editions (reporting periods 2017–2024), with NCDC URLs and SHA-256 hashes
+  pinned as verified on 2026-09-01. A second registry rather than an extension of
+  `SOURCES`: both are keyed by year and both cover 2022–2024, and keeping them
+  apart also keeps the two networks' rows from ever being addressed as one
+  series.
+- **`ReportSource.network` and `ReportSource.cover_year`** — two optional fields,
+  both defaulting to the V1 meaning. `cover_year` records a cover-page year that
+  is *not* the reporting period: the edition covering January–December 2019 has
+  a cover reading “AMR Annual report -2020”, and the 2020-data edition's reads
+  “Annual Report-2021”. Everything is keyed and cited by reporting period; the
+  discrepancy is carried in the data rather than resolved silently.
+- **`src/fetch.py --network {amrsn,narsnet,all}`**, defaulting to `amrsn` so every
+  pre-V3 invocation still means exactly what it did. Fetching and hash
+  verification are now parameterised over a registry.
+- **Strict hash checking for NARS-Net sources.** A changed hash on an AMRSN
+  source warns and proceeds; on a NARS-Net source it rejects the download and
+  leaves nothing on disk. The recorded table locations, captions and known source
+  defects were established against the pinned bytes, so a re-upload invalidates
+  the investigation and not merely the download. Keyed by network, never by
+  hostname.
+- `tests/test_narsnet_sources.py` — registry checks, including that the eight
+  hashes still match those recorded in
+  `docs/narsnet_investigation_artifacts.md`, and that the AMRSN registry is
+  unchanged by the V3 edits. Test count 129 → 141.
+
+### Changed
+
+- **`Content-Type` is no longer a hard gate in `src/fetch.py`.** A publisher may
+  serve a valid PDF as `application/octet-stream`, and refusing on that alone
+  would reject a good file. The response type is now noted and the `%PDF-`
+  magic-byte check decides.
+
+### Deferred to the commit that first writes NARS-Net rows
+
+Four published statements describe this project as carrying ICMR AMRSN data and
+nothing else. Each is still accurate — no NARS-Net data has been extracted yet
+— and each becomes false the moment `data/processed/` carries a NARS-Net row.
+They are therefore corrected in that same commit, not in a later docs pass:
+
+- **`ATTRIBUTION` in `src/sources.py`** — credits ICMR AMRSN only and disclaims
+  affiliation with ICMR only. It must name both networks and disclaim affiliation
+  with both NCDC and ICMR. This is the widest-reaching of the four: it is written
+  into every export file and every generated figure.
+- **`index.html`** — the “This is not” list: “NARS-Net data. AMRSN and NCDC's
+  NARS-Net are different networks and are never pooled here.”
+- **`README.md`** — “**Not NARS-Net.** … This repository contains AMRSN data
+  only.”
+- **`DATA_LICENSE.md`** — more than one line: the source-material, required-
+  attribution and disclaimer sections all describe the ICMR AMRSN reports as the
+  only source documents, and the “what this data is NOT” list treats NARS-Net as
+  external to the dataset. The licence position on the NCDC PDFs is a separate
+  question and is not settled here.
+
+### Source findings (V3, from the investigation)
+
+- **No cross-edition revision detection is possible for NARS-Net.** Each edition
+  reports only its own reporting period, with no retrospective multi-year table,
+  across all eight editions. A V3 revisions file is structurally empty by design,
+  the same as `rc_revisions.json`, and will carry a `note` field saying so.
+- **The `/uploads/pdf/amrNN.pdf` paths are the ones to use.** The `/wp-content/`
+  copies also resolve, but the 2024 one truncates before Annexure I.
+  `wp-content/uploads/2024/03/87909365291642417515.pdf` is a duplicate of the
+  2020 edition, not a distinct year.
+- **NCDC URLs have already migrated twice** and published citations of these
+  reports already contain dead links, which is what the pinned hashes and the
+  recorded access date guard against.
+
+## 0.3.0 — 2026-09-01 (V2 — Regional Centre breakdowns)
 
 ### Added
 

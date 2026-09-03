@@ -1,13 +1,23 @@
-"""Registry of ICMR AMRSN annual report PDFs.
+"""Registry of the annual report PDFs this project extracts from.
 
-Spec §7: these PDFs are copyrighted by ICMR and are NEVER committed to this repo.
-This module records only *where they live* and *what they should hash to*, so that
-any third party can fetch byte-identical inputs and reproduce our numbers.
+Two networks, two registries, deliberately not merged:
 
-The `sha256` values were recorded on the date in `verified_on`. ICMR occasionally
-re-uploads a report at the same URL; a hash mismatch is therefore a meaningful
-event (the source document changed), not merely a broken download. See
-`fetch.py`, which surfaces this rather than silently overwriting.
+* `SOURCES`         -- ICMR AMRSN editions (V1/V2).
+* `NARSNET_SOURCES` -- NCDC NARS-Net editions (V3).
+
+They cannot share one dict in any case: both are keyed by year and both cover
+2022-2024. Keeping them apart also keeps the two networks' rows from ever being
+addressed as one series, which is the standing constraint on V3 -- see the
+metric mismatch note on `NARSNET_SOURCES`.
+
+Spec §7: no source PDF of either network is committed to this repo. This module
+records only *where they live* and *what they should hash to*, so that any third
+party can fetch byte-identical inputs and reproduce our numbers.
+
+The `sha256` values were recorded on the date in `verified_on`. Both publishers
+occasionally re-upload a report at the same URL; a hash mismatch is therefore a
+meaningful event (the source document changed), not merely a broken download.
+See `fetch.py`, which surfaces this rather than silently overwriting.
 """
 
 from dataclasses import dataclass
@@ -20,7 +30,19 @@ PROCESSED_DIR = REPO_ROOT / "data" / "processed"
 
 @dataclass(frozen=True)
 class ReportSource:
-    """One ICMR AMRSN annual report edition."""
+    """One annual report edition, from either surveillance network.
+
+    `report_year` is the REPORTING PERIOD the edition covers, never the year
+    printed on its cover. The two differ for NARS-Net: the edition reporting
+    January-December 2019 has a cover reading "AMR Annual report -2020", and the
+    2020-data edition's cover reads "Annual Report-2021". Where a cover year
+    differs from the reporting period it is recorded in `cover_year`, so the
+    discrepancy is carried in the data rather than resolved silently.
+
+    `edition` holds an ordinal ("8th") where the publisher assigns one. NARS-Net
+    editions carry no ordinal, no ISBN and no DOI, so for those it records the
+    reporting period instead.
+    """
 
     report_year: int
     edition: str
@@ -28,6 +50,8 @@ class ReportSource:
     filename: str
     sha256: str | None
     verified_on: str
+    network: str = "amrsn"
+    cover_year: int | None = None
 
     @property
     def path(self) -> Path:
@@ -89,6 +113,114 @@ KNOWN_ARCHIVE_URLS: dict[int, str] = {
         "https://www.icmr.gov.in/icmrobject/custom_data/pdf/resource-guidelines/"
         "Final_AMRSN_Annual_Report_2019_29072020.pdf"
     ),
+}
+
+# --- V3 scope: NCDC NARS-Net ------------------------------------------------
+# A second, independent Indian national AMR surveillance network, run by NCDC
+# and separate from ICMR's AMRSN. Eight editions, one reporting period each.
+#
+# Read `docs/narsnet_v3_research.md` before using these. Three things about the
+# series constrain every downstream decision:
+#
+# * NARS-Net publishes %RESISTANT; AMRSN publishes %SUSCEPTIBLE. Converting
+#   between them needs the intermediate fraction, which AMRSN does not publish
+#   for E. coli or S. aureus. The two networks can be presented as PARALLEL
+#   SERIES only, and must never be joined on a single shared comparison value.
+# * Cover-page years are unreliable (see `ReportSource`), so these are keyed and
+#   cited by reporting period. `wp-content/uploads/2024/03/87909365291642417515.pdf`
+#   is a duplicate of the 2020 edition, not a distinct year.
+# * The `/uploads/pdf/amrNN.pdf` paths below are the ones to use. The
+#   `/wp-content/` equivalents also resolve, but the 2024 copy there truncates
+#   before Annexure I.
+#
+# The hashes were recorded during the V3 investigation on 2026-09-01, and every
+# table location, caption and known source defect in `docs/narsnet_v3_research.md`
+# was established against exactly these bytes. A mismatch therefore invalidates
+# the investigation, not just the download, so `fetch.py` treats it as a hard
+# failure for this registry rather than a warning.
+NARSNET_SOURCES: dict[int, ReportSource] = {
+    2024: ReportSource(
+        report_year=2024,
+        edition="Jan-Dec 2024",
+        url="https://ncdc.mohfw.gov.in/uploads/pdf/amr30.pdf",
+        filename="narsnet_2024.pdf",
+        sha256="48b4bdf8f7f8706a110f9f8b3b95aa792b813b18ecedc7b1bb94b49c8a63c4e5",
+        verified_on="2026-09-01",
+        network="narsnet",
+    ),
+    2023: ReportSource(
+        report_year=2023,
+        edition="Jan-Dec 2023",
+        url="https://ncdc.mohfw.gov.in/uploads/pdf/amr32.pdf",
+        filename="narsnet_2023.pdf",
+        sha256="1c5c9fbe3c6320c9b1e31852f0892aecf705d10c243fbb4505551b4032ebca56",
+        verified_on="2026-09-01",
+        network="narsnet",
+    ),
+    2022: ReportSource(
+        report_year=2022,
+        edition="Jan-Dec 2022",
+        url="https://ncdc.mohfw.gov.in/uploads/pdf/amr34.pdf",
+        filename="narsnet_2022.pdf",
+        sha256="5d3734e4dbcc32fc4070e0b85ae0e164ff4fbcc90df4813ffc5c632a130867e7",
+        verified_on="2026-09-01",
+        network="narsnet",
+    ),
+    2021: ReportSource(
+        report_year=2021,
+        edition="Jan-Dec 2021",
+        url="https://ncdc.mohfw.gov.in/uploads/pdf/amr35.pdf",
+        filename="narsnet_2021.pdf",
+        sha256="976a985af372cbd2f59a5afb7381a6a68edb0bcca33e95b98bc0b3deea306785",
+        verified_on="2026-09-01",
+        network="narsnet",
+    ),
+    # Cover reads "Annual Report-2021"; the reporting period is Jan-Dec 2020.
+    2020: ReportSource(
+        report_year=2020,
+        edition="Jan-Dec 2020",
+        url="https://ncdc.mohfw.gov.in/uploads/pdf/amr36.pdf",
+        filename="narsnet_2020.pdf",
+        sha256="159858e8674efc6ee4c800a34ef494ddc7d3e88a920f54e4c867a65aba2ec9ad",
+        verified_on="2026-09-01",
+        network="narsnet",
+        cover_year=2021,
+    ),
+    # Cover reads "AMR Annual report -2020"; the reporting period is Jan-Dec 2019.
+    2019: ReportSource(
+        report_year=2019,
+        edition="Jan-Dec 2019",
+        url="https://ncdc.mohfw.gov.in/uploads/pdf/amr37.pdf",
+        filename="narsnet_2019.pdf",
+        sha256="6056c836ea739dd02cfc0af39295a49c41bffd4da31cfe302085b53a19fd3097",
+        verified_on="2026-09-01",
+        network="narsnet",
+        cover_year=2020,
+    ),
+    2018: ReportSource(
+        report_year=2018,
+        edition="Jan-Dec 2018",
+        url="https://ncdc.mohfw.gov.in/uploads/pdf/amr38.pdf",
+        filename="narsnet_2018.pdf",
+        sha256="a09987ec16fe77b10438cd3340bf1c2c4aae1cd330ba0601b33231453693836f",
+        verified_on="2026-09-01",
+        network="narsnet",
+    ),
+    2017: ReportSource(
+        report_year=2017,
+        edition="Jan-Dec 2017",
+        url="https://ncdc.mohfw.gov.in/uploads/pdf/amr39.pdf",
+        filename="narsnet_2017.pdf",
+        sha256="0070d1b36c314a235bf1b744170e8e7bc95655db064c57cbb485f8301ffff6b2",
+        verified_on="2026-09-01",
+        network="narsnet",
+    ),
+}
+
+# Every registry the fetcher knows about, by network key.
+REGISTRIES: dict[str, dict[int, ReportSource]] = {
+    "amrsn": SOURCES,
+    "narsnet": NARSNET_SOURCES,
 }
 
 ATTRIBUTION = (
