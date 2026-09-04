@@ -102,6 +102,103 @@ comparison value.
   would reject a good file. The response type is now noted and the `%PDF-`
   magic-byte check decides.
 
+- **`src/build_narsnet_dataset.py` and `src/narsnet_validate.py`** — the builder,
+  the validator, and the first NARS-Net exports, for the 2019 and 2020 editions.
+  - Exports land in `data/processed/` as **`narsnet_trends.{csv,json}`**,
+    `narsnet_panel.json`, `narsnet_revisions.json` and
+    `narsnet_extraction_report.json`. The filenames deliberately drop the `amr_`
+    prefix the AMRSN exports carry: the two datasets share no comparison column
+    and are not concatenable, and a reader with only the filenames should be able
+    to tell that much.
+  - **The cross-column check.** `find_degenerate_composite_disagreements` catches
+    the case a within-cell check structurally cannot see: when a drug is reported
+    for one specimen only and the other blocks are greyed out, a composite column
+    and that single stratum describe the *same isolates*, so their counts must
+    agree. In the 2019 *E. coli* table they do not — nitrofurantoin prints a
+    denominator of 16,741 in both the pooled and urine columns and numerators of
+    2,026 and 2,042. Both cells reconcile against their own printed percentage,
+    so nothing inside a cell can find this. Both rows are flagged; both figures
+    are kept as printed.
+  - **`summarise_composite_sums` reports and does not flag.** Comparing a
+    composite against the sum of the columns that partition it shows the
+    difference is systematic, not exceptional: in 2019 every pooled denominator
+    equals its partition sum exactly while no pooled numerator does (*E. coli*
+    ciprofloxacin is +41), and in 2020 neither does. Flagging each row would mark
+    nearly every composite row and bury the finding that is genuinely anomalous.
+    The reports do not state that a pooled column is the arithmetic sum of the
+    columns beside it, and the strata are separately de-duplicated. The measured
+    differences are written to the extraction report instead, so their size can be
+    judged rather than assumed.
+  - **Panel *and* specimen-column change detection.** The two axes move
+    independently. Between 2019 and 2020 the *E. coli* drug panel is identical
+    while the pooled specimen column disappears, so a drug-only comparison would
+    miss it and an edition-over-edition comparison of a pooled figure would be
+    comparing against a column that is no longer printed.
+  - **22 fixtures**, 20 of them narrative — the 2019 and 2020 chapters state a
+    dozen specimen-stratified percentages in prose, naming the stratum each
+    belongs to, and prose is written independently of the table it describes. Two
+    fixtures record that the narrative corroborates the printed **%R** for cells
+    whose printed counts do not (2020 *S. aureus* cefoxitin and ciprofloxacin,
+    PA+OSBF), which is evidence about which of the two printed figures is stable.
+  - **A partial build cannot overwrite the canonical exports.** `--year` and
+    `--organism` narrow what is parsed, and before this guard existed a narrow
+    build wrote all five canonical files with the subset it had. `export()` now
+    refuses to write unless the records cover the whole `BUILD_YEARS x ORGANISMS`
+    scope, prints why, and returns a non-zero exit. Completeness is derived from
+    the records rather than the CLI arguments, so a parse that failed halfway is
+    caught by the same guard. Refusing was chosen over writing to a `.partial`
+    filename because it leaves nothing behind: no second set of paths to
+    gitignore and no half-scope artefact to mistake for the dataset. The checks
+    still run and still print, so a narrow build remains useful as a fast check.
+  - `--organism` on the CLI, repeatable and validated against `SPECS`, matching
+    how `--year` is validated against `BUILD_YEARS`.
+  - `narsnet_revisions.json` is empty by design and carries a `note` saying why,
+    as `rc_revisions.json` does. The check is a real one rather than a hardcoded
+    empty list, so a future edition that did print a retrospective table would
+    start returning rows instead of silently continuing to claim there is nothing
+    to find.
+- `tests/test_narsnet_validate.py` — 26 tests. The cross-column check is pinned
+  from both directions: a composite in agreement is not reported, a partitioned
+  composite is not treated as degenerate, and a composite whose denominator
+  differs from its stratum's is not claimed as a finding at all. Also asserts the
+  committed export matches a fresh parse, so a stale export fails the suite.
+  Test count 251 → 281.
+
+### Fixed — the four deferred statements
+
+`data/processed/` now carries NARS-Net rows, so the four statements recorded
+below as deferred have been corrected in this commit. Each described the project
+as carrying ICMR AMRSN data and nothing else:
+
+- **`ATTRIBUTION` in `src/sources.py`** now names both networks and disclaims
+  affiliation with both ICMR and NCDC. It is written into every export file, so
+  this is the correction with the widest reach. See the note below on the AMRSN
+  export files.
+- **`index.html`** — the “This is not” list now reads “a pooled cross-network
+  figure” rather than “NARS-Net data”, and says NARS-Net is carried as a separate
+  parallel series in its own files.
+- **`README.md`** — the same correction, plus the reason the two can never be
+  combined: they do not share a comparison value.
+- **`DATA_LICENSE.md`** — the source-material, project-claim, required-attribution,
+  disclaimer and “what this data is NOT” sections. The source-material section now
+  records that the NARS-Net reports carry no copyright notice, ISBN or DOI that
+  this project has found, and states plainly that absence of a notice is not a
+  grant of rights, so the same conservative position is taken for both bodies.
+
+**Note on the AMRSN export files.** `amr_trends.json`, `revisions.json`,
+`extraction_report.json`, `amr_rc_trends.json`, `rc_revisions.json`,
+`rc_panel.json` and `rc_extraction_report.json` embed the ATTRIBUTION string at
+the moment they are generated, and they were **not** rebuilt in this commit. They
+therefore still carry the previous single-network wording (“Derived from publicly
+available ICMR AMRSN annual reports (2017–2024) … not endorsed by or affiliated
+with ICMR”). **This is intentional, not an inconsistency left behind.** Those
+files contain AMRSN rows and nothing else, so the single-network wording is
+accurate for their contents; rebuilding them purely to restate the attribution
+would rewrite the `extracted_date` on every AMRSN row and produce a large diff
+that changes no data. They will pick up the two-network wording the next time the
+AMRSN pipeline is run for a reason of its own. `narsnet_*.json`, generated in this
+commit, carries the corrected two-network wording.
+
 ### Deferred to the commit that first writes NARS-Net rows
 
 Four published statements describe this project as carrying ICMR AMRSN data and

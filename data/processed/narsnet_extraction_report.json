@@ -1,0 +1,600 @@
+{
+  "generated": "2026-09-04",
+  "network": "narsnet",
+  "attribution": "Derived from the publicly available annual reports of two independent Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net (2019-2020). The two are published here as parallel series and are never pooled. Independent, unofficial analysis - not endorsed by or affiliated with ICMR or NCDC.",
+  "metric": "Every value in this dataset is PERCENT RESISTANT. The AMRSN dataset in amr_trends.csv is percent susceptible, and AMRSN publishes no percent intermediate for E. coli or S. aureus, so an AMRSN percent resistant cannot be computed. The two datasets are parallel series and must never be joined on a single shared comparison value.",
+  "scope": "The 2019 and 2020 editions, E. coli and S. aureus. These are the editions whose printed numerator is complete enough that every cell can be checked against its own printed percentage. The 2021 edition prints a partly corrupt numerator and the 2022-2024 editions print none.",
+  "total_rows": 108,
+  "sources": [
+    {
+      "report_year": 2020,
+      "reporting_period": "Jan-Dec 2020",
+      "cover_year": 2021,
+      "url": "https://ncdc.mohfw.gov.in/uploads/pdf/amr36.pdf",
+      "sha256": "159858e8674efc6ee4c800a34ef494ddc7d3e88a920f54e4c867a65aba2ec9ad"
+    },
+    {
+      "report_year": 2019,
+      "reporting_period": "Jan-Dec 2019",
+      "cover_year": 2020,
+      "url": "https://ncdc.mohfw.gov.in/uploads/pdf/amr37.pdf",
+      "sha256": "6056c836ea739dd02cfc0af39295a49c41bffd4da31cfe302085b53a19fd3097"
+    }
+  ],
+  "parsed": [
+    {
+      "report_year": 2020,
+      "organism": "Escherichia coli",
+      "source_table": "Table 8",
+      "rows": 26,
+      "specimens": [
+        "blood",
+        "pus_aspirate+osbf",
+        "urine"
+      ]
+    },
+    {
+      "report_year": 2020,
+      "organism": "Staphylococcus aureus",
+      "source_table": "Table 5",
+      "rows": 24,
+      "specimens": [
+        "blood",
+        "blood+pus_aspirate+osbf",
+        "pus_aspirate+osbf"
+      ]
+    },
+    {
+      "report_year": 2019,
+      "organism": "Escherichia coli",
+      "source_table": "Table 6",
+      "rows": 34,
+      "specimens": [
+        "blood",
+        "blood+urine+pus_aspirate+osbf",
+        "pus_aspirate+osbf",
+        "urine"
+      ]
+    },
+    {
+      "report_year": 2019,
+      "organism": "Staphylococcus aureus",
+      "source_table": "Table 4",
+      "rows": 24,
+      "specimens": [
+        "blood",
+        "blood+pus_aspirate+osbf",
+        "pus_aspirate+osbf"
+      ]
+    }
+  ],
+  "failed": [],
+  "fixtures": {
+    "passed": 22,
+    "failed": 0,
+    "failures": []
+  },
+  "printed_pct_vs_printed_counts": {
+    "description": "Cells whose printed percentage does not follow from their own printed counts, allowing half the printed precision for rounding. All are carried exactly as printed and flagged; nothing is corrected.",
+    "count": 8,
+    "rows": [
+      {
+        "organism": "Staphylococcus aureus",
+        "antibiotic": "gentamicin",
+        "specimen": "blood",
+        "source_report_year": 2019,
+        "tested_n": 4390,
+        "resistant_n": 1163,
+        "reported_pct": 27.0,
+        "computed_pct": 26.49
+      },
+      {
+        "organism": "Escherichia coli",
+        "antibiotic": "ampicillin",
+        "specimen": "pus_aspirate+osbf",
+        "source_report_year": 2020,
+        "tested_n": 2590,
+        "resistant_n": 2291,
+        "reported_pct": 89.0,
+        "computed_pct": 88.46
+      },
+      {
+        "organism": "Escherichia coli",
+        "antibiotic": "cefotaxime",
+        "specimen": "urine",
+        "source_report_year": 2020,
+        "tested_n": 8068,
+        "resistant_n": 6169,
+        "reported_pct": 77.0,
+        "computed_pct": 76.46
+      },
+      {
+        "organism": "Escherichia coli",
+        "antibiotic": "imipenem",
+        "specimen": "blood",
+        "source_report_year": 2020,
+        "tested_n": 1049,
+        "resistant_n": 330,
+        "reported_pct": 32.0,
+        "computed_pct": 31.46
+      },
+      {
+        "organism": "Staphylococcus aureus",
+        "antibiotic": "cefoxitin",
+        "specimen": "pus_aspirate+osbf",
+        "source_report_year": 2020,
+        "tested_n": 4580,
+        "resistant_n": 2357,
+        "reported_pct": 52.0,
+        "computed_pct": 51.46
+      },
+      {
+        "organism": "Staphylococcus aureus",
+        "antibiotic": "ciprofloxacin",
+        "specimen": "blood+pus_aspirate+osbf",
+        "source_report_year": 2020,
+        "tested_n": 7110,
+        "resistant_n": 4798,
+        "reported_pct": 68.0,
+        "computed_pct": 67.48
+      },
+      {
+        "organism": "Staphylococcus aureus",
+        "antibiotic": "ciprofloxacin",
+        "specimen": "pus_aspirate+osbf",
+        "source_report_year": 2020,
+        "tested_n": 4087,
+        "resistant_n": 2922,
+        "reported_pct": 72.0,
+        "computed_pct": 71.49
+      },
+      {
+        "organism": "Staphylococcus aureus",
+        "antibiotic": "doxycycline",
+        "specimen": "blood",
+        "source_report_year": 2020,
+        "tested_n": 2638,
+        "resistant_n": 24,
+        "reported_pct": 12.0,
+        "computed_pct": 0.91
+      }
+    ]
+  },
+  "cross_column_checks": {
+    "degenerate_composites": {
+      "description": "A composite column covering exactly one reported stratum, because the drug's other specimen blocks are greyed out. The two columns describe the same isolates, so their counts must agree. Where they do not, both rows are flagged and both figures are kept as printed.",
+      "count": 1,
+      "findings": [
+        {
+          "organism": "Escherichia coli",
+          "source_report_year": 2019,
+          "antibiotic": "nitrofurantoin",
+          "composite_specimen": "blood+urine+pus_aspirate+osbf",
+          "only_reported_stratum": "urine",
+          "shared_tested_n": 16741,
+          "composite_resistant_n": 2026,
+          "stratum_resistant_n": 2042,
+          "difference": -16,
+          "composite_pct": 12.0,
+          "stratum_pct": 12.0,
+          "note": "The drug is reported for urine only in this edition; the other specimen blocks are greyed out. Both columns therefore describe the same isolates and print the same denominator, but their numerators differ."
+        }
+      ]
+    },
+    "composite_vs_partition_sums": {
+      "description": "Composite columns against the sum of the columns that partition them. NO FLAG IS RAISED FROM THIS. The difference is systematic rather than exceptional -- in the 2019 edition every pooled denominator equals its partition sum exactly while no pooled numerator does, and in the 2020 edition neither does -- so flagging it would mark nearly every composite row and bury the findings that are genuinely anomalous. The reports do not state that a pooled column is the arithmetic sum of the columns beside it; the strata are separately de-duplicated and separately computed. The measured differences are recorded here so their size can be judged rather than assumed.",
+      "count": 24,
+      "rows": [
+        {
+          "organism": "Escherichia coli",
+          "source_report_year": 2019,
+          "antibiotic": "ampicillin",
+          "composite_specimen": "blood+urine+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf",
+            "urine"
+          ],
+          "composite_tested_n": 14943,
+          "partition_tested_sum": 14943,
+          "tested_difference": 0,
+          "composite_resistant_n": 12971,
+          "partition_resistant_sum": 12962,
+          "resistant_difference": 9
+        },
+        {
+          "organism": "Escherichia coli",
+          "source_report_year": 2019,
+          "antibiotic": "cefepime",
+          "composite_specimen": "blood+urine+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf",
+            "urine"
+          ],
+          "composite_tested_n": 16029,
+          "partition_tested_sum": 16029,
+          "tested_difference": 0,
+          "composite_resistant_n": 10531,
+          "partition_resistant_sum": 10533,
+          "resistant_difference": -2
+        },
+        {
+          "organism": "Escherichia coli",
+          "source_report_year": 2019,
+          "antibiotic": "cefotaxime",
+          "composite_specimen": "blood+urine+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf",
+            "urine"
+          ],
+          "composite_tested_n": 18183,
+          "partition_tested_sum": 18183,
+          "tested_difference": 0,
+          "composite_resistant_n": 14219,
+          "partition_resistant_sum": 14183,
+          "resistant_difference": 36
+        },
+        {
+          "organism": "Escherichia coli",
+          "source_report_year": 2019,
+          "antibiotic": "ciprofloxacin",
+          "composite_specimen": "blood+urine+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf",
+            "urine"
+          ],
+          "composite_tested_n": 21162,
+          "partition_tested_sum": 21162,
+          "tested_difference": 0,
+          "composite_resistant_n": 16718,
+          "partition_resistant_sum": 16677,
+          "resistant_difference": 41
+        },
+        {
+          "organism": "Escherichia coli",
+          "source_report_year": 2019,
+          "antibiotic": "colistin",
+          "composite_specimen": "blood+urine+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf",
+            "urine"
+          ],
+          "composite_tested_n": 3205,
+          "partition_tested_sum": 3205,
+          "tested_difference": 0,
+          "composite_resistant_n": 16,
+          "partition_resistant_sum": 15,
+          "resistant_difference": 1
+        },
+        {
+          "organism": "Escherichia coli",
+          "source_report_year": 2019,
+          "antibiotic": "cotrimoxazole",
+          "composite_specimen": "blood+urine+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf",
+            "urine"
+          ],
+          "composite_tested_n": 18067,
+          "partition_tested_sum": 18067,
+          "tested_difference": 0,
+          "composite_resistant_n": 11563,
+          "partition_resistant_sum": 11555,
+          "resistant_difference": 8
+        },
+        {
+          "organism": "Escherichia coli",
+          "source_report_year": 2019,
+          "antibiotic": "ertapenem",
+          "composite_specimen": "blood+urine+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf",
+            "urine"
+          ],
+          "composite_tested_n": 6475,
+          "partition_tested_sum": 6475,
+          "tested_difference": 0,
+          "composite_resistant_n": 2545,
+          "partition_resistant_sum": 2533,
+          "resistant_difference": 12
+        },
+        {
+          "organism": "Escherichia coli",
+          "source_report_year": 2019,
+          "antibiotic": "imipenem",
+          "composite_specimen": "blood+urine+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf",
+            "urine"
+          ],
+          "composite_tested_n": 19124,
+          "partition_tested_sum": 19124,
+          "tested_difference": 0,
+          "composite_resistant_n": 6120,
+          "partition_resistant_sum": 6112,
+          "resistant_difference": 8
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2019,
+          "antibiotic": "cefoxitin",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 11855,
+          "partition_tested_sum": 11855,
+          "tested_difference": 0,
+          "composite_resistant_n": 6994,
+          "partition_resistant_sum": 6996,
+          "resistant_difference": -2
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2019,
+          "antibiotic": "ciprofloxacin",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 10638,
+          "partition_tested_sum": 10638,
+          "tested_difference": 0,
+          "composite_resistant_n": 7042,
+          "partition_resistant_sum": 7037,
+          "resistant_difference": 5
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2019,
+          "antibiotic": "clindamycin",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 12068,
+          "partition_tested_sum": 12068,
+          "tested_difference": 0,
+          "composite_resistant_n": 3017,
+          "partition_resistant_sum": 3019,
+          "resistant_difference": -2
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2019,
+          "antibiotic": "cotrimoxazole",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 9983,
+          "partition_tested_sum": 9983,
+          "tested_difference": 0,
+          "composite_resistant_n": 3813,
+          "partition_resistant_sum": 3801,
+          "resistant_difference": 12
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2019,
+          "antibiotic": "doxycycline",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 8480,
+          "partition_tested_sum": 8480,
+          "tested_difference": 0,
+          "composite_resistant_n": 840,
+          "partition_resistant_sum": 836,
+          "resistant_difference": 4
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2019,
+          "antibiotic": "erythromycin",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 12090,
+          "partition_tested_sum": 12090,
+          "tested_difference": 0,
+          "composite_resistant_n": 7290,
+          "partition_resistant_sum": 7286,
+          "resistant_difference": 4
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2019,
+          "antibiotic": "gentamicin",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 11342,
+          "partition_tested_sum": 11342,
+          "tested_difference": 0,
+          "composite_resistant_n": 2654,
+          "partition_resistant_sum": 2658,
+          "resistant_difference": -4
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2019,
+          "antibiotic": "linezolid",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 12314,
+          "partition_tested_sum": 12314,
+          "tested_difference": 0,
+          "composite_resistant_n": 111,
+          "partition_resistant_sum": 111,
+          "resistant_difference": 0
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2020,
+          "antibiotic": "cefoxitin",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 8203,
+          "partition_tested_sum": 8230,
+          "tested_difference": -27,
+          "composite_resistant_n": 4664,
+          "partition_resistant_sum": 4676,
+          "resistant_difference": -12
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2020,
+          "antibiotic": "ciprofloxacin",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 7110,
+          "partition_tested_sum": 7134,
+          "tested_difference": -24,
+          "composite_resistant_n": 4798,
+          "partition_resistant_sum": 4820,
+          "resistant_difference": -22
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2020,
+          "antibiotic": "clindamycin",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 8285,
+          "partition_tested_sum": 8313,
+          "tested_difference": -28,
+          "composite_resistant_n": 2232,
+          "partition_resistant_sum": 2240,
+          "resistant_difference": -8
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2020,
+          "antibiotic": "cotrimoxazole",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 6872,
+          "partition_tested_sum": 6898,
+          "tested_difference": -26,
+          "composite_resistant_n": 2947,
+          "partition_resistant_sum": 2960,
+          "resistant_difference": -13
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2020,
+          "antibiotic": "doxycycline",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 5489,
+          "partition_tested_sum": 5505,
+          "tested_difference": -16,
+          "composite_resistant_n": 725,
+          "partition_resistant_sum": 426,
+          "resistant_difference": 299
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2020,
+          "antibiotic": "erythromycin",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 8086,
+          "partition_tested_sum": 8116,
+          "tested_difference": -30,
+          "composite_resistant_n": 4675,
+          "partition_resistant_sum": 4695,
+          "resistant_difference": -20
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2020,
+          "antibiotic": "gentamicin",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 8011,
+          "partition_tested_sum": 8039,
+          "tested_difference": -28,
+          "composite_resistant_n": 1920,
+          "partition_resistant_sum": 1930,
+          "resistant_difference": -10
+        },
+        {
+          "organism": "Staphylococcus aureus",
+          "source_report_year": 2020,
+          "antibiotic": "linezolid",
+          "composite_specimen": "blood+pus_aspirate+osbf",
+          "partition": [
+            "blood",
+            "pus_aspirate+osbf"
+          ],
+          "composite_tested_n": 8083,
+          "partition_tested_sum": 8111,
+          "tested_difference": -28,
+          "composite_resistant_n": 79,
+          "partition_resistant_sum": 69,
+          "resistant_difference": 10
+        }
+      ]
+    }
+  },
+  "panel_changes": [
+    {
+      "organism": "Escherichia coli",
+      "from_edition": 2019,
+      "to_edition": 2020,
+      "antibiotics_added": [],
+      "antibiotics_removed": [],
+      "specimen_columns_added": [],
+      "specimen_columns_removed": [
+        "blood+urine+pus_aspirate+osbf"
+      ]
+    }
+  ],
+  "revisions": {
+    "count": 0,
+    "note": "Each NARS-Net edition reports its own reporting period only, with no retrospective multi-year table -- checked across all eight editions during the V3 investigation. No (organism, antibiotic, specimen, year) key is therefore covered by more than one edition, so cross-edition revision detection has nothing to compare. An empty result here is BY DESIGN and is not evidence that no revision occurred; it means the published reports provide no way to look. This mirrors rc_revisions.json, which is empty for the same structural reason on the AMRSN side."
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "description": "The drug panel and the specimen columns each NARS-Net edition prints, per organism. Both axes change independently and both matter: between the 2019 and 2020 editions the E. coli drug panel is identical while the pooled specimen column disappears, so an edition-over-edition comparison of a pooled figure would be comparing a printed column against one that is no longer printed.",
+  "attribution": "Derived from the publicly available annual reports of two independent Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net (2019-2020). The two are published here as parallel series and are never pooled. Independent, unofficial analysis - not endorsed by or affiliated with ICMR or NCDC.",
+  "generated": "2026-09-04",
+  "panel": {
+    "Escherichia coli": {
+      "2019": {
+        "antibiotics": [
+          "ampicillin",
+          "cefepime",
+          "cefotaxime",
+          "ciprofloxacin",
+          "colistin",
+          "cotrimoxazole",
+          "ertapenem",
+          "imipenem",
+          "nitrofurantoin"
+        ],
+        "specimens": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      },
+      "2020": {
+        "antibiotics": [
+          "ampicillin",
+          "cefepime",
+          "cefotaxime",
+          "ciprofloxacin",
+          "colistin",
+          "cotrimoxazole",
+          "ertapenem",
+          "imipenem",
+          "nitrofurantoin"
+        ],
+        "specimens": [
+          "blood",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    "Staphylococcus aureus": {
+      "2019": {
+        "antibiotics": [
+          "cefoxitin",
+          "ciprofloxacin",
+          "clindamycin",
+          "cotrimoxazole",
+          "doxycycline",
+          "erythromycin",
+          "gentamicin",
+          "linezolid"
+        ],
+        "specimens": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      },
+      "2020": {
+        "antibiotics": [
+          "cefoxitin",
+          "ciprofloxacin",
+          "clindamycin",
+          "cotrimoxazole",
+          "doxycycline",
+          "erythromycin",
+          "gentamicin",
+          "linezolid"
+        ],
+        "specimens": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    }
+  },
+  "changes": [
+    {
+      "organism": "Escherichia coli",
+      "from_edition": 2019,
+      "to_edition": 2020,
+      "antibiotics_added": [],
+      "antibiotics_removed": [],
+      "specimen_columns_added": [],
+      "specimen_columns_removed": [
+        "blood+urine+pus_aspirate+osbf"
+      ]
+    }
+  ]
+}

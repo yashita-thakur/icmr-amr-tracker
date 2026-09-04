@@ -34,13 +34,18 @@ notes in this repository sit inside that context and are not a critique of it.
 - **Not patient-level data.** ICMR does not release isolate-level records.
 - **Not a national burden or incidence estimate.** Denominators are "isolates
   tested for this drug", not people, not infections.
-- **Not NARS-Net.** ICMR AMRSN and NCDC's NARS-Net (which feeds WHO GLASS) are
-  **different networks** with different participating sites. Numbers from the
-  two are not interchangeable and must never be pooled without labelling which
-  network each came from. This repository contains AMRSN data only.
-- **Not an official ICMR product.** Where this dataset and an ICMR report
-  differ, the ICMR report is authoritative and the difference is a limitation of
-  this extraction — please open an issue.
+- **Not a pooled cross-network figure.** ICMR AMRSN and NCDC's NARS-Net (which
+  feeds WHO GLASS) are **different networks** with different participating
+  sites. This repository carries both, in separate files with separate schemas —
+  `amr_trends.csv` for AMRSN, `narsnet_trends.csv` for NARS-Net — and they are
+  never combined. They do not even share a comparison value: AMRSN publishes
+  **% susceptible**, NARS-Net publishes **% resistant**, and AMRSN publishes no
+  % intermediate for *E. coli* or *S. aureus*, so an AMRSN % resistant cannot be
+  computed. Read them as parallel series, never as one.
+- **Not an official ICMR or NCDC product.** Where this dataset and the
+  corresponding published report differ, **the published report is
+  authoritative** and the difference is a limitation of this extraction —
+  please open an issue.
 
 ---
 
