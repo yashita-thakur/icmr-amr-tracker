@@ -1,6 +1,6 @@
 {
   "description": "The drug panel and the specimen columns each NARS-Net edition prints, per organism. Both axes change independently and both matter: between the 2019 and 2020 editions the E. coli drug panel is identical while the pooled specimen column disappears, so an edition-over-edition comparison of a pooled figure would be comparing a printed column against one that is no longer printed. The 2021 edition moves both axes at once: the drug panels grow from 9 to 17 for E. coli and 8 to 9 for S. aureus, and the pooled and PA+OSBF columns give way to pus_aspirate and osbf reported separately, so no 2021 specimen column has the same membership as any 2020 one.",
-  "attribution": "Derived from the publicly available annual reports of two independent Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net (2019-2021). The two are published here as parallel series and are never pooled. Independent, unofficial analysis - not endorsed by or affiliated with ICMR or NCDC.",
+  "attribution": "Derived from the publicly available annual reports of two independent Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net (2019-2024). The two are published here as parallel series and are never pooled. Independent, unofficial analysis - not endorsed by or affiliated with ICMR or NCDC.",
   "generated": "2026-09-04",
   "panel": {
     "Escherichia coli": {
@@ -49,6 +49,87 @@
           "cefepime",
           "cefotaxime",
           "cefuroxime",
+          "ciprofloxacin",
+          "colistin",
+          "cotrimoxazole",
+          "doxycycline",
+          "ertapenem",
+          "fosfomycin",
+          "gentamicin",
+          "imipenem",
+          "meropenem",
+          "nitrofurantoin",
+          "piperacillin-tazobactam"
+        ],
+        "specimens": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      },
+      "2022": {
+        "antibiotics": [
+          "amikacin",
+          "amoxicillin-clavulanate",
+          "ampicillin",
+          "cefepime",
+          "cefotaxime",
+          "cefuroxime",
+          "ciprofloxacin",
+          "colistin",
+          "cotrimoxazole",
+          "doxycycline",
+          "ertapenem",
+          "fosfomycin",
+          "gentamicin",
+          "imipenem",
+          "meropenem",
+          "nitrofurantoin",
+          "piperacillin-tazobactam"
+        ],
+        "specimens": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      },
+      "2023": {
+        "antibiotics": [
+          "amikacin",
+          "amoxicillin-clavulanate",
+          "ampicillin",
+          "cefepime",
+          "cefotaxime",
+          "ceftriaxone",
+          "ciprofloxacin",
+          "colistin",
+          "cotrimoxazole",
+          "doxycycline",
+          "ertapenem",
+          "fosfomycin",
+          "gentamicin",
+          "imipenem",
+          "meropenem",
+          "nitrofurantoin",
+          "piperacillin-tazobactam"
+        ],
+        "specimens": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      },
+      "2024": {
+        "antibiotics": [
+          "amikacin",
+          "amoxicillin-clavulanate",
+          "ampicillin",
+          "cefepime",
+          "cefotaxime",
+          "ceftriaxone",
           "ciprofloxacin",
           "colistin",
           "cotrimoxazole",
@@ -121,6 +202,60 @@
           "osbf",
           "pus_aspirate"
         ]
+      },
+      "2022": {
+        "antibiotics": [
+          "cefoxitin",
+          "ciprofloxacin",
+          "clindamycin",
+          "cotrimoxazole",
+          "doxycycline",
+          "erythromycin",
+          "gentamicin",
+          "linezolid",
+          "teicoplanin"
+        ],
+        "specimens": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      },
+      "2023": {
+        "antibiotics": [
+          "cefoxitin",
+          "ciprofloxacin",
+          "clindamycin",
+          "cotrimoxazole",
+          "doxycycline",
+          "erythromycin",
+          "gentamicin",
+          "linezolid",
+          "teicoplanin"
+        ],
+        "specimens": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      },
+      "2024": {
+        "antibiotics": [
+          "cefoxitin",
+          "ciprofloxacin",
+          "clindamycin",
+          "cotrimoxazole",
+          "doxycycline",
+          "erythromycin",
+          "gentamicin",
+          "linezolid",
+          "teicoplanin"
+        ],
+        "specimens": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
       }
     }
   },
@@ -158,6 +293,19 @@
       "specimen_columns_removed": [
         "pus_aspirate+osbf"
       ]
+    },
+    {
+      "organism": "Escherichia coli",
+      "from_edition": 2022,
+      "to_edition": 2023,
+      "antibiotics_added": [
+        "ceftriaxone"
+      ],
+      "antibiotics_removed": [
+        "cefuroxime"
+      ],
+      "specimen_columns_added": [],
+      "specimen_columns_removed": []
     },
     {
       "organism": "Staphylococcus aureus",

@@ -1,11 +1,32 @@
 {
   "generated": "2026-09-04",
   "network": "narsnet",
-  "attribution": "Derived from the publicly available annual reports of two independent Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net (2019-2021). The two are published here as parallel series and are never pooled. Independent, unofficial analysis - not endorsed by or affiliated with ICMR or NCDC.",
+  "attribution": "Derived from the publicly available annual reports of two independent Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net (2019-2024). The two are published here as parallel series and are never pooled. Independent, unofficial analysis - not endorsed by or affiliated with ICMR or NCDC.",
   "metric": "Every value in this dataset is PERCENT RESISTANT. The AMRSN dataset in amr_trends.csv is percent susceptible, and AMRSN publishes no percent intermediate for E. coli or S. aureus, so an AMRSN percent resistant cannot be computed. The two datasets are parallel series and must never be joined on a single shared comparison value.",
-  "scope": "The 2019, 2020 and 2021 editions, E. coli and S. aureus. These are the editions that print a numerator at all. In 2019 and 2020 every cell can be checked against its own printed percentage; in 2021 every cell can except the fifteen listed under corrupt_numerators below, where the printed figure is not that cell's numerator. The 2022-2024 editions print no numerator and are not covered.",
-  "total_rows": 192,
+  "scope": "The 2019 to 2024 editions, E. coli and S. aureus. What the series prints changes twice inside that window and the checks follow it. 2019-2021 print Number Tested, Number Resistant and a percentage, so every cell is checked against its own printed percentage, except the fifteen listed under corrupt_numerators where the printed figure is not that cell's numerator. 2022-2024 print Number Tested, a percentage and a 95% confidence interval and no numerator at all, so numerator_status is not_printed_in_source and reconcilable is false on every one of those rows, and the check that applies instead is the percentage against its own interval, under printed_pct_vs_printed_ci. The 2017 and 2018 editions print neither a numerator nor an interval, support neither check, and are not covered.",
+  "total_rows": 450,
   "sources": [
+    {
+      "report_year": 2024,
+      "reporting_period": "Jan-Dec 2024",
+      "cover_year": null,
+      "url": "https://ncdc.mohfw.gov.in/uploads/pdf/amr30.pdf",
+      "sha256": "48b4bdf8f7f8706a110f9f8b3b95aa792b813b18ecedc7b1bb94b49c8a63c4e5"
+    },
+    {
+      "report_year": 2023,
+      "reporting_period": "Jan-Dec 2023",
+      "cover_year": null,
+      "url": "https://ncdc.mohfw.gov.in/uploads/pdf/amr32.pdf",
+      "sha256": "1c5c9fbe3c6320c9b1e31852f0892aecf705d10c243fbb4505551b4032ebca56"
+    },
+    {
+      "report_year": 2022,
+      "reporting_period": "Jan-Dec 2022",
+      "cover_year": null,
+      "url": "https://ncdc.mohfw.gov.in/uploads/pdf/amr34.pdf",
+      "sha256": "5d3734e4dbcc32fc4070e0b85ae0e164ff4fbcc90df4813ffc5c632a130867e7"
+    },
     {
       "report_year": 2021,
       "reporting_period": "Jan-Dec 2021",
@@ -29,6 +50,75 @@
     }
   ],
   "parsed": [
+    {
+      "report_year": 2024,
+      "organism": "Escherichia coli",
+      "source_table": "Table 8",
+      "rows": 60,
+      "specimens": [
+        "blood",
+        "osbf",
+        "pus_aspirate",
+        "urine"
+      ]
+    },
+    {
+      "report_year": 2024,
+      "organism": "Staphylococcus aureus",
+      "source_table": "Table 6",
+      "rows": 27,
+      "specimens": [
+        "blood",
+        "osbf",
+        "pus_aspirate"
+      ]
+    },
+    {
+      "report_year": 2023,
+      "organism": "Escherichia coli",
+      "source_table": "Table 8",
+      "rows": 60,
+      "specimens": [
+        "blood",
+        "osbf",
+        "pus_aspirate",
+        "urine"
+      ]
+    },
+    {
+      "report_year": 2023,
+      "organism": "Staphylococcus aureus",
+      "source_table": "Table 6",
+      "rows": 27,
+      "specimens": [
+        "blood",
+        "osbf",
+        "pus_aspirate"
+      ]
+    },
+    {
+      "report_year": 2022,
+      "organism": "Escherichia coli",
+      "source_table": "Table 7",
+      "rows": 57,
+      "specimens": [
+        "blood",
+        "osbf",
+        "pus_aspirate",
+        "urine"
+      ]
+    },
+    {
+      "report_year": 2022,
+      "organism": "Staphylococcus aureus",
+      "source_table": "Table 5",
+      "rows": 27,
+      "specimens": [
+        "blood",
+        "osbf",
+        "pus_aspirate"
+      ]
+    },
     {
       "report_year": 2021,
       "organism": "Escherichia coli",
@@ -100,7 +190,7 @@
   ],
   "failed": [],
   "fixtures": {
-    "passed": 40,
+    "passed": 60,
     "failed": 0,
     "failures": []
   },
@@ -146,6 +236,38 @@
         "cells_agreeing_with_their_printed_pct": 0,
         "agreeing": [],
         "note": "2021 Table 6, two Urine cells. Piperacillin/tazobactam prints 2,937 resistant of 2,937 tested and trimethoprim/sulfamethoxazole prints 8,918 of 8,918, each beside a printed percentage -- 29 and 59 -- that is not 100. The numerator repeats the denominator instead of recording a count. Every other Urine numerator in the table reconciles."
+      }
+    ]
+  },
+  "printed_pct_vs_printed_ci": {
+    "description": "Cells whose printed percentage lies outside its own printed 95% confidence interval. This is the check the 2022-2024 editions can support: they print no numerator, so there is nothing to reconcile a percentage against, but a percentage and an interval are two printed statements about one quantity and can disagree without a third figure. Bounds are used exactly as printed and are not put back in order. distance_to_nearer_bound and within_the_printed_precision are reported so the size can be judged rather than assumed: a percentage printed to whole numbers beside an interval printed to one decimal can fall a tenth outside an interval that in fact contains it, which is a difference between how two columns are rounded, and is not the same finding as an interval whose upper bound is printed below its lower. All rows are carried exactly as printed and flagged; nothing is corrected.",
+    "count": 2,
+    "rows": [
+      {
+        "source_report_year": 2022,
+        "organism": "Escherichia coli",
+        "antibiotic": "doxycycline",
+        "specimen": "osbf",
+        "tested_n": 139,
+        "reported_pct": 32.0,
+        "ci_low": 24.2,
+        "ci_high": 4.02,
+        "distance_to_nearer_bound": 7.8,
+        "within_the_printed_precision": false,
+        "bounds_inverted": true
+      },
+      {
+        "source_report_year": 2023,
+        "organism": "Staphylococcus aureus",
+        "antibiotic": "linezolid",
+        "specimen": "blood",
+        "tested_n": 4896,
+        "reported_pct": 0.0,
+        "ci_low": 0.1,
+        "ci_high": 0.4,
+        "distance_to_nearer_bound": 0.1,
+        "within_the_printed_precision": true,
+        "bounds_inverted": false
       }
     ]
   },
@@ -689,6 +811,19 @@
       "specimen_columns_removed": [
         "pus_aspirate+osbf"
       ]
+    },
+    {
+      "organism": "Escherichia coli",
+      "from_edition": 2022,
+      "to_edition": 2023,
+      "antibiotics_added": [
+        "ceftriaxone"
+      ],
+      "antibiotics_removed": [
+        "cefuroxime"
+      ],
+      "specimen_columns_added": [],
+      "specimen_columns_removed": []
     },
     {
       "organism": "Staphylococcus aureus",

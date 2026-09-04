@@ -55,7 +55,7 @@ Any use of the processed dataset must cite **both**:
 ## Disclaimer
 
 > Derived from the publicly available annual reports of two independent Indian national
-> AMR surveillance networks: ICMR-AMRSN (2017–2024) and NCDC NARS-Net (2019–2021). The
+> AMR surveillance networks: ICMR-AMRSN (2017–2024) and NCDC NARS-Net (2019–2024). The
 > two are published here as parallel series and are never pooled. Independent,
 > unofficial analysis — not endorsed by or affiliated with ICMR or NCDC.
 

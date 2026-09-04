@@ -348,6 +348,65 @@ blood "up to 33%", in prose written independently of the table. Those are four o
 numerator is unusable, and the prose confirms the printed `%R` for each. The 2021 *S. aureus* chapter does the same
 for methicillin (59 / 49 / 48) and erythromycin (63 / 51 / 54), naming the stratum in each case.
 
+### Extending the check to 2022, 2023 and 2024 — a different check, because the columns changed
+
+These three editions print `Number Tested`, a percentage and a **95% confidence interval**, and no numerator at
+all. The reconciliation check above therefore has nothing to run on: with no numerator there is no second figure
+inside the cell for the percentage to disagree with. A numerator is **not** back-computed as denominator × %R —
+that would be the only invented count in the repository, and checking the percentage against it would be circular.
+Every one of the 258 rows from these editions carries `numerator_status = not_printed_in_source`,
+`reconcilable = false` and no `resistant_n`.
+
+What these editions do support is a check the earlier ones cannot: **the printed percentage against its own printed
+interval.** A percentage and a confidence interval are two printed statements about one quantity, so they can
+disagree without any third figure being available. All 258 cells were read by eye off `narsnet_2022.pdf` p36 and
+p44, `narsnet_2023.pdf` p30 and p38, and `narsnet_2024.pdf` p25 and p34, independently of this document.
+
+**Two cells of 258 sit outside their own interval, and they are not the same kind of thing.**
+
+| Edition | Organism | Drug | Specimen | `N` | Printed %R | Printed 95% CI | Distance to the nearer bound |
+|---|---|---|---|---|---|---|---|
+| 2023 | *S. aureus* | Linezolid | Blood | 4,896 | 0 | 0.1–0.4 | 0.1 |
+| 2022 | *E. coli* | Doxycycline | OSBF | 139 | 32 | 24.2–4.02 | 7.8 |
+
+**The linezolid row is a difference between how two columns are rounded.** B5 below records it as internally
+inconsistent. Reading the page, and the chapter beside it, makes a narrower statement available. The percentage
+column is printed to whole numbers and the interval to one decimal, and the 2023 chapter (p19) states the year's
+linezolid figure as **0.2%** — "there seems to be a 0.2% rise in resistance to linezolid in this reporting period".
+A value of 0.2 sits inside the printed interval and rounds to the printed 0. The interval, the narrative and the
+point estimate are all consistent with one another once the printed precision of each column is taken into account;
+what the check has caught is the rounding, not a disagreement about the underlying figure.
+
+**The doxycycline row is not.** Its interval is printed `24.2- 4.02`: the upper bound is below the lower one, so
+the interval as printed is empty and the point estimate of 32 is outside it by any reading. The bounds are carried
+in the order they are printed and are **not** swapped, because swapping them would be a repair. No reconstruction
+of the intended upper bound is offered here; the printed figures are what the dataset carries.
+
+The distinction is reported rather than left implicit: `summarise_ci_checks` records the distance to the nearer
+bound and whether that distance is within half the precision the percentage is printed to, so the size of each
+finding can be judged rather than assumed. It is the same posture `summarise_composite_sums` takes.
+
+### Panel membership, not panel size — the 2023 swap
+
+2022, 2023 and 2024 each print a **seventeen-drug** *E. coli* panel, and the seventeen are not the same. Between
+2022 and 2023 **cefuroxime leaves and ceftriaxone joins**, confirmed against a hand-read of both tables. A check on
+panel size would report nothing across that step. The panel check in `narsnet_validate.py` compares membership and
+reports `drugs +['ceftriaxone']; drugs -['cefuroxime']`. The 2021 and 2022 panels, by contrast, are the same
+seventeen molecules under different abbreviations — `Piperacillin/ Tazobactam` against `Pip-Taz` — and that step
+comes out empty only because the names are normalised first.
+
+### One repeated cell across two editions
+
+The 2023 and 2024 *E. coli* tables print the same three figures for pus aspirate doxycycline: **2,080 tested, 41%,
+CI 37.5–42.8**. Every other denominator in that column changes between the two editions; this is the only one that
+does not. Both editions are carried exactly as printed and neither cell is flagged — a repeated figure is not by
+itself a defect, and nothing in either report says which reading is intended. It is recorded here, and pinned in
+`tests/test_narsnet_extraction.py`, so that it is a known property of the data rather than something a later reader
+rediscovers and mistakes for an extraction fault.
+
+These three editions also publish an interval for every cell, which is what makes any internal check possible at
+all once the numerator column is gone.
+
 Verbatim sample rows:
 
 ```
@@ -602,7 +661,8 @@ What exists versus what V3 needs. Concrete items only.
 | 2019 ceftazidime appears in figures (Figs. 13–16) but not in Tables 6/7 | ⚠️ Documented — figure-only value, not table-extractable |
 | **2021 E. coli Table 6, Blood column: `Number Resistant` does not reconcile** (e.g. Amikacin `1510 1088 29`; Ampicillin `1294 584 84`; Ciprofloxacin `1551 135 63`; Meropenem `854 981 25`, resistant > tested) | ✅ **Resolved by rendering the page.** The printed table itself is wrong — the Blood `Number Resistant` sub-column is corrupt at source, as are the Urine `Pip/Taz` and `TMP/SMX` cells (`Number Resistant` = `Number Tested`) and the Urine `Colistin` % (blank). The printed `%R` and `Number Tested` are sound; Pus Aspirate and OSBF columns reconcile; Klebsiella Table 7 Blood reconciles, so it is a one-table defect. Flag the affected cells; do not use the 2021 E. coli Blood numerator |
 | 2023 Table 7 (Enterococcus): caption N=11,072 vs column headers summing to 14,705 | ⚠️ Flagged — out of V3 scope (Enterococcus), but indicates the 2023 edition has at least one caption/column inconsistency |
-| 2023 Table 6 Linezolid blood row prints point estimate `0` with CI `0.1-0.4` | ⚠️ Internally inconsistent in source — flag if ingested |
+| 2023 Table 6 Linezolid blood row prints point estimate `0` with CI `0.1-0.4` | ✅ **Ingested and flagged** as `ci_excludes_point_estimate`. Refined by the cell-by-cell reading above: the percentage column is printed to whole numbers and the interval to one decimal, and the chapter gives the year's figure as 0.2%, which the interval brackets and which rounds to the printed 0 — a difference between two columns' rounding rather than a disagreement about the figure |
+| **2022 Table 7, E. coli, OSBF doxycycline: 95% CI printed `24.2- 4.02`** | ✅ **Found during extraction and flagged** as `ci_bounds_inverted` and `ci_excludes_point_estimate`. The upper bound is printed below the lower, so the interval as printed is empty. Bounds are carried in the printed order and not swapped; no intended upper bound is reconstructed |
 | 2018 report names **no interpretive standard** | ⚠️ Documented |
 | CLSI edition unstated in all editions except 2024 (M100 34th Ed.) | ⚠️ Documented |
 | 2022 ToC calls its annexure "…for the 2023 AMR Surveillance report" in a 2022-data report | ⚠️ Cosmetic, documented |

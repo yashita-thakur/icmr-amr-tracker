@@ -21,11 +21,13 @@ AMRSN publishes no % intermediate for E. coli or S. aureus, so an AMRSN
 read side by side as parallel series and must never be joined on a single shared
 value. A reader who has only the filenames should be able to tell that much.
 
-Scope is the 2019, 2020 and 2021 editions, E. coli and S. aureus -- the editions
-that print a numerator at all. In 2019 and 2020 every cell can be checked
-against its own printed percentage; in 2021 all but the fifteen cells declared
-in `CORRUPT_NUMERATORS` can. See `parsers/narsnet_parser.py` for why the
-2022-2024 editions, which print no numerator, are not claimed.
+Scope is the 2019-2024 editions, E. coli and S. aureus. The series changes what
+it prints twice inside that window, and the checks follow it: 2019-2021 print a
+numerator, so each cell is checked against its own printed percentage (all but
+the fifteen cells declared in `CORRUPT_NUMERATORS`); 2022-2024 print a 95%
+confidence interval instead, so each cell is checked against its own interval.
+The 2017 and 2018 editions print neither and support neither check, so they are
+not covered.
 """
 
 from __future__ import annotations
@@ -48,6 +50,7 @@ from .narsnet_validate import (
     find_narsnet_cross_report_revisions,
     internal_consistency,
     narsnet_panel_by_edition,
+    summarise_ci_checks,
     summarise_composite_sums,
     summarise_corrupt_numerators,
 )
@@ -61,7 +64,7 @@ from .sources import ATTRIBUTION, NARSNET_SOURCES, PROCESSED_DIR
 # Editions this builder covers. Kept here rather than derived from
 # NARSNET_SOURCES, which holds all eight: the registry records what can be
 # fetched, this records what has been verified against a hand-read of the page.
-BUILD_YEARS = [2021, 2020, 2019]
+BUILD_YEARS = [2024, 2023, 2022, 2021, 2020, 2019]
 
 ORGANISMS = list(SPECS)
 
@@ -171,6 +174,26 @@ def export(records, parsed, failed, extracted_date):
             print(
                 "      [WARN] this declaration matched no rows in this build"
             )
+
+    ci_findings = summarise_ci_checks(records)
+    print(
+        "  printed %R vs its CI  {} row(s) sit outside their own printed "
+        "interval".format(len(ci_findings))
+    )
+    for c in ci_findings:
+        print(
+            "    {} {} {} / {}: {}% against {}-{} ({} away from the nearer "
+            "bound{})".format(
+                c["source_report_year"], c["organism"], c["antibiotic"],
+                c["specimen"], c["reported_pct"], c["ci_low"], c["ci_high"],
+                c["distance_to_nearer_bound"],
+                "; within the precision the percentage is printed to"
+                if c["within_the_printed_precision"]
+                else "; bounds printed in reverse order"
+                if c["bounds_inverted"]
+                else "",
+            )
+        )
 
     mismatches = internal_consistency(records)
     print(
@@ -323,13 +346,21 @@ def export(records, parsed, failed, extracted_date):
                     "single shared comparison value."
                 ),
                 "scope": (
-                    "The 2019, 2020 and 2021 editions, E. coli and S. aureus. "
-                    "These are the editions that print a numerator at all. In "
-                    "2019 and 2020 every cell can be checked against its own "
-                    "printed percentage; in 2021 every cell can except the "
-                    "fifteen listed under corrupt_numerators below, where the "
-                    "printed figure is not that cell's numerator. The 2022-2024 "
-                    "editions print no numerator and are not covered."
+                    "The 2019 to 2024 editions, E. coli and S. aureus. What the "
+                    "series prints changes twice inside that window and the "
+                    "checks follow it. 2019-2021 print Number Tested, Number "
+                    "Resistant and a percentage, so every cell is checked "
+                    "against its own printed percentage, except the fifteen "
+                    "listed under corrupt_numerators where the printed figure "
+                    "is not that cell's numerator. 2022-2024 print Number "
+                    "Tested, a percentage and a 95% confidence interval and no "
+                    "numerator at all, so numerator_status is "
+                    "not_printed_in_source and reconcilable is false on every "
+                    "one of those rows, and the check that applies instead is "
+                    "the percentage against its own interval, under "
+                    "printed_pct_vs_printed_ci. The 2017 and 2018 editions "
+                    "print neither a numerator nor an interval, support "
+                    "neither check, and are not covered."
                 ),
                 "total_rows": len(records),
                 "sources": [
@@ -379,6 +410,30 @@ def export(records, parsed, failed, extracted_date):
                     "count": len(corrupt),
                     "cells": corrupt_cells,
                     "blocks": corrupt,
+                },
+                "printed_pct_vs_printed_ci": {
+                    "description": (
+                        "Cells whose printed percentage lies outside its own "
+                        "printed 95% confidence interval. This is the check the "
+                        "2022-2024 editions can support: they print no "
+                        "numerator, so there is nothing to reconcile a "
+                        "percentage against, but a percentage and an interval "
+                        "are two printed statements about one quantity and can "
+                        "disagree without a third figure. Bounds are used "
+                        "exactly as printed and are not put back in order. "
+                        "distance_to_nearer_bound and "
+                        "within_the_printed_precision are reported so the size "
+                        "can be judged rather than assumed: a percentage "
+                        "printed to whole numbers beside an interval printed to "
+                        "one decimal can fall a tenth outside an interval that "
+                        "in fact contains it, which is a difference between how "
+                        "two columns are rounded, and is not the same finding "
+                        "as an interval whose upper bound is printed below its "
+                        "lower. All rows are carried exactly as printed and "
+                        "flagged; nothing is corrected."
+                    ),
+                    "count": len(ci_findings),
+                    "rows": ci_findings,
                 },
                 "printed_pct_vs_printed_counts": {
                     "description": (

@@ -39,6 +39,15 @@ Three checks that `parsers/narsnet_parser.py` cannot make on its own:
   so the judgement that the sub-column is the unit of the defect stays visible
   and can be argued with.
 
+* `summarise_ci_checks` -- the 2022-2024 counterpart. Those editions print no
+  numerator, so the reconciliation check above has nothing to run on; what they
+  print instead is a 95% confidence interval, and a percentage sitting outside
+  its own interval is a disagreement between two printed figures that needs no
+  third one to see. The parser raises the flag; this measures how far outside
+  the percentage sits and whether that distance is smaller than half the
+  precision the percentage is printed to, which separates a point estimate
+  rounded to a whole number from an interval that cannot be read as one at all.
+
 The first two are kept apart because they are different claims. A degenerate
 composite disagreeing with its single stratum is an internal contradiction in
 the printed table. A composite disagreeing with a sum of strata is expected: the
@@ -57,6 +66,18 @@ from .parsers.narsnet_parser import (
     pct_tolerance,
 )
 
+
+def _as_printed(pct) -> str:
+    """A percentage back in the form the report printed it in.
+
+    `pct_tolerance` is keyed on printed precision and a record keeps the
+    percentage as a float. No cell in any of the twelve tables read so far
+    prints a trailing ".0", so a whole-number float was printed as a whole
+    number and "%g" recovers it.
+    """
+    return "%g" % pct
+
+
 # --- fixtures ---------------------------------------------------------------
 
 
@@ -70,6 +91,10 @@ class NarsNetFixture:
     note: str
     expected_tested_n: int | None = None
     expected_resistant_n: int | None = None
+    # The 2022-2024 chapters quote the interval as well as the percentage, so a
+    # narrative fixture for those editions can corroborate both.
+    expected_ci_low: float | None = None
+    expected_ci_high: float | None = None
     tolerance: float = 0.1
 
     @property
@@ -245,6 +270,142 @@ NARSNET_FIXTURES: list[NarsNetFixture] = [
                    expected_tested_n=3257, expected_resistant_n=2581),
     NarsNetFixture(EC, "fosfomycin", URINE, 2021, 7.0, "table 6 cell, p29",
                    expected_tested_n=855, expected_resistant_n=58),
+
+    # --- 2022 S. aureus, Ch.A narrative (p34 [18]) --------------------------
+    # "a significant decrease in the proportion of MRSA in blood was seen from
+    #  the year 2018 (69%) to 2021 (59%) and when compared to 2021 the
+    #  proportion of MRSA has remained constant in the year 2022 (59%)".
+    # The denominator is the Table 5 cell, hand-read off p36; Fig. 7 on the same
+    # page prints 5,711 as that year's blood count, which agrees with it.
+    NarsNetFixture(SA, "cefoxitin", BLOOD, 2022, 59.0,
+                   "narrative (%R); table 5 cell, p36 (denominator)",
+                   expected_tested_n=5711),
+    # "in the year 2022, none of the S. aureus reported from blood were found to
+    #  be resistant to linezolid". The table prints 0 with an interval of 0-0.1.
+    NarsNetFixture(SA, "linezolid", BLOOD, 2022, 0.0,
+                   "narrative (%R); table 5 cell, p36 (denominator and CI)",
+                   expected_tested_n=5827,
+                   expected_ci_low=0.0, expected_ci_high=0.1),
+
+    # --- 2022 E. coli, Ch.B narrative (p42 [26]) ----------------------------
+    # From this edition on the chapter quotes the interval as well, so these
+    # fixtures corroborate both figures from outside the table.
+    # "76% (CI:74.1-78) resistance was observed to the drug cefotaxime in blood
+    #  isolates"
+    NarsNetFixture(EC, "cefotaxime", BLOOD, 2022, 76.0,
+                   "narrative (%R and CI); table 7 cell, p44 (denominator)",
+                   expected_tested_n=1876,
+                   expected_ci_low=74.1, expected_ci_high=78.0),
+    # "In urinary isolates ... 74% (CI: 72.9-74.1) resistance was observed to
+    #  ciprofloxacin, 58% (CI:57.3- 58.6) to Trimethoprim-Sulfamethoxazole
+    #  (TMP/SMX) and 9% (CI:8.9- 9.6) to nitrofurantoin"
+    NarsNetFixture(EC, "ciprofloxacin", URINE, 2022, 74.0,
+                   "narrative (%R and CI); table 7 cell, p44 (denominator)",
+                   expected_tested_n=23227,
+                   expected_ci_low=72.9, expected_ci_high=74.1),
+    NarsNetFixture(EC, "cotrimoxazole", URINE, 2022, 58.0,
+                   "narrative (%R and CI); table 7 cell, p44 (denominator)",
+                   expected_tested_n=23163,
+                   expected_ci_low=57.3, expected_ci_high=58.6),
+    NarsNetFixture(EC, "nitrofurantoin", URINE, 2022, 9.0,
+                   "narrative (%R and CI); table 7 cell, p44 (denominator)",
+                   expected_tested_n=24953,
+                   expected_ci_low=8.9, expected_ci_high=9.6),
+    # The cell whose interval is printed with its upper bound below its lower.
+    # The chapter does not mention it, so this one is the table and nothing
+    # else; it is pinned exactly as printed.
+    NarsNetFixture(EC, "doxycycline", OSBF, 2022, 32.0, "table 7 cell, p44",
+                   expected_tested_n=139,
+                   expected_ci_low=24.2, expected_ci_high=4.02),
+
+    # --- 2023 S. aureus, Ch.1.2.3.1 narrative (p28 [18], p29 [19]) ----------
+    # "Approximately half of Staphylococcus aureus isolated from blood (55%;
+    #  95% (confidence interval) CI: 53.7-56.6) and from pus aspirates (54%;
+    #  95% CI: 53-55) were resistant to cefoxitin"
+    NarsNetFixture(SA, "cefoxitin", BLOOD, 2023, 55.0,
+                   "narrative (%R and CI); table 6 cell, p30 (denominator)",
+                   expected_tested_n=4538,
+                   expected_ci_low=53.7, expected_ci_high=56.6),
+    NarsNetFixture(SA, "cefoxitin", PUS_ASPIRATE, 2023, 54.0,
+                   "narrative (%R and CI, quoted as 53-55); table 6 cell, p30 "
+                   "(denominator)",
+                   expected_tested_n=10146,
+                   expected_ci_low=53.0, expected_ci_high=55.0),
+    # The row whose point estimate falls outside its own interval. The chapter
+    # states the year's linezolid blood resistance as 0.2% -- "there seems to be
+    # a 0.2% rise in resistance to linezolid in this reporting period" -- which
+    # is inside the printed interval and rounds to the printed 0. The percentage
+    # column is printed to whole numbers and the interval to one decimal.
+    NarsNetFixture(SA, "linezolid", BLOOD, 2023, 0.0,
+                   "table 6 cell, p30 (the narrative on p29 gives the year's "
+                   "figure as 0.2%, which the printed CI brackets and which "
+                   "rounds to the printed 0)",
+                   expected_tested_n=4896,
+                   expected_ci_low=0.1, expected_ci_high=0.4),
+
+    # --- 2023 E. coli, Ch.1.2.3.2 narrative (p36 [26]) ----------------------
+    # "A high proportion of resistance to ciprofloxacin was observed with 72%
+    #  (CI: 70-73.6) resistance in blood isolates"
+    NarsNetFixture(EC, "ciprofloxacin", BLOOD, 2023, 72.0,
+                   "narrative (%R and CI); table 8 cell, p38 (denominator)",
+                   expected_tested_n=2427,
+                   expected_ci_low=70.0, expected_ci_high=73.6),
+    # "Fifty-seven percentage of resistance (CI: 54.6- 58.8) to trimethoprim-
+    #  sulfamethoxazole was seen among blood isolates"
+    NarsNetFixture(EC, "cotrimoxazole", BLOOD, 2023, 57.0,
+                   "narrative (%R and CI); table 8 cell, p38 (denominator)",
+                   expected_tested_n=2176,
+                   expected_ci_low=54.6, expected_ci_high=58.8),
+    # "82% (CI: 80.3- 83.7) resistance to cefotaxime was observed in blood
+    #  isolates and 75% (CI: 74.9 - 76) in urine isolates"
+    NarsNetFixture(EC, "cefotaxime", URINE, 2023, 75.0,
+                   "narrative (%R and CI); table 8 cell, p38 (denominator)",
+                   expected_tested_n=27068,
+                   expected_ci_low=74.9, expected_ci_high=76.0),
+    # "Resistance to nitrofurantoin in the urine isolates has increased from 9%
+    #  during 2022 to 16% (CI: 15.9 - 16.7) in the current reporting period."
+    # The same sentence restates the 2022 figure, which the 2022 fixture above
+    # takes from that edition's own chapter.
+    NarsNetFixture(EC, "nitrofurantoin", URINE, 2023, 16.0,
+                   "narrative (%R and CI); table 8 cell, p38 (denominator)",
+                   expected_tested_n=30769,
+                   expected_ci_low=15.9, expected_ci_high=16.7),
+
+    # --- 2024 S. aureus, Ch.1.2.3.1 narrative (p24 [17]) -------------------
+    # "Approximately half of S. aureus isolated from blood (56%; 95% CI
+    #  (confidence interval): 54.7-57.3) were resistant to cefoxitin ...
+    #  meanwhile, the resistance to cefoxitin in pus aspirates (54%; 95% CI:
+    #  53.2-54.9) and other sterile body fluids (49%; CI: 45.5-51.9)"
+    # All three strata, each with its interval, named in one sentence.
+    NarsNetFixture(SA, "cefoxitin", BLOOD, 2024, 56.0,
+                   "narrative (%R and CI); table 6 cell, p25 (denominator)",
+                   expected_tested_n=5967,
+                   expected_ci_low=54.7, expected_ci_high=57.3),
+    NarsNetFixture(SA, "cefoxitin", PUS_ASPIRATE, 2024, 54.0,
+                   "narrative (%R and CI); table 6 cell, p25 (denominator)",
+                   expected_tested_n=13694,
+                   expected_ci_low=53.2, expected_ci_high=54.9),
+    NarsNetFixture(SA, "cefoxitin", OSBF, 2024, 49.0,
+                   "narrative (%R and CI); table 6 cell, p25 (denominator)",
+                   expected_tested_n=962,
+                   expected_ci_low=45.5, expected_ci_high=51.9),
+
+    # --- 2024 E. coli, Ch.1.2.3.2 narrative (p32 [25]) ---------------------
+    # "amoxicillin-clavulanate also had high resistance of 68% in blood
+    #  isolates. Among carbapenems, ertapenem (49%) had higher resistance rate
+    #  than imipenem (40%) and meropenem (36%) in E. coli blood isolates"
+    # Percentages only in this chapter; the intervals are the table's.
+    NarsNetFixture(EC, "amoxicillin-clavulanate", BLOOD, 2024, 68.0,
+                   "narrative (%R); table 8 cell, p34 (denominator and CI)",
+                   expected_tested_n=2759),
+    NarsNetFixture(EC, "ertapenem", BLOOD, 2024, 49.0,
+                   "narrative (%R); table 8 cell, p34 (denominator and CI)",
+                   expected_tested_n=1634),
+    # "Resistance to nitrofurantoin in urinary isolates showed an increasing
+    #  trend over last 3 years (increased from 9% in 2022 to 19% in 2024)."
+    NarsNetFixture(EC, "nitrofurantoin", URINE, 2024, 19.0,
+                   "narrative (%R); table 8 cell, p34 (denominator and CI)",
+                   expected_tested_n=41460),
 ]
 
 
@@ -292,6 +453,26 @@ def check_narsnet_fixtures(records, fixtures=None):
                 )
             )
             continue
+        if fx.expected_ci_low is not None and (
+            rec.ci_low is None
+            or abs(rec.ci_low - fx.expected_ci_low) > fx.tolerance
+        ):
+            failures.append(
+                "{}: expected CI low {} ({}), got {}".format(
+                    fx.label, fx.expected_ci_low, fx.note, rec.ci_low
+                )
+            )
+            continue
+        if fx.expected_ci_high is not None and (
+            rec.ci_high is None
+            or abs(rec.ci_high - fx.expected_ci_high) > fx.tolerance
+        ):
+            failures.append(
+                "{}: expected CI high {} ({}), got {}".format(
+                    fx.label, fx.expected_ci_high, fx.note, rec.ci_high
+                )
+            )
+            continue
         passes.append(fx.label)
     return passes, failures
 
@@ -335,12 +516,9 @@ def summarise_corrupt_numerators(records):
             if not r.tested_n or r.resistant_n is None or r.reported_pct is None:
                 continue
             computed = 100.0 * r.resistant_n / r.tested_n
-            # `pct_tolerance` wants the percentage as printed and the record
-            # keeps it as a float. "%g" recovers the printed form: no cell in
-            # any of the six tables read so far prints a trailing ".0", so a
-            # whole-number float was printed as a whole number.
-            printed = "%g" % r.reported_pct
-            if abs(r.reported_pct - computed) <= pct_tolerance(printed):
+            if abs(r.reported_pct - computed) <= pct_tolerance(
+                _as_printed(r.reported_pct)
+            ):
                 agreeing.append(
                     {
                         "antibiotic": r.antibiotic,
@@ -364,6 +542,59 @@ def summarise_corrupt_numerators(records):
                 "cells_agreeing_with_their_printed_pct": len(agreeing),
                 "agreeing": agreeing,
                 "note": entry.note,
+            }
+        )
+    return out
+
+
+CI_EXCLUDES_FLAG = "ci_excludes_point_estimate"
+CI_INVERTED_FLAG = "ci_bounds_inverted"
+
+
+def summarise_ci_checks(records):
+    """Rows whose printed percentage sits outside its own printed 95% CI.
+
+    Descriptive, like the summaries above: the parser has already flagged these.
+    What this adds is the distance from the percentage to the nearer printed
+    bound, and whether that distance is within half the precision the percentage
+    is printed to.
+
+    That distinction matters and is the whole reason the distance is reported
+    rather than just the count. Where the two figures are printed to different
+    precisions -- a percentage to whole numbers beside an interval to one
+    decimal -- a value of about 0.2 is printed as 0 and falls a tenth outside an
+    interval that in fact contains it. That is a difference in how two columns
+    are rounded. An interval whose upper bound is printed below its lower bound
+    is not.
+    """
+    out = []
+    for r in sorted(
+        (
+            r
+            for r in records
+            if any(f.startswith(CI_EXCLUDES_FLAG) for f in r.flags)
+        ),
+        key=lambda r: (r.source_report_year, r.organism, r.antibiotic, r.specimen),
+    ):
+        printed = _as_printed(r.resistant_pct)
+        gap = min(
+            abs(r.resistant_pct - r.ci_low), abs(r.resistant_pct - r.ci_high)
+        )
+        out.append(
+            {
+                "source_report_year": r.source_report_year,
+                "organism": r.organism,
+                "antibiotic": r.antibiotic,
+                "specimen": r.specimen,
+                "tested_n": r.tested_n,
+                "reported_pct": r.resistant_pct,
+                "ci_low": r.ci_low,
+                "ci_high": r.ci_high,
+                "distance_to_nearer_bound": round(gap, 3),
+                "within_the_printed_precision": gap <= pct_tolerance(printed),
+                "bounds_inverted": any(
+                    f.startswith(CI_INVERTED_FLAG) for f in r.flags
+                ),
             }
         )
     return out

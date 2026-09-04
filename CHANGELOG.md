@@ -239,6 +239,85 @@ comparison value.
   Blood sub-column fails in 11 of 13 cells, not all 13. With the corrupt-
   numerator tests in `tests/test_narsnet_validate.py`, test count 281 → 311.
 
+- **The 2022, 2023 and 2024 editions**, *E. coli* and *S. aureus*, as one group
+  — `BUILD_YEARS` becomes `[2024, 2023, 2022, 2021, 2020, 2019]` and the dataset
+  goes from 192 rows to 450. These three print `Number Tested`, a percentage and
+  a **95% confidence interval**, and no numerator at all.
+  - **`numerator_status` is `not_printed_in_source` on all 258 rows**, with
+    `reconcilable` false, no `resistant_n` and no `computed_pct`. **No numerator
+    is back-computed** as denominator × %R: it would be the only invented count
+    in the repository, and checking the percentage against it would be circular.
+    The dataset therefore has three editions that can be checked against their
+    own counts and three that cannot, and `reconcilable` is what tells them
+    apart — an absent check is never mistaken for a passed one.
+  - **`ci_excludes_point_estimate`, the check these editions can support.** With
+    no numerator there is no second figure inside a cell for the percentage to
+    disagree with, but a percentage and a confidence interval are two printed
+    statements about one quantity and can disagree on their own. **Two cells of
+    258** sit outside their own interval, and `summarise_ci_checks` reports the
+    distance to the nearer bound and whether it is within half the precision the
+    percentage is printed to, because the two are not the same kind of finding.
+    - 2023 *S. aureus* linezolid, blood: 4,896 tested, a point estimate of 0
+      against an interval of 0.1–0.4. The percentage column is printed to whole
+      numbers and the interval to one decimal, and the 2023 chapter gives the
+      year's figure as 0.2%, which the interval brackets and which rounds to the
+      printed 0. The check catches a difference between how two columns are
+      rounded; the underlying figures agree. `docs/narsnet_v3_research.md` B5
+      previously recorded this row as internally inconsistent and now records
+      the narrower reading.
+    - 2022 *E. coli* doxycycline, OSBF: 139 tested, 32%, interval printed
+      `24.2- 4.02`. The upper bound is printed below the lower, so the interval
+      as printed is empty. **Bounds are carried in the printed order and not
+      swapped**, and no intended upper bound is reconstructed. Also flagged
+      `ci_bounds_inverted`, because "outside its interval" understates an
+      interval whose ends are the wrong way round. Found during extraction; it
+      was not previously recorded.
+  - **Two sources of column geometry, chosen by what the page shows.** The ruled
+    grid divides each specimen group into its three columns in 2019–2022 but not
+    in 2023 and 2024, which rule the group boundaries and nothing inside them.
+    Where the grid yields one row-label column plus a whole number of groups it
+    is used; where it does not, the sub-columns are read from the sub-header
+    words instead — and only when those words are horizontal, since a rotated
+    sub-header says nothing about where its column is. A table that satisfies
+    neither stops the parser rather than being guessed at. The 2019–2021 rows
+    are unchanged.
+  - The percentage column is bracketed in these editions and the 2022 *E. coli*
+    table prints it `(% R)`, which arrives as two words, so brackets are
+    stripped before the sub-header lookup. A confidence interval printed with a
+    space after its dash — `31.2- 38.2` — is two words of one cell and is
+    rejoined; reading only the first would have silently lost every upper bound
+    printed that way.
+  - **Panel membership, not panel size.** 2022, 2023 and 2024 each print a
+    seventeen-drug *E. coli* panel and the seventeen are not the same: between
+    2022 and 2023 **cefuroxime leaves and ceftriaxone joins**. A check on panel
+    size reports nothing across that step; the panel check compares membership
+    and reports the swap. The 2021 and 2022 panels are the same seventeen
+    molecules under different abbreviations, and that step comes out empty only
+    because the names are normalised first.
+  - From 2022 the reports print `x` where a drug is not tested for a specimen,
+    with a footnote saying so, rather than greying the block. Nothing was
+    measured, so nothing is emitted — the same treatment a greyed block gets in
+    the earlier editions.
+  - **A repeated cell, recorded and not flagged.** The 2023 and 2024 *E. coli*
+    tables print the same three figures for pus aspirate doxycycline — 2,080
+    tested, 41%, CI 37.5–42.8 — and it is the only denominator in that column
+    unchanged between the two editions. Both are carried as printed. A repeated
+    figure is not by itself a defect and neither report says which reading is
+    intended, so it is pinned in the tests and described in the research doc
+    rather than flagged.
+  - **20 new fixtures**, 60 in total, 51 of them narrative. From 2022 the
+    chapters quote the confidence interval alongside the percentage, so
+    `NarsNetFixture` gained `expected_ci_low` and `expected_ci_high` and a
+    narrative fixture for these editions corroborates both figures from outside
+    the table. Each fixture's `note` records whether the figure came from the
+    table or the narrative, and where both, which part came from which.
+- `tests/test_narsnet_extraction.py` — **258 more hand-read cells**, 450 in
+  total, in a second dictionary `HAND_READ_CI` because these editions do not
+  print the same columns. Pages read: `narsnet_2022.pdf` p36 and p44,
+  `narsnet_2023.pdf` p30 and p38, `narsnet_2024.pdf` p25 and p34, all read
+  before being compared against `docs/narsnet_v3_research.md`. Test count
+  311 → 340.
+
 ### Fixed — the four deferred statements
 
 `data/processed/` now carries NARS-Net rows, so the four statements recorded
@@ -248,8 +327,9 @@ as carrying ICMR AMRSN data and nothing else:
 - **`ATTRIBUTION` in `src/sources.py`** now names both networks and disclaims
   affiliation with both ICMR and NCDC. It is written into every export file, so
   this is the correction with the widest reach. See the note below on the AMRSN
-  export files. Its NARS-Net range reads 2019–2021 as of the 2021 edition being
-  ingested, and `DATA_LICENSE.md` quotes the same string.
+  export files. Its NARS-Net range reads 2019–2024 now that every edition
+  printing either a numerator or an interval is ingested, and `DATA_LICENSE.md`
+  quotes the same string.
 - **`index.html`** — the “This is not” list now reads “a pooled cross-network
   figure” rather than “NARS-Net data”, and says NARS-Net is carried as a separate
   parallel series in its own files.

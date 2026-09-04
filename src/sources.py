@@ -226,7 +226,7 @@ REGISTRIES: dict[str, dict[int, ReportSource]] = {
 ATTRIBUTION = (
     "Derived from the publicly available annual reports of two independent "
     "Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and "
-    "NCDC NARS-Net (2019-2021). The two are published here as parallel series "
+    "NCDC NARS-Net (2019-2024). The two are published here as parallel series "
     "and are never pooled. Independent, unofficial analysis - not endorsed by "
     "or affiliated with ICMR or NCDC."
 )

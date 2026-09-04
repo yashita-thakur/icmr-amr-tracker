@@ -28,6 +28,7 @@ from src.narsnet_validate import (
     find_narsnet_cross_report_revisions,
     internal_consistency,
     narsnet_panel_by_edition,
+    summarise_ci_checks,
     summarise_composite_sums,
     summarise_corrupt_numerators,
 )
@@ -231,7 +232,9 @@ def test_the_two_schemas_share_no_comparison_column():
 
 # --- integration -------------------------------------------------------------
 
-_missing = [y for y in (2019, 2020, 2021) if not NARSNET_SOURCES[y].path.exists()]
+ALL_YEARS = (2019, 2020, 2021, 2022, 2023, 2024)
+
+_missing = [y for y in ALL_YEARS if not NARSNET_SOURCES[y].path.exists()]
 needs_pdfs = pytest.mark.skipif(
     _missing,
     reason="data/raw/ missing narsnet {}; run "
@@ -242,7 +245,7 @@ needs_pdfs = pytest.mark.skipif(
 @pytest.fixture(scope="session")
 def records():
     recs = []
-    for year in (2019, 2020, 2021):
+    for year in ALL_YEARS:
         for organism in SPECS:
             recs.extend(
                 parse_narsnet_report(
@@ -357,6 +360,97 @@ def test_teicoplanin_is_the_only_s_aureus_panel_addition_in_2021(records):
 @needs_pdfs
 def test_no_cross_edition_revisions(records):
     assert find_narsnet_cross_report_revisions(records) == []
+
+
+@needs_pdfs
+def test_the_2023_panel_swap_is_caught_by_membership_not_size(records):
+    """Cefuroxime out, ceftriaxone in, seventeen drugs either side. The panel
+    check compares membership, so it reports the swap; a check on the size of
+    the panel would report nothing at all."""
+    changes = detect_narsnet_panel_changes(narsnet_panel_by_edition(records))
+    step = next(
+        c for c in changes
+        if c["organism"] == EC and (c["from_edition"], c["to_edition"]) == (2022, 2023)
+    )
+    assert step["antibiotics_added"] == ["ceftriaxone"]
+    assert step["antibiotics_removed"] == ["cefuroxime"]
+    assert step["specimen_columns_added"] == []
+    assert step["specimen_columns_removed"] == []
+
+
+@needs_pdfs
+def test_the_2021_and_2022_e_coli_panels_are_the_same_molecules(records):
+    """The two editions abbreviate the names differently -- "Piperacillin/
+    Tazobactam" against "Pip-Taz" -- and normalisation is what makes the step
+    come out empty rather than looking like a wholesale panel change."""
+    changes = detect_narsnet_panel_changes(narsnet_panel_by_edition(records))
+    assert not [
+        c for c in changes
+        if c["organism"] == EC and (c["from_edition"], c["to_edition"]) == (2021, 2022)
+    ]
+
+
+# --- the 2022-2024 CI check --------------------------------------------------
+
+
+@needs_pdfs
+def test_two_rows_sit_outside_their_own_printed_interval(records):
+    findings = summarise_ci_checks(records)
+    assert [
+        (f["source_report_year"], f["organism"], f["antibiotic"], f["specimen"])
+        for f in findings
+    ] == [
+        (2022, EC, "doxycycline", OSBF),
+        (2023, SA, "linezolid", BLOOD),
+    ]
+
+
+@needs_pdfs
+def test_the_summary_separates_a_rounding_difference_from_a_reversed_interval(
+    records,
+):
+    """The two findings are not the same kind of thing, and the summary says so
+    rather than leaving a reader to work it out from a shared count."""
+    findings = {f["antibiotic"]: f for f in summarise_ci_checks(records)}
+
+    linezolid = findings["linezolid"]
+    assert (linezolid["reported_pct"], linezolid["ci_low"], linezolid["ci_high"]) == (
+        0.0, 0.1, 0.4,
+    )
+    assert linezolid["distance_to_nearer_bound"] == 0.1
+    assert linezolid["within_the_printed_precision"] is True
+    assert linezolid["bounds_inverted"] is False
+
+    doxycycline = findings["doxycycline"]
+    assert (
+        doxycycline["reported_pct"],
+        doxycycline["ci_low"],
+        doxycycline["ci_high"],
+    ) == (32.0, 24.2, 4.02)
+    assert doxycycline["distance_to_nearer_bound"] == 7.8
+    assert doxycycline["within_the_printed_precision"] is False
+    assert doxycycline["bounds_inverted"] is True
+
+
+@needs_pdfs
+def test_the_ci_summary_raises_no_flag_of_its_own(records):
+    before = {id(r): list(r.flags) for r in records}
+    summarise_ci_checks(records)
+    assert all(list(r.flags) == before[id(r)] for r in records)
+
+
+@needs_pdfs
+def test_the_two_internal_checks_cover_disjoint_editions(records):
+    """A cell is checked against its own counts or against its own interval,
+    never both, because no edition prints both. Neither check silently covers
+    for the other's absence."""
+    reconciled = {
+        r.source_report_year for r in records if r.reconcilable
+    }
+    with_ci = {r.source_report_year for r in records if r.ci_low is not None}
+    assert reconciled == {2019, 2020, 2021}
+    assert with_ci == {2022, 2023, 2024}
+    assert not reconciled & with_ci
 
 
 # --- the corrupt-numerator summary -------------------------------------------
@@ -499,7 +593,7 @@ def test_extraction_report_states_the_metric_and_the_scope():
     assert data["network"] == "narsnet"
     assert "PERCENT RESISTANT" in data["metric"]
     assert "never be joined" in data["metric"]
-    assert "2019, 2020 and 2021" in data["scope"]
+    assert "2019 to 2024" in data["scope"]
     cross = data["cross_column_checks"]
     assert cross["degenerate_composites"]["count"] == 1
     assert cross["composite_vs_partition_sums"]["count"] > 0
@@ -523,6 +617,22 @@ def test_extraction_report_records_the_corrupt_numerators():
         "cannot appear here"
         in data["printed_pct_vs_printed_counts"]["description"]
     )
+
+
+@needs_export
+def test_extraction_report_records_the_ci_findings():
+    with open(
+        PROCESSED_DIR / "narsnet_extraction_report.json", encoding="utf-8"
+    ) as fh:
+        data = json.load(fh)
+    block = data["printed_pct_vs_printed_ci"]
+    assert block["count"] == 2
+    assert {r["source_report_year"] for r in block["rows"]} == {2022, 2023}
+    assert "not put back in order" in block["description"]
+    assert "nothing is corrected" in block["description"]
+    # The scope note has to say plainly that these editions carry no numerator,
+    # because that is what makes reconcilable false on 258 rows.
+    assert "no numerator at all" in data["scope"]
 
 
 @needs_export
@@ -552,7 +662,7 @@ def test_coverage_and_completeness_are_derived_from_the_records():
     that failed halfway is incomplete for the same reason a filter is."""
     full = [
         make(organism, "ampicillin", BLOOD, year, 10, 5, 50.0)
-        for year in (2019, 2020, 2021)
+        for year in ALL_YEARS
         for organism in (EC, SA)
     ]
     assert builder.coverage(full) == builder.FULL_SCOPE
@@ -574,7 +684,7 @@ def test_export_refuses_an_incomplete_record_set(tmp_path, monkeypatch, capsys):
 @needs_pdfs
 def test_a_narrow_build_does_not_write_the_canonical_files(tmp_path, monkeypatch):
     """The end-to-end guard. `--year 2019 --organism "Escherichia coli"` parses
-    34 of the dataset's 192 rows; before the guard existed it wrote all five
+    34 of the dataset's 450 rows; before the guard existed it wrote all five
     canonical files with that subset."""
     canonical_before = {
         name: (PROCESSED_DIR / name).read_bytes()

@@ -1,11 +1,22 @@
 """V3 -- NCDC NARS-Net specimen-wise resistance tables.
 
-Scope of this module as it stands: the **2019, 2020 and 2021** editions,
-*E. coli* and *S. aureus*. These are the editions that print a numerator at all,
-so a cell can be checked against its own printed percentage. The 2022-2024
-editions print none, and a mis-cut column there would yield a plausible-looking
-number with nothing in the document to contradict it. Proving the geometry where
-the document can contradict it comes first.
+Scope of this module: the **2019 to 2024** editions, *E. coli* and *S. aureus*.
+Those are the editions carrying something a cell can be checked against. The
+2017 and 2018 editions print a denominator and a percentage and nothing else,
+so a mis-cut column there would yield a plausible-looking number with nothing in
+the document to contradict it; they are not claimed.
+
+What the check is changes twice inside the window, because what is printed does:
+
+* **2019-2021** print `Number tested`, `Number Resistant` and `%R`, so each
+  cell is checked against its own printed percentage.
+* **2022-2024** print `Number Tested`, `(%R)` and a **95% CI**, and no
+  numerator at all. `numerator_status` is `not_printed_in_source` on every one
+  of those rows and `reconcilable` is false, so the absence of the first check
+  is recorded rather than assumed. A numerator is never back-computed as
+  denominator x %R: it would be the only invented count in the repository, and
+  checking the percentage against it would be circular. The check that applies
+  instead is the percentage against its own interval -- see below.
 
 A third table shape
 -------------------
@@ -18,23 +29,31 @@ What is reused is the machinery that does carry over: ruling-line table
 detection to bound the region, and whole-word geometry rather than pdfplumber's
 per-cell text.
 
-Column geometry is the ruled grid; the sub-header only names the columns
-------------------------------------------------------------------------
-Each column's x-interval is read from the table's own ruled cells across the
-DATA rows, and the sub-header words are used only to say which of the three a
-column is. The 2019 and 2020 sub-headers are horizontal and sit centred over
-their columns, so their own centres would serve; the 2021 sub-headers are
-rotated a quarter turn and sit wherever their cell leaves room, far enough off
-centre in the narrower columns to fall closer to a neighbour than to their own.
-The drawn grid does not move, so the geometry is taken from that instead.
+Two sources of column geometry, chosen by what the page shows
+-------------------------------------------------------------
+A column's x-interval is read from the table's own ruled cells across the DATA
+rows, and the sub-header words are used only to say which of the three a column
+is. The 2019 and 2020 sub-headers are horizontal and sit centred over their
+columns, so their own centres would serve; the 2021 sub-headers are rotated a
+quarter turn and sit wherever their cell leaves room, far enough off centre in
+the narrower columns to fall closer to a neighbour than to their own. The drawn
+grid does not move, so the geometry is taken from that instead.
 
 Two artefacts of the grid are handled explicitly. A rule drawn as two strokes
 leaves a sliver a few points wide between them, which pdfplumber reports as a
 cell of its own; a sliver holds no value word, so it is not a column. A merged
 header cell spans the columns beneath it, so an interval containing another is
-not a column either. What survives is one row-label column plus a whole number
-of three-column specimen groups, and the parser refuses to continue if it is
-not.
+not a column either. What should survive is one row-label column plus a whole
+number of three-column specimen groups.
+
+Where it does not, the grid did not divide the groups. The 2023 and 2024 tables
+rule the group boundaries and nothing inside them, so the sub-columns are read
+from the sub-header words instead -- and only when every one of them is
+horizontal, which is exactly the condition under which a word's position says
+where its column is. A table whose grid does not divide it AND whose sub-header
+is rotated stops the parser; both sources would be guesses, and guessing past
+that is how a column gets mis-cut without anyone noticing. Which source applied
+is decided per table by what the page shows, never by edition year.
 
 Rotated sub-headers read backwards
 ----------------------------------
@@ -61,12 +80,30 @@ shared value. `NarsNetRecord` therefore has no field that means the same thing
 as `Record.susceptible_pct`; the separation is structural rather than a
 convention to remember.
 
-Reconciliation
---------------
+Reconciliation, 2019-2021
+-------------------------
 `%R` is printed to whole numbers on most rows and to one decimal on a few, so a
 cell reconciles when the printed percentage is within half of its own printed
 precision of the numerator over the denominator. Cells outside that carry
 `pct_mismatch`, flagged and kept, never corrected.
+
+The percentage against its own interval, 2022-2024
+--------------------------------------------------
+Those editions print no numerator, so the check above has nothing to run on. A
+percentage and a 95% confidence interval are two printed statements about one
+quantity, though, and can disagree without a third figure: a point estimate
+outside its own interval carries `ci_excludes_point_estimate`. Bounds are used
+exactly as printed. Where the upper is printed below the lower the interval is
+empty as printed and also carries `ci_bounds_inverted`, because "outside its
+interval" understates an interval whose ends are the wrong way round, and
+putting them back in order would be a repair.
+
+`summarise_ci_checks` in `narsnet_validate.py` reports how far outside the
+percentage falls and whether that distance is within half the precision the
+percentage is printed to. The distinction is the point: a percentage printed to
+whole numbers beside an interval printed to one decimal can fall a tenth outside
+an interval that in fact contains it, which is a difference between how two
+columns are rounded rather than a disagreement about the figure.
 
 A numerator that is printed but is not the cell's numerator
 ------------------------------------------------------------
@@ -282,7 +319,11 @@ REJECT_RE = re.compile(r"\boverall\b", re.IGNORECASE)
 
 _TABLE_SETTINGS = {"vertical_strategy": "lines", "horizontal_strategy": "lines"}
 
-# The sub-header word that names each of the three columns of a specimen group.
+# The sub-header word that names each column of a specimen group. Brackets are
+# stripped before the lookup, because the percentage column is bracketed in some
+# editions and not others -- and in the 2022 E. coli table it is printed
+# "(% R)", which arrives as the two words "(%" and "R)".
+#
 # "resistant" is checked before the percent sign because no column carries both,
 # and the numerator column is the one whose misreading would be silent.
 # "Resistance", the 2021 name of the percentage column, is deliberately absent:
@@ -290,16 +331,26 @@ _TABLE_SETTINGS = {"vertical_strategy": "lines", "horizontal_strategy": "lines"}
 # without it.
 _ROLE_TOKENS = {
     "tested": "tested",
-    "resistant": "resistant",
-    "%r": "pct",       # 2019, 2020
-    "(%)": "pct",      # 2021, S. aureus
-    "%": "pct",        # 2021, E. coli
+    "resistant": "resistant",   # 2019-2021
+    "%r": "pct",                # 2019, 2020, 2022-2024
+    "%": "pct",                 # 2021
+    "95%": "ci",                # 2022-2024
+    "ci": "ci",
 }
 _PCT_TOKENS = {token for token, role in _ROLE_TOKENS.items() if role == "pct"}
 
+# The two column layouts the series uses. Both are three columns per specimen
+# group, but they are not the same three: the numerator is replaced by a 95%
+# confidence interval from the 2022 edition on. A table must be one shape
+# throughout -- no edition mixes them, and a table that appeared to would mean
+# the columns had been read wrongly.
+COUNT_SHAPE = ("tested", "resistant", "pct")   # 2019-2021
+CI_SHAPE = ("tested", "pct", "ci")             # 2022-2024
+_GROUP_SHAPES = (COUNT_SHAPE, CI_SHAPE)
+
 # Every word that belongs to the sub-header rather than to a specimen heading,
 # so that reassembling "Blood (N=1806)" cannot pick up part of the sub-header.
-_SUB_HEADER_WORDS = {"number", "resistance"} | set(_ROLE_TOKENS)
+_SUB_HEADER_WORDS = {"number", "resistance", "r"} | set(_ROLE_TOKENS)
 
 
 def _text(word) -> str:
@@ -310,6 +361,11 @@ def _text(word) -> str:
     comes back as `rebmuN`.
     """
     return word["text"][::-1] if not word.get("upright", True) else word["text"]
+
+
+def _role_key(word) -> str:
+    """A sub-header word reduced to the token the role table is keyed by."""
+    return _text(word).lower().replace("(", "").replace(")", "")
 
 
 @dataclass
@@ -345,7 +401,7 @@ def find_narsnet_table(pdf, organism_re, reject=None):
                 continue
             pct_words = [
                 w for w in page.extract_words()
-                if _text(w).lower() in _PCT_TOKENS
+                if _role_key(w) in _PCT_TOKENS
             ]
             if len(pct_words) < 2:
                 continue
@@ -447,13 +503,108 @@ def _content_columns(table, words, header_bottom):
     ]
 
 
-def _column_groups(page, table):
-    """Read one x-interval triple -- tested, resistant, %R -- per specimen group.
+def _word_columns(role_words, label_edge, right_edge):
+    """Sub-column intervals read from the sub-header words themselves.
 
-    The intervals come from the ruled grid and the sub-header words only say
-    which of the three each column is, so a sub-header that does not sit over
-    the middle of its own column -- the whole of the rotated 2021 row -- cannot
-    move a column.
+    Used only where the ruled grid does not divide a specimen group into its
+    three columns -- the 2023 and 2024 tables rule the group boundaries and
+    nothing inside them. Consecutive sub-header words naming the same column are
+    one run ("95%" and "CI" are one column, not two), and a boundary sits midway
+    between one run's right edge and the next run's left edge.
+
+    This is only safe because those editions set the sub-header horizontally
+    above its own column. `_column_groups` refuses to use it on a rotated
+    sub-header, which is the case where a word's position says nothing about
+    where its column is.
+    """
+    words = sorted(
+        (w for w in role_words if _centre(w) > label_edge), key=_centre
+    )
+    runs: list[dict] = []
+    for w in words:
+        role = _ROLE_TOKENS[_role_key(w)]
+        if runs and runs[-1]["role"] == role:
+            runs[-1]["x1"] = max(runs[-1]["x1"], w["x1"])
+        else:
+            runs.append({"role": role, "x0": w["x0"], "x1": w["x1"]})
+
+    columns, roles = [], []
+    for i, run in enumerate(runs):
+        left = label_edge if i == 0 else (runs[i - 1]["x1"] + run["x0"]) / 2.0
+        right = (
+            right_edge
+            if i == len(runs) - 1
+            else (run["x1"] + runs[i + 1]["x0"]) / 2.0
+        )
+        columns.append((left, right))
+        roles.append(run["role"])
+    return columns, roles
+
+
+def _roles_of(columns, role_words):
+    """Name each column from the sub-header words standing over it."""
+    roles = []
+    for iv in columns:
+        named = {
+            _ROLE_TOKENS[_role_key(w)]
+            for w in role_words
+            if iv[0] <= _centre(w) <= iv[1]
+        }
+        roles.append(
+            "resistant"
+            if "resistant" in named
+            else "ci"
+            if "ci" in named
+            else "pct"
+            if "pct" in named
+            else "tested"
+            if "tested" in named
+            else None
+        )
+    return roles
+
+
+def _scan_groups(columns, roles):
+    """Consecutive column triples matching one of the two printed layouts.
+
+    The scan steps over anything that does not begin a triple, which is how the
+    row-label column is skipped: its heading reads "Antibiotic tested" in every
+    edition and would otherwise name it a tested column. The caller checks that
+    nothing else was stepped over.
+    """
+    groups, index = [], 0
+    while index + 2 < len(columns) + 1:
+        window = tuple(roles[index : index + 3])
+        if len(window) == 3 and window in _GROUP_SHAPES:
+            groups.append(
+                {
+                    "shape": window,
+                    window[0]: columns[index],
+                    window[1]: columns[index + 1],
+                    window[2]: columns[index + 2],
+                    "left": columns[index][0],
+                    "right": columns[index + 2][1],
+                }
+            )
+            index += 3
+        else:
+            index += 1
+    return groups
+
+
+def _column_groups(page, table):
+    """Read one x-interval triple per specimen group, and say which is which.
+
+    Two sources of geometry, in that order:
+
+    * the table's own ruled cells, where the grid divides each group into its
+      three columns (2019-2022);
+    * the sub-header words, where it does not (2023, 2024), and only when they
+      are horizontal.
+
+    Which one applied is decided by whether the ruled columns come out as one
+    row-label column plus a whole number of groups, not by edition year, so an
+    edition whose ruling changes is handled by what the page shows.
     """
     x0, top, x1, bottom = table.bbox
     words = [
@@ -462,58 +613,43 @@ def _column_groups(page, table):
         if x0 - 2 <= _centre(w) <= x1 + 2 and top - 2 <= w["top"] <= bottom + 2
     ]
 
-    role_words = [w for w in words if _text(w).lower() in _ROLE_TOKENS]
+    role_words = [w for w in words if _role_key(w) in _ROLE_TOKENS]
     if not role_words:
         raise RuntimeError("no sub-header row found in the table region")
     header_bottom = max(w["bottom"] for w in role_words)
 
-    columns = _content_columns(table, words, header_bottom)
-    roles = []
-    for iv in columns:
-        named = {
-            _ROLE_TOKENS[_text(w).lower()]
-            for w in role_words
-            if iv[0] <= _centre(w) <= iv[1]
-        }
-        roles.append(
-            "resistant"
-            if "resistant" in named
-            else "pct"
-            if "pct" in named
-            else "tested"
-            if "tested" in named
-            else None
-        )
+    ruled = _content_columns(table, words, header_bottom)
+    if not ruled:
+        raise RuntimeError("the ruled table has no data columns")
+    groups = _scan_groups(ruled, _roles_of(ruled, role_words))
+    source = "ruled grid"
 
-    groups = []
-    index = 0
-    while index + 2 < len(columns):
-        if tuple(roles[index : index + 3]) == ("tested", "resistant", "pct"):
-            groups.append(
-                {
-                    "tested": columns[index],
-                    "resistant": columns[index + 1],
-                    "pct": columns[index + 2],
-                    "left": columns[index][0],
-                    "right": columns[index + 2][1],
-                }
+    # One row-label column plus a whole number of three-column groups is what a
+    # specimen-wise table is. Anything left over means the grid did not divide
+    # the groups, not that the table is malformed.
+    if not groups or len(groups) * 3 != len(ruled) - 1:
+        if not all(w.get("upright", True) for w in role_words):
+            raise RuntimeError(
+                "the ruled grid does not divide this table into specimen "
+                "groups and its sub-header is rotated, so neither source of "
+                "column geometry can be trusted: {} ruled column(s), {} "
+                "group(s)".format(len(ruled), len(groups))
             )
-            index += 3
-        else:
-            index += 1
+        columns, roles = _word_columns(role_words, ruled[0][1], x1)
+        groups = _scan_groups(columns, roles)
+        source = "sub-header words"
+        if not groups or len(groups) * 3 != len(columns):
+            raise RuntimeError(
+                "sub-header does not read as a whole number of specimen "
+                "groups: {} column(s), {} group(s), roles {}".format(
+                    len(columns), len(groups), roles
+                )
+            )
 
-    # A specimen-wise table is one row-label column followed by a whole number
-    # of three-column groups. The row-label column is what the scan above steps
-    # over: its heading reads "Antibiotic tested" in every edition, which would
-    # otherwise name it a tested column. Anything left unaccounted for means the
-    # grid was not read correctly, and guessing past that is how a column gets
-    # mis-cut without anyone noticing.
-    if not groups or len(groups) * 3 != len(columns) - 1:
+    shapes = {g["shape"] for g in groups}
+    if len(shapes) != 1:
         raise RuntimeError(
-            "table is not one row-label column plus whole specimen groups: "
-            "{} columns, {} group(s), roles {}".format(
-                len(columns), len(groups), roles
-            )
+            "table mixes column layouts, which no edition does: {}".format(shapes)
         )
 
     for g in groups:
@@ -524,20 +660,37 @@ def _column_groups(page, table):
             for w in words
             if g["left"] <= _centre(w) <= g["right"]
             and w["bottom"] <= ceiling
-            and _text(w).lower() not in _SUB_HEADER_WORDS
+            and _role_key(w) not in _SUB_HEADER_WORDS
         ]
         owned.sort(key=lambda w: (_line_key(w), w["x0"]))
         g["header"] = " ".join(_text(w) for w in owned)
         g["specimen"] = specimen_key(g["header"])
+        g["geometry"] = source
 
     return groups, header_bottom
 
 
 _NUMBER_RE = re.compile(r"^\d[\d,]*(?:\.\d+)?$")
 
+# A printed value in any edition: a count, a percentage that may be bracketed,
+# or a confidence interval or one half of one. The 2022-2024 tables print some
+# intervals with a space after the dash ("31.2- 38.2"), which arrives as two
+# words, so a bare "31.2-" has to count as a value or half the interval would be
+# dropped. "x", which those editions print where a drug is not tested for a
+# specimen, matches nothing here and is not a value.
+_VALUE_RE = re.compile(r"^\(?\d[\d,.\-]*\)?$")
+
+# "57.9-60.4", "0-0.1", "34.5-43". Reassembled from the words of one cell.
+_CI_RE = re.compile(r"^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$")
+
 
 def _int(text: str) -> int:
     return int(text.replace(",", ""))
+
+
+def _pct(text: str) -> float:
+    """A printed percentage. Bracketed in some editions, bare in others."""
+    return float(text.strip("()"))
 
 
 def _decimals(text: str) -> int:
@@ -572,7 +725,7 @@ def _data_rows(page, table, groups, header_bottom):
     label_edge = min(g["tested"][0] for g in groups)
 
     values = [
-        w for w in words if _NUMBER_RE.match(_text(w)) and _centre(w) > label_edge
+        w for w in words if _VALUE_RE.match(_text(w)) and _centre(w) > label_edge
     ]
     labels = [w for w in words if _centre(w) <= label_edge]
 
@@ -605,24 +758,26 @@ def _data_rows(page, table, groups, header_bottom):
 
 
 def _assign(row_words, groups):
-    """Put each value word in its column, by the ruled interval it sits in.
+    """Put each value word in its column, by the interval it sits in.
 
     A word whose centre falls in no column is dropped rather than attached to
-    the nearest one.
+    the nearest one. A column collects every word that lands in it, in printed
+    order, because a confidence interval printed with a space after its dash is
+    two words of one cell; they are rejoined by the caller.
     """
     columns = []
     for gi, g in enumerate(groups):
-        for field_name in ("tested", "resistant", "pct"):
+        for field_name in g["shape"]:
             columns.append((g[field_name], gi, field_name))
 
     cells: dict = {}
-    for w in row_words:
+    for w in sorted(row_words, key=_centre):
         centre = _centre(w)
         for (low, high), gi, field_name in columns:
             if low <= centre <= high:
-                cells.setdefault(gi, {})[field_name] = _text(w)
+                cells.setdefault(gi, {}).setdefault(field_name, []).append(_text(w))
                 break
-    return cells
+    return {gi: {k: "".join(v) for k, v in fields.items()} for gi, fields in cells.items()}
 
 
 # --- organism specs ---------------------------------------------------------
@@ -647,12 +802,13 @@ SPECS = {
     ),
 }
 
-# Editions this module has been built and checked against. The 2022-2024
-# editions drop the numerator entirely and print a 95% CI in its place, so they
-# are deliberately not claimed here.
+# Editions this module has been built and checked against: all eight reporting
+# periods NARS-Net has published for these two organisms, less 2017 and 2018,
+# which print no numerator and no interval and so support neither internal
+# check.
 EXPECTED_EDITIONS = {
-    "Escherichia coli": {2019, 2020, 2021},
-    "Staphylococcus aureus": {2019, 2020, 2021},
+    "Escherichia coli": {2019, 2020, 2021, 2022, 2023, 2024},
+    "Staphylococcus aureus": {2019, 2020, 2021, 2022, 2023, 2024},
 }
 
 
@@ -727,10 +883,21 @@ def _record(source, spec, hit, antibiotic, group, cell, extracted_date):
     tested_text = cell.get("tested")
     resistant_text = cell.get("resistant")
     pct_text = cell.get("pct")
+    ci_text = cell.get("ci")
 
     tested_n = _int(tested_text) if tested_text else None
     resistant_n = _int(resistant_text) if resistant_text else None
-    reported_pct = float(pct_text) if pct_text else None
+    reported_pct = _pct(pct_text) if pct_text else None
+
+    ci_low = ci_high = None
+    if ci_text:
+        m = _CI_RE.match(ci_text)
+        if m is None:
+            raise RuntimeError(
+                "{} {} / {}: 95% CI cell does not read as an interval: "
+                "{!r}".format(source.report_year, antibiotic, group["specimen"], ci_text)
+            )
+        ci_low, ci_high = float(m.group(1)), float(m.group(2))
 
     corrupt = (
         find_corrupt_numerators(
@@ -751,6 +918,25 @@ def _record(source, spec, hit, antibiotic, group, cell, extracted_date):
 
     if pct_text is None:
         flags.append("pct_suppressed_in_source")
+
+    # The one internal check the 2022-2024 tables can support. With no numerator
+    # there is nothing to reconcile a percentage against, but a percentage and
+    # its own interval are two printed statements about the same quantity, and a
+    # point estimate outside its own interval is a disagreement between them
+    # that needs no third figure to see. Bounds are used exactly as printed:
+    # where the upper is below the lower the interval is empty as printed, and
+    # putting them back in order would be a repair.
+    if ci_low is not None and ci_high is not None:
+        if ci_high < ci_low:
+            flags.append(
+                "ci_bounds_inverted(low={},high={})".format(ci_low, ci_high)
+            )
+        if reported_pct is not None and not ci_low <= reported_pct <= ci_high:
+            flags.append(
+                "ci_excludes_point_estimate(pct={},ci={}-{})".format(
+                    reported_pct, ci_low, ci_high
+                )
+            )
 
     # Whether the printed numerator can be trusted as this cell's numerator, not
     # merely whether one was printed. A corrupt cell prints a number and is not
@@ -785,8 +971,8 @@ def _record(source, spec, hit, antibiotic, group, cell, extracted_date):
         resistant_pct=reported_pct,
         numerator_status=numerator_status,
         reconcilable=reconcilable,
-        ci_low=None,
-        ci_high=None,
+        ci_low=ci_low,
+        ci_high=ci_high,
         source_report_year=source.report_year,
         source_cover_year=source.cover_year,
         source_table="Table {}".format(hit.table_number),
