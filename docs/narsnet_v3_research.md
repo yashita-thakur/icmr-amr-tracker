@@ -282,6 +282,9 @@ per-cell reconciliation check does not see it; it needs a cross-column check at 
 run on every cell in 2019 and 2020", not as "every cell agrees". 100 of the 108 cells agree within their printed
 precision.
 
+These tables also report every drug separately by specimen type instead of pooling — more work to produce, and the
+only reason a specimen-matched comparison between the two networks is possible at all.
+
 Verbatim sample rows:
 
 ```

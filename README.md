@@ -25,6 +25,8 @@ Running antimicrobial-resistance surveillance across a national network of this
 many laboratories, sustained over several years and published in a consistent
 annual form, is a hard operational and data-management problem; the extraction
 notes in this repository sit inside that context and are not a critique of it.
+NCDC's NARS-Net published its 2020 report from inside the pandemic, and said
+plainly why that year's isolate counts were down.
 
 ### What this is **not**
 
