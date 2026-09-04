@@ -1,11 +1,18 @@
 {
   "generated": "2026-09-04",
   "network": "narsnet",
-  "attribution": "Derived from the publicly available annual reports of two independent Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net (2019-2020). The two are published here as parallel series and are never pooled. Independent, unofficial analysis - not endorsed by or affiliated with ICMR or NCDC.",
+  "attribution": "Derived from the publicly available annual reports of two independent Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net (2019-2021). The two are published here as parallel series and are never pooled. Independent, unofficial analysis - not endorsed by or affiliated with ICMR or NCDC.",
   "metric": "Every value in this dataset is PERCENT RESISTANT. The AMRSN dataset in amr_trends.csv is percent susceptible, and AMRSN publishes no percent intermediate for E. coli or S. aureus, so an AMRSN percent resistant cannot be computed. The two datasets are parallel series and must never be joined on a single shared comparison value.",
-  "scope": "The 2019 and 2020 editions, E. coli and S. aureus. These are the editions whose printed numerator is complete enough that every cell can be checked against its own printed percentage. The 2021 edition prints a partly corrupt numerator and the 2022-2024 editions print none.",
-  "total_rows": 108,
+  "scope": "The 2019, 2020 and 2021 editions, E. coli and S. aureus. These are the editions that print a numerator at all. In 2019 and 2020 every cell can be checked against its own printed percentage; in 2021 every cell can except the fifteen listed under corrupt_numerators below, where the printed figure is not that cell's numerator. The 2022-2024 editions print no numerator and are not covered.",
+  "total_rows": 192,
   "sources": [
+    {
+      "report_year": 2021,
+      "reporting_period": "Jan-Dec 2021",
+      "cover_year": null,
+      "url": "https://ncdc.mohfw.gov.in/uploads/pdf/amr35.pdf",
+      "sha256": "976a985af372cbd2f59a5afb7381a6a68edb0bcca33e95b98bc0b3deea306785"
+    },
     {
       "report_year": 2020,
       "reporting_period": "Jan-Dec 2020",
@@ -22,6 +29,29 @@
     }
   ],
   "parsed": [
+    {
+      "report_year": 2021,
+      "organism": "Escherichia coli",
+      "source_table": "Table 6",
+      "rows": 57,
+      "specimens": [
+        "blood",
+        "osbf",
+        "pus_aspirate",
+        "urine"
+      ]
+    },
+    {
+      "report_year": 2021,
+      "organism": "Staphylococcus aureus",
+      "source_table": "Table 4",
+      "rows": 27,
+      "specimens": [
+        "blood",
+        "osbf",
+        "pus_aspirate"
+      ]
+    },
     {
       "report_year": 2020,
       "organism": "Escherichia coli",
@@ -70,12 +100,57 @@
   ],
   "failed": [],
   "fixtures": {
-    "passed": 22,
+    "passed": 40,
     "failed": 0,
     "failures": []
   },
+  "corrupt_numerators": {
+    "description": "Cells whose printed Number Resistant is not that cell's numerator. They are carried exactly as printed and flagged numerator_corrupt_in_source; numerator_status is corrupt_in_source, reconcilable is false, and no computed_pct is derived from them. Nothing is corrected and nothing is dropped. This is a different finding from printed_pct_vs_printed_counts below, where the numerator IS the cell's own figure and disagrees with the percentage beside it. Which cells these are is declared from a hand-read of the printed page rather than inferred from the size of the disagreement. cells_agreeing_with_their_printed_pct counts the cells inside a declared block whose printed numerator does nonetheless agree with the percentage printed beside it; they are reported here rather than exempted, because where the unit of a printing defect is the sub-column, which values came to rest on their own row is not something the printed table lets a reader establish.",
+    "count": 2,
+    "cells": 15,
+    "blocks": [
+      {
+        "source_report_year": 2021,
+        "organism": "Escherichia coli",
+        "specimen": "blood",
+        "scope": "whole sub-column",
+        "cells": 13,
+        "cells_agreeing_with_their_printed_pct": 2,
+        "agreeing": [
+          {
+            "antibiotic": "amoxicillin-clavulanate",
+            "tested_n": 680,
+            "resistant_n": 390,
+            "reported_pct": 57.0,
+            "computed_pct": 57.35
+          },
+          {
+            "antibiotic": "colistin",
+            "tested_n": 914,
+            "resistant_n": 0,
+            "reported_pct": 0.0,
+            "computed_pct": 0.0
+          }
+        ],
+        "note": "2021 Table 6, the whole Blood `Number Resistant` sub-column. Eleven of its thirteen printed figures do not follow from the denominator and the percentage printed beside them, and meropenem prints 981 resistant of 854 tested, which no count of one set of isolates can produce. The `Number Tested` and percentage columns are sound, and the Pus Aspirate and OSBF numerators in the same table reconcile throughout, so what did not survive printing is this one sub-column."
+      },
+      {
+        "source_report_year": 2021,
+        "organism": "Escherichia coli",
+        "specimen": "urine",
+        "scope": [
+          "cotrimoxazole",
+          "piperacillin-tazobactam"
+        ],
+        "cells": 2,
+        "cells_agreeing_with_their_printed_pct": 0,
+        "agreeing": [],
+        "note": "2021 Table 6, two Urine cells. Piperacillin/tazobactam prints 2,937 resistant of 2,937 tested and trimethoprim/sulfamethoxazole prints 8,918 of 8,918, each beside a printed percentage -- 29 and 59 -- that is not 100. The numerator repeats the denominator instead of recording a count. Every other Urine numerator in the table reconciles."
+      }
+    ]
+  },
   "printed_pct_vs_printed_counts": {
-    "description": "Cells whose printed percentage does not follow from their own printed counts, allowing half the printed precision for rounding. All are carried exactly as printed and flagged; nothing is corrected.",
+    "description": "Cells whose printed percentage does not follow from their own printed counts, allowing half the printed precision for rounding. All are carried exactly as printed and flagged; nothing is corrected. Cells whose numerator is corrupt in source cannot appear here: there is no numerator of their own for the percentage to disagree with.",
     "count": 8,
     "rows": [
       {
@@ -590,6 +665,46 @@
       "specimen_columns_added": [],
       "specimen_columns_removed": [
         "blood+urine+pus_aspirate+osbf"
+      ]
+    },
+    {
+      "organism": "Escherichia coli",
+      "from_edition": 2020,
+      "to_edition": 2021,
+      "antibiotics_added": [
+        "amikacin",
+        "amoxicillin-clavulanate",
+        "cefuroxime",
+        "doxycycline",
+        "fosfomycin",
+        "gentamicin",
+        "meropenem",
+        "piperacillin-tazobactam"
+      ],
+      "antibiotics_removed": [],
+      "specimen_columns_added": [
+        "osbf",
+        "pus_aspirate"
+      ],
+      "specimen_columns_removed": [
+        "pus_aspirate+osbf"
+      ]
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "from_edition": 2020,
+      "to_edition": 2021,
+      "antibiotics_added": [
+        "teicoplanin"
+      ],
+      "antibiotics_removed": [],
+      "specimen_columns_added": [
+        "osbf",
+        "pus_aspirate"
+      ],
+      "specimen_columns_removed": [
+        "blood+pus_aspirate+osbf",
+        "pus_aspirate+osbf"
       ]
     }
   ],

@@ -164,6 +164,81 @@ comparison value.
   committed export matches a fresh parse, so a stale export fails the suite.
   Test count 251 → 281.
 
+- **The 2021 edition**, *E. coli* and *S. aureus* — `BUILD_YEARS` becomes
+  `[2021, 2020, 2019]` and the dataset goes from 108 rows to 192. This is the
+  last edition that prints a numerator; 2022–2024 replace it with a 95% CI.
+  - **`numerator_status` gains its third value, `corrupt_in_source`.** The 2021
+    *E. coli* Table 6 prints a Blood `Number Resistant` sub-column, and two
+    Urine cells, whose figures are not those cells' numerators — meropenem
+    prints 981 resistant of 854 tested, and the two Urine cells print a
+    numerator equal to their denominator beside a percentage that is not 100.
+    A third enum value rather than a flag on top of `printed`, for the reason
+    `not_printed_in_source` is also a value: consumers switch on this field to
+    decide whether they may use `resistant_n`, and a two-value field plus a flag
+    lets a consumer that did not know about the flag read an unusable number as
+    a usable one. `reconcilable` is now `numerator_status == printed and
+    tested_n`, so it says the printed number can be trusted as this cell's
+    numerator rather than merely that one exists, and no `computed_pct` is
+    derived from a corrupt cell.
+  - **Which cells are corrupt is declared, not inferred.** `CORRUPT_NUMERATORS`
+    records the two blocks from a hand-read of the printed page. A rule keyed to
+    the size of the disagreement would have swept in the 2020 *S. aureus*
+    doxycycline Blood cell, which is a `pct_mismatch` — a cell whose own
+    numerator disagrees with its own percentage — and is a different finding
+    recorded a different way. The two are kept apart in the extraction report
+    for the same reason.
+  - **The whole Blood sub-column is declared, including the two cells that
+    agree.** Amoxicillin-clavulanate prints 390 of 680 beside 57, and colistin 0
+    of 914 beside 0. Both reconcile, and both are still marked corrupt: taking
+    each Blood row's printed denominator and percentage and asking which printed
+    numerator satisfies it yields a one-to-one matching in which twelve of the
+    thirteen values belong to a different row of the same column, so the two
+    that agree are the two the displacement left in place. Which values came to
+    rest on their own row is not something the printed table lets a reader
+    establish, so the sub-column is the unit. `summarise_corrupt_numerators`
+    counts the agreements into the extraction report rather than exempting them,
+    so the judgement is stated where it can be argued with. The full matching is
+    in `docs/narsnet_v3_research.md`; **it is not used to repair anything.**
+  - **Column geometry now comes from the ruled grid**, with the sub-header words
+    used only to name each column. The 2021 sub-headers are rotated a quarter
+    turn and sit wherever their cell leaves room — far enough off centre in the
+    narrower columns to fall closer to a neighbour than to their own, which
+    silently dropped cells under the previous nearest-centre rule. Two grid
+    artefacts are handled explicitly: a rule drawn as two strokes leaves a
+    sliver that holds no value word and is not a column, and a merged header
+    cell contains the columns beneath it and is not one either. What survives
+    must be one row-label column plus a whole number of three-column specimen
+    groups, or the parser stops. The 2019 and 2020 cells are byte-identical
+    under the new geometry.
+  - Rotated words also read backwards — pdfplumber orders characters top-down,
+    so `Number` arrives as `rebmuN` — which `_text` reverses. The percentage
+    column is renamed in this edition (`Resistance (%)` for *S. aureus*,
+    `Resistance %` for *E. coli*), so it is now recognised by its percent sign
+    rather than by the literal `%R`. The *S. aureus* caption reads "Resistance
+    profile **observed in**" where the *E. coli* one in the same document reads
+    "of".
+  - `specimen_key` learns the spelled-out headings this edition uses,
+    `Pus Aspirate` and `Other Sterile Body Fluids`, matched as phrases before
+    the word-by-word pass so that four words cannot be read as four strata. The
+    2021 edition prints no pooled column and splits PA+OSBF into two, so **no
+    2021 specimen column has the same membership as any 2020 one** and there is
+    no pair to compare edition over edition. The panel check reports both axes
+    moving at the same step: eight drugs added to the *E. coli* panel,
+    teicoplanin to *S. aureus*.
+  - **18 new fixtures**, 40 in total; 14 of the 18 are narrative. The 2021 chapters
+    state the *E. coli* Blood percentages for ciprofloxacin, TMP/SMX and
+    piperacillin-tazobactam, and carbapenem resistance in blood "up to 33%" —
+    four of the thirteen cells whose numerator is unusable. Prose is written
+    independently of the table, so those four percentages are corroborated from
+    outside it. Each fixture's `note` records whether the figure came from the
+    table or the narrative, and where both, which part came from which.
+- `tests/test_narsnet_extraction.py` — **84 more hand-read cells**, 192 in
+  total, read by eye off `narsnet_2021.pdf` p24 and p29 before being compared
+  against `docs/narsnet_v3_research.md`, so the reading is evidence for that
+  document's B5 entry rather than a copy of it. That reading refines B5: the
+  Blood sub-column fails in 11 of 13 cells, not all 13. With the corrupt-
+  numerator tests in `tests/test_narsnet_validate.py`, test count 281 → 311.
+
 ### Fixed — the four deferred statements
 
 `data/processed/` now carries NARS-Net rows, so the four statements recorded
@@ -173,7 +248,8 @@ as carrying ICMR AMRSN data and nothing else:
 - **`ATTRIBUTION` in `src/sources.py`** now names both networks and disclaims
   affiliation with both ICMR and NCDC. It is written into every export file, so
   this is the correction with the widest reach. See the note below on the AMRSN
-  export files.
+  export files. Its NARS-Net range reads 2019–2021 as of the 2021 edition being
+  ingested, and `DATA_LICENSE.md` quotes the same string.
 - **`index.html`** — the “This is not” list now reads “a pooled cross-network
   figure” rather than “NARS-Net data”, and says NARS-Net is carried as a separate
   parallel series in its own files.

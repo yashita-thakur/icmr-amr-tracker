@@ -1,12 +1,11 @@
 """V3 -- NCDC NARS-Net specimen-wise resistance tables.
 
-Scope of this module as it stands: the **2019 and 2020** editions, *E. coli* and
-*S. aureus*. Those two editions come first because they are the only ones where
-the printed numerator is complete and usable, so every cell can be checked
-against its own printed percentage. The 2022-2024 editions print no numerator at
-all, and a mis-cut column there yields a plausible-looking number with nothing in
-the document to contradict it. Proving the geometry where the document can
-contradict it comes first.
+Scope of this module as it stands: the **2019, 2020 and 2021** editions,
+*E. coli* and *S. aureus*. These are the editions that print a numerator at all,
+so a cell can be checked against its own printed percentage. The 2022-2024
+editions print none, and a mis-cut column there would yield a plausible-looking
+number with nothing in the document to contradict it. Proving the geometry where
+the document can contradict it comes first.
 
 A third table shape
 -------------------
@@ -19,11 +18,32 @@ What is reused is the machinery that does carry over: ruling-line table
 detection to bound the region, and whole-word geometry rather than pdfplumber's
 per-cell text.
 
-Column geometry is read from the sub-header row, not guessed. The `%R` and
-`Resistant` words give one x-centre per specimen group; the `tested` word
-belonging to a group is the last one to its group's left. Taking `tested` only
-from the sub-header line also sidesteps the row-label header, which reads
-"Antibiotic tested" and would otherwise contribute a fourth `tested` column.
+Column geometry is the ruled grid; the sub-header only names the columns
+------------------------------------------------------------------------
+Each column's x-interval is read from the table's own ruled cells across the
+DATA rows, and the sub-header words are used only to say which of the three a
+column is. The 2019 and 2020 sub-headers are horizontal and sit centred over
+their columns, so their own centres would serve; the 2021 sub-headers are
+rotated a quarter turn and sit wherever their cell leaves room, far enough off
+centre in the narrower columns to fall closer to a neighbour than to their own.
+The drawn grid does not move, so the geometry is taken from that instead.
+
+Two artefacts of the grid are handled explicitly. A rule drawn as two strokes
+leaves a sliver a few points wide between them, which pdfplumber reports as a
+cell of its own; a sliver holds no value word, so it is not a column. A merged
+header cell spans the columns beneath it, so an interval containing another is
+not a column either. What survives is one row-label column plus a whole number
+of three-column specimen groups, and the parser refuses to continue if it is
+not.
+
+Rotated sub-headers read backwards
+----------------------------------
+In the 2021 edition every sub-header word is set rotated a quarter turn, and
+pdfplumber, which orders characters top-down, hands them back reversed --
+`Number` arrives as `rebmuN`. `_text` puts a non-upright word back into reading
+order. That edition also renames the percentage column, from `%R` to
+`Resistance (%)` in the S. aureus table and `Resistance %` in the E. coli one,
+so the column is recognised by its percent sign rather than by a fixed word.
 
 Labels are not on the same line as their values
 -----------------------------------------------
@@ -47,6 +67,29 @@ Reconciliation
 cell reconciles when the printed percentage is within half of its own printed
 precision of the numerator over the denominator. Cells outside that carry
 `pct_mismatch`, flagged and kept, never corrected.
+
+A numerator that is printed but is not the cell's numerator
+------------------------------------------------------------
+The 2021 *E. coli* table needs a second, coarser distinction. Its Blood
+`Number Resistant` sub-column, and two of its Urine cells, print figures that
+are not those cells' numerators; `CORRUPT_NUMERATORS` records what the page
+shows. `numerator_status` therefore has a third value, `corrupt_in_source`,
+beside `printed` and `not_printed_in_source`, rather than a flag layered on top
+of `printed`. Consumers switch on that field to decide whether they may use
+`resistant_n`, and with a two-value field plus a flag, a consumer that did not
+know to check the flag would read an unusable number as a usable one -- the
+same failure the `not_printed_in_source` value exists to prevent. `reconcilable`
+is false for those cells: it records whether the printed number can be trusted
+as this cell's numerator, not merely whether one was printed.
+
+That is a different statement from `pct_mismatch`, and the two are deliberately
+kept apart. A `pct_mismatch` cell prints its own numerator and that numerator
+disagrees with the percentage beside it; both are carried and both are flagged.
+A corrupt cell prints a figure that is not its numerator, so there is nothing
+for the percentage to disagree with. Which cells those are is declared from a
+hand-read of the page rather than inferred from the size of the disagreement: a
+threshold rule would also re-classify the 2020 *S. aureus* doxycycline Blood
+cell, which is a separate finding already recorded a separate way.
 """
 
 from __future__ import annotations
@@ -75,11 +118,83 @@ ATOMIC_SPECIMENS = (BLOOD, URINE, PUS_ASPIRATE, OSBF)
 # would both render as the same value.
 _SPECIMEN_ORDER = {BLOOD: 0, URINE: 1, PUS_ASPIRATE: 2, OSBF: 3}
 
-# Numerator provenance. The distinction matters because "not printed" and "zero"
-# are different facts about the source, and neither is an extraction failure.
+# Numerator provenance. The distinction matters because "not printed", "zero"
+# and "a number that is not this cell's numerator" are three different facts
+# about the source, and none of them is an extraction failure.
 NUMERATOR_PRINTED = "printed"
 NUMERATOR_NOT_PRINTED = "not_printed_in_source"
 NUMERATOR_CORRUPT = "corrupt_in_source"
+
+
+@dataclass(frozen=True)
+class CorruptNumerators:
+    """A block of cells whose printed `Number Resistant` is not their numerator.
+
+    Declared from a hand-read of the printed page rather than inferred at run
+    time. A rule that marked a cell corrupt whenever its counts and its
+    percentage disagreed by more than some amount would also catch the 2019 and
+    2020 cells that carry `pct_mismatch`, and those are a different finding:
+    there the numerator is the cell's own figure and disagrees with the
+    percentage beside it, and both are kept and flagged.
+
+    `antibiotics` is None where a whole sub-column is declared. The unit of a
+    printing defect can be the sub-column rather than the cell, and where it is,
+    a cell inside it that does happen to agree with its own printed percentage
+    is not exempted: which values in a displaced column have come to rest on
+    their own row is not something the printed table lets a reader establish.
+    Those agreements are counted in the extraction report rather than acted on,
+    so the judgement stays visible and can be revisited.
+    """
+
+    year: int
+    organism: str
+    specimen: str
+    antibiotics: frozenset | None
+    note: str
+
+
+CORRUPT_NUMERATORS: tuple = (
+    CorruptNumerators(
+        year=2021,
+        organism="Escherichia coli",
+        specimen=BLOOD,
+        antibiotics=None,
+        note=(
+            "2021 Table 6, the whole Blood `Number Resistant` sub-column. "
+            "Eleven of its thirteen printed figures do not follow from the "
+            "denominator and the percentage printed beside them, and meropenem "
+            "prints 981 resistant of 854 tested, which no count of one set of "
+            "isolates can produce. The `Number Tested` and percentage columns "
+            "are sound, and the Pus Aspirate and OSBF numerators in the same "
+            "table reconcile throughout, so what did not survive printing is "
+            "this one sub-column."
+        ),
+    ),
+    CorruptNumerators(
+        year=2021,
+        organism="Escherichia coli",
+        specimen=URINE,
+        antibiotics=frozenset({"piperacillin-tazobactam", "cotrimoxazole"}),
+        note=(
+            "2021 Table 6, two Urine cells. Piperacillin/tazobactam prints "
+            "2,937 resistant of 2,937 tested and trimethoprim/sulfamethoxazole "
+            "prints 8,918 of 8,918, each beside a printed percentage -- 29 and "
+            "59 -- that is not 100. The numerator repeats the denominator "
+            "instead of recording a count. Every other Urine numerator in the "
+            "table reconciles."
+        ),
+    ),
+)
+
+
+def find_corrupt_numerators(year, organism, specimen, antibiotic):
+    """The declaration covering one cell, or None if none covers it."""
+    for entry in CORRUPT_NUMERATORS:
+        if (entry.year, entry.organism, entry.specimen) != (year, organism, specimen):
+            continue
+        if entry.antibiotics is None or antibiotic in entry.antibiotics:
+            return entry
+    return None
 
 
 @dataclass
@@ -148,10 +263,14 @@ NARSNET_FIELDNAMES = [
 # "Table 6: Resistance profile of E. coli"                       (2019)
 # "Table 5. Resistance profile of Staphylococcus aureus (N= 9,639)"  (2020)
 # "Table 8. Specimen wise resistance profile of E. coli (N=17,271 )" (2020)
+# "Table 4: Resistance profile observed in Staphylococcus aureus"    (2021)
+# "Table 6: Resistance profile of Escherichia coli"                  (2021)
+# The 2021 edition names the organism two ways in the same document: its
+# S. aureus caption reads "observed in", its E. coli caption "of".
 CAPTION_RE = re.compile(
     r"Table\s*(?P<table>\d+[a-z]?)\s*[:.\-]?\s*"
     r"(?:Specimen[\s\-]*wise\s+)?"
-    r"Resistance\s+profile\s+of\s+(?P<rest>.{0,120})",
+    r"Resistance\s+profile\s+(?:of|observed\s+in)\s+(?P<rest>.{0,120})",
     re.IGNORECASE | re.DOTALL,
 )
 
@@ -163,7 +282,34 @@ REJECT_RE = re.compile(r"\boverall\b", re.IGNORECASE)
 
 _TABLE_SETTINGS = {"vertical_strategy": "lines", "horizontal_strategy": "lines"}
 
-_SUB_HEADER_WORDS = {"number", "tested", "resistant", "%r"}
+# The sub-header word that names each of the three columns of a specimen group.
+# "resistant" is checked before the percent sign because no column carries both,
+# and the numerator column is the one whose misreading would be silent.
+# "Resistance", the 2021 name of the percentage column, is deliberately absent:
+# it is a prose word, and the percent sign beside it identifies the column
+# without it.
+_ROLE_TOKENS = {
+    "tested": "tested",
+    "resistant": "resistant",
+    "%r": "pct",       # 2019, 2020
+    "(%)": "pct",      # 2021, S. aureus
+    "%": "pct",        # 2021, E. coli
+}
+_PCT_TOKENS = {token for token, role in _ROLE_TOKENS.items() if role == "pct"}
+
+# Every word that belongs to the sub-header rather than to a specimen heading,
+# so that reassembling "Blood (N=1806)" cannot pick up part of the sub-header.
+_SUB_HEADER_WORDS = {"number", "resistance"} | set(_ROLE_TOKENS)
+
+
+def _text(word) -> str:
+    """One word, in reading order.
+
+    pdfplumber orders characters top-down, which reverses a word set rotated a
+    quarter turn -- every sub-header word in the 2021 edition, where `Number`
+    comes back as `rebmuN`.
+    """
+    return word["text"][::-1] if not word.get("upright", True) else word["text"]
 
 
 @dataclass
@@ -198,7 +344,8 @@ def find_narsnet_table(pdf, organism_re, reject=None):
             if reject is not None and reject.search(rest):
                 continue
             pct_words = [
-                w for w in page.extract_words() if w["text"].lower() == "%r"
+                w for w in page.extract_words()
+                if _text(w).lower() in _PCT_TOKENS
             ]
             if len(pct_words) < 2:
                 continue
@@ -211,6 +358,15 @@ def find_narsnet_table(pdf, organism_re, reject=None):
 
 # --- specimen headers -------------------------------------------------------
 
+# The 2019 and 2020 headings abbreviate; the 2021 headings spell the same two
+# strata out ("Pus Aspirate", "Other Sterile Body Fluids"). A spelled-out
+# heading is matched as a phrase and removed before the single-word pass, so
+# that its separate words cannot be read as separate specimens.
+_SPECIMEN_PHRASES = [
+    (re.compile(r"other\s+sterile\s+body\s+fluids?", re.I), OSBF),
+    (re.compile(r"pus\s+aspirates?", re.I), PUS_ASPIRATE),
+]
+
 _SPECIMEN_TOKENS = [
     (re.compile(r"^blood$", re.I), BLOOD),
     (re.compile(r"^urine$", re.I), URINE),
@@ -222,9 +378,11 @@ _SPECIMEN_TOKENS = [
 def specimen_key(header: str) -> str:
     """Turn a printed specimen header into a canonical specimen value.
 
-    "Blood (N=4,976)"                   -> "blood"
-    "PA+OSBF (N=8,314)"                 -> "pus_aspirate+osbf"
-    "Blood + Urine + PA + OSBF (N=...)" -> "blood+urine+pus_aspirate+osbf"
+    "Blood (N=4,976)"                    -> "blood"
+    "PA+OSBF (N=8,314)"                  -> "pus_aspirate+osbf"
+    "Blood + Urine + PA + OSBF (N=...)"  -> "blood+urine+pus_aspirate+osbf"
+    "Pus Aspirate (N=6434)"              -> "pus_aspirate"
+    "Other Sterile Body Fluids (N=630)"  -> "osbf"
 
     A composite keeps every constituent in its value rather than collapsing to a
     single "pooled" label, because the composites are not the same set across
@@ -233,8 +391,12 @@ def specimen_key(header: str) -> str:
     different denominators.
     """
     text = re.sub(r"\(.*?\)", " ", header or "")
-    parts = [p for p in re.split(r"[+,/&]|\band\b", text) if p.strip()]
     found = []
+    for pattern, canonical in _SPECIMEN_PHRASES:
+        if pattern.search(text) and canonical not in found:
+            found.append(canonical)
+        text = pattern.sub(" ", text)
+    parts = [p for p in re.split(r"[+,/&]|\band\b", text) if p.strip()]
     for part in parts:
         for word in part.split():
             token = re.sub(r"[^A-Za-z]", "", word)
@@ -259,79 +421,113 @@ def _line_key(word) -> int:
     return round(word["top"] / 4.0)
 
 
-def _column_groups(page, region):
-    """Read one x-centre triple -- tested, resistant, %R -- per specimen group."""
-    x0, top, x1, bottom = region
+def _content_columns(table, words, header_bottom):
+    """The x-interval of every column of the table's data area, left to right.
+
+    Read from the table's own ruled cells across the data rows. Two kinds of
+    interval are not columns and are dropped: a sliver left between the two
+    strokes of a single thick rule, which holds no value word; and a merged
+    header cell, which contains the columns beneath it.
+    """
+    body = [w for w in words if w["top"] > header_bottom + 1]
+    intervals = sorted(
+        {
+            (round(cell[0], 2), round(cell[2], 2))
+            for cell in table.cells
+            if cell and cell[1] >= header_bottom - 1
+        }
+    )
+    held = [
+        iv for iv in intervals if any(iv[0] <= _centre(w) <= iv[1] for w in body)
+    ]
+    return [
+        a
+        for a in held
+        if not any(b != a and a[0] <= b[0] and b[1] <= a[1] for b in held)
+    ]
+
+
+def _column_groups(page, table):
+    """Read one x-interval triple -- tested, resistant, %R -- per specimen group.
+
+    The intervals come from the ruled grid and the sub-header words only say
+    which of the three each column is, so a sub-header that does not sit over
+    the middle of its own column -- the whole of the rotated 2021 row -- cannot
+    move a column.
+    """
+    x0, top, x1, bottom = table.bbox
     words = [
         w
         for w in page.extract_words()
         if x0 - 2 <= _centre(w) <= x1 + 2 and top - 2 <= w["top"] <= bottom + 2
     ]
 
-    by_line: dict[int, list] = {}
-    for w in words:
-        by_line.setdefault(_line_key(w), []).append(w)
+    role_words = [w for w in words if _text(w).lower() in _ROLE_TOKENS]
+    if not role_words:
+        raise RuntimeError("no sub-header row found in the table region")
+    header_bottom = max(w["bottom"] for w in role_words)
 
-    pct_line = None
-    for key in sorted(by_line):
-        if len([w for w in by_line[key] if w["text"].lower() == "%r"]) >= 2:
-            pct_line = key
-            break
-    if pct_line is None:
-        raise RuntimeError("no %R sub-header row found in the table region")
-
-    res_line = None
-    for key in sorted(by_line):
-        if key < pct_line:
-            continue
-        if len([w for w in by_line[key] if w["text"].lower() == "resistant"]) >= 2:
-            res_line = key
-            break
-    if res_line is None:
-        raise RuntimeError("no 'Resistant' sub-header row found in the table region")
-
-    pct = sorted(
-        [w for w in by_line[pct_line] if w["text"].lower() == "%r"], key=_centre
-    )
-    # Only the sub-header line's own words, so the row-label header
-    # ("Antibiotic tested") cannot contribute a spurious column.
-    sub = by_line[res_line]
-    res = sorted([w for w in sub if w["text"].lower() == "resistant"], key=_centre)
-    tested = sorted([w for w in sub if w["text"].lower() == "tested"], key=_centre)
-
-    if not (len(pct) == len(res) == len(tested)):
-        raise RuntimeError(
-            "sub-header is not a whole number of specimen groups: "
-            "{} %R, {} Resistant, {} tested".format(len(pct), len(res), len(tested))
+    columns = _content_columns(table, words, header_bottom)
+    roles = []
+    for iv in columns:
+        named = {
+            _ROLE_TOKENS[_text(w).lower()]
+            for w in role_words
+            if iv[0] <= _centre(w) <= iv[1]
+        }
+        roles.append(
+            "resistant"
+            if "resistant" in named
+            else "pct"
+            if "pct" in named
+            else "tested"
+            if "tested" in named
+            else None
         )
 
     groups = []
-    for p, r, t in zip(pct, res, tested):
-        if not (_centre(t) < _centre(r) < _centre(p)):
-            raise RuntimeError(
-                "specimen group columns are out of order: tested/resistant/%R at "
-                "{:.0f}/{:.0f}/{:.0f}".format(_centre(t), _centre(r), _centre(p))
+    index = 0
+    while index + 2 < len(columns):
+        if tuple(roles[index : index + 3]) == ("tested", "resistant", "pct"):
+            groups.append(
+                {
+                    "tested": columns[index],
+                    "resistant": columns[index + 1],
+                    "pct": columns[index + 2],
+                    "left": columns[index][0],
+                    "right": columns[index + 2][1],
+                }
             )
-        groups.append(
-            {
-                "tested": _centre(t),
-                "resistant": _centre(r),
-                "pct": _centre(p),
-                "left": t["x0"],
-                "right": p["x1"],
-            }
+            index += 3
+        else:
+            index += 1
+
+    # A specimen-wise table is one row-label column followed by a whole number
+    # of three-column groups. The row-label column is what the scan above steps
+    # over: its heading reads "Antibiotic tested" in every edition, which would
+    # otherwise name it a tested column. Anything left unaccounted for means the
+    # grid was not read correctly, and guessing past that is how a column gets
+    # mis-cut without anyone noticing.
+    if not groups or len(groups) * 3 != len(columns) - 1:
+        raise RuntimeError(
+            "table is not one row-label column plus whole specimen groups: "
+            "{} columns, {} group(s), roles {}".format(
+                len(columns), len(groups), roles
+            )
         )
 
-    header_bottom = max(w["bottom"] for w in by_line[res_line])
-    header_words = [
-        w
-        for w in words
-        if _line_key(w) < pct_line and w["text"].lower() not in _SUB_HEADER_WORDS
-    ]
     for g in groups:
-        owned = [w for w in header_words if g["left"] - 6 <= _centre(w) <= g["right"] + 6]
+        own = [w for w in role_words if g["left"] <= _centre(w) <= g["right"]]
+        ceiling = min(w["top"] for w in own)
+        owned = [
+            w
+            for w in words
+            if g["left"] <= _centre(w) <= g["right"]
+            and w["bottom"] <= ceiling
+            and _text(w).lower() not in _SUB_HEADER_WORDS
+        ]
         owned.sort(key=lambda w: (_line_key(w), w["x0"]))
-        g["header"] = " ".join(w["text"] for w in owned)
+        g["header"] = " ".join(_text(w) for w in owned)
         g["specimen"] = specimen_key(g["header"])
 
     return groups, header_bottom
@@ -358,27 +554,26 @@ def pct_tolerance(printed: str) -> float:
     return 0.5 * (10.0 ** -_decimals(printed)) + 1e-9
 
 
-def _data_rows(page, region, groups, header_bottom):
+def _data_rows(page, table, groups, header_bottom):
     """Band rows on their value words, then draw in each row's label.
 
     The 2019 tables print an antibiotic label several points below its own value
     row, so a row cannot be assembled from a shared baseline.
     """
-    x0, _top, x1, bottom = region
+    x0, _top, x1, bottom = table.bbox
     words = [
         w
         for w in page.extract_words()
         if x0 - 2 <= _centre(w) <= x1 + 2 and header_bottom + 1 < w["top"] <= bottom
     ]
 
-    centres = []
-    for g in groups:
-        centres.extend([g["tested"], g["resistant"], g["pct"]])
-    label_edge = min(centres) - 0.5 * min(
-        abs(b - a) for a, b in zip(sorted(centres), sorted(centres)[1:])
-    )
+    # The row-label column is everything left of the first column of the first
+    # specimen group, which the ruled grid puts an exact edge on.
+    label_edge = min(g["tested"][0] for g in groups)
 
-    values = [w for w in words if _NUMBER_RE.match(w["text"]) and _centre(w) > label_edge]
+    values = [
+        w for w in words if _NUMBER_RE.match(_text(w)) and _centre(w) > label_edge
+    ]
     labels = [w for w in words if _centre(w) <= label_edge]
 
     bands: dict[int, list] = {}
@@ -404,27 +599,29 @@ def _data_rows(page, region, groups, header_bottom):
             w for w in labels if row["lo"] < (w["top"] + w["bottom"]) / 2.0 <= hi
         ]
         owned.sort(key=lambda w: (_line_key(w), w["x0"]))
-        row["label"] = " ".join(w["text"] for w in owned)
+        row["label"] = " ".join(_text(w) for w in owned)
 
     return rows
 
 
 def _assign(row_words, groups):
-    """Put each value word in its column, by nearest x-centre."""
+    """Put each value word in its column, by the ruled interval it sits in.
+
+    A word whose centre falls in no column is dropped rather than attached to
+    the nearest one.
+    """
     columns = []
     for gi, g in enumerate(groups):
         for field_name in ("tested", "resistant", "pct"):
             columns.append((g[field_name], gi, field_name))
-    gaps = [b[0] - a[0] for a, b in zip(sorted(columns), sorted(columns)[1:])]
-    limit = 0.5 * min(gaps)
 
     cells: dict = {}
     for w in row_words:
         centre = _centre(w)
-        x, gi, field_name = min(columns, key=lambda c: abs(c[0] - centre))
-        if abs(x - centre) > limit:
-            continue
-        cells.setdefault(gi, {})[field_name] = w["text"]
+        for (low, high), gi, field_name in columns:
+            if low <= centre <= high:
+                cells.setdefault(gi, {})[field_name] = _text(w)
+                break
     return cells
 
 
@@ -450,12 +647,12 @@ SPECS = {
     ),
 }
 
-# Editions this module has been built and checked against. Later editions change
-# the column structure -- 2021 prints a numerator that is partly corrupt, and
-# 2022-2024 replace it with a 95% CI -- so they are deliberately not claimed here.
+# Editions this module has been built and checked against. The 2022-2024
+# editions drop the numerator entirely and print a 95% CI in its place, so they
+# are deliberately not claimed here.
 EXPECTED_EDITIONS = {
-    "Escherichia coli": {2019, 2020},
-    "Staphylococcus aureus": {2019, 2020},
+    "Escherichia coli": {2019, 2020, 2021},
+    "Staphylococcus aureus": {2019, 2020, 2021},
 }
 
 
@@ -487,13 +684,13 @@ def parse_narsnet_report(source, spec: NarsNetSpec, extracted_date=None):
                     source.report_year, hit.table_number, spec.name, page.page_number
                 )
             )
-        region = max(
-            (t.bbox for t in tables),
-            key=lambda b: (b[2] - b[0]) * (b[3] - b[1]),
+        table = max(
+            tables,
+            key=lambda t: (t.bbox[2] - t.bbox[0]) * (t.bbox[3] - t.bbox[1]),
         )
 
-        groups, header_bottom = _column_groups(page, region)
-        rows = _data_rows(page, region, groups, header_bottom)
+        groups, header_bottom = _column_groups(page, table)
+        rows = _data_rows(page, table, groups, header_bottom)
 
         seen = set()
         for row in rows:
@@ -535,16 +732,32 @@ def _record(source, spec, hit, antibiotic, group, cell, extracted_date):
     resistant_n = _int(resistant_text) if resistant_text else None
     reported_pct = float(pct_text) if pct_text else None
 
-    if resistant_text:
-        numerator_status = NUMERATOR_PRINTED
-    else:
+    corrupt = (
+        find_corrupt_numerators(
+            source.report_year, spec.name, group["specimen"], antibiotic
+        )
+        if resistant_text
+        else None
+    )
+
+    if not resistant_text:
         numerator_status = NUMERATOR_NOT_PRINTED
         flags.append("numerator_not_printed_in_source")
+    elif corrupt is not None:
+        numerator_status = NUMERATOR_CORRUPT
+        flags.append("numerator_corrupt_in_source")
+    else:
+        numerator_status = NUMERATOR_PRINTED
 
     if pct_text is None:
         flags.append("pct_suppressed_in_source")
 
-    reconcilable = resistant_n is not None and bool(tested_n)
+    # Whether the printed numerator can be trusted as this cell's numerator, not
+    # merely whether one was printed. A corrupt cell prints a number and is not
+    # reconcilable, and no percentage is computed from it -- computing one would
+    # put a figure derived from an unusable count beside the sound printed
+    # percentage, where the next reader would have to know which was which.
+    reconcilable = numerator_status == NUMERATOR_PRINTED and bool(tested_n)
     computed_pct = None
     if reconcilable:
         computed_pct = round(100.0 * resistant_n / tested_n, 2)

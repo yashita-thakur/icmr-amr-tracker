@@ -285,6 +285,69 @@ precision.
 These tables also report every drug separately by specimen type instead of pooling — more work to produce, and the
 only reason a specimen-matched comparison between the two networks is possible at all.
 
+### Extending the check to 2021 — what the two tables show, cell by cell
+
+B5 below records the 2021 *E. coli* Blood column as corrupt at source. That entry was written from a rendering of
+the page during the investigation. When the parser was extended to the edition, all **84** printed cells of the two
+2021 tables were read by eye off `narsnet_2021.pdf` p24 (Table 4, *S. aureus*) and p29 (Table 6, *E. coli*),
+independently of this document, so that what follows is a second reading rather than a copy of the first.
+
+The counts, by column:
+
+| Table | Column | Cells | Reconcile |
+|---|---|---|---|
+| Table 4, *S. aureus* | Blood, Pus aspirate, OSBF | 27 | **27** |
+| Table 6, *E. coli* | Pus Aspirate | 14 | **14** |
+| Table 6, *E. coli* | OSBF | 14 | **14** |
+| Table 6, *E. coli* | Urine | 16 | **14** (Pip/Taz and TMP/SMX do not) |
+| Table 6, *E. coli* | Blood | 13 | **2** (Amox-clav and Colistin do) |
+
+**One refinement to B5.** The Blood `Number Resistant` sub-column does not reconcile in **11 of its 13 cells**, not
+in all thirteen. Amoxicillin/clavulanic acid prints 390 of 680 beside a printed 57, and colistin prints 0 of 914
+beside a printed 0; both agree.
+
+**The Blood figures are the column's own values, printed against the wrong rows.** Taking each Blood row's printed
+denominator and printed percentage and asking which of the thirteen printed numerators would satisfy it gives
+exactly one candidate per row, and the answer is a one-to-one matching:
+
+| Row (`N`, printed %R) | Numerator that satisfies it | Row it is actually printed against |
+|---|---|---|
+| Amikacin (1,510, 29) | 431 | Gentamicin |
+| Ampicillin (1,294, 84) | 1,088 | Amikacin |
+| Cefepime (1,286, 62) | 797 | Cefotaxime |
+| Cefotaxime (1,380, 77) | 1,056 | Cefepime |
+| Ciprofloxacin (1,551, 63) | 981 | Meropenem |
+| Ertapenem (406, 33) | 135 | Ciprofloxacin |
+| Gentamicin (1,260, 39) | 491 | Imipenem |
+| Meropenem (854, 25) | 211 | Ertapenem |
+| Piperacillin/Tazobactam (1,350, 43) | 584 | Ampicillin |
+| Trimethoprim/Sulfamethoxazole (1,289, 54) | 701 | Piperacillin/Tazobactam |
+| Amoxicillin/Clavulanic acid (680, 57) | 390 | Amoxicillin/Clavulanic acid |
+| Colistin (914, 0) | 0 | Colistin |
+| Imipenem (1,593, 29) | — none of the thirteen | — |
+
+Twelve of the thirteen printed values are the right values in the wrong places; `14`, printed against
+Trimethoprim/Sulfamethoxazole, matches no row, and imipenem's own numerator (which would be about 462) does not
+appear in the column at all. The two cells that reconcile are the two the displacement happens to have left in
+place. **None of this is used to repair anything** — the printed figures are carried exactly as printed. It is
+recorded because it says what kind of defect this is: not thirteen wrong numbers, but one sub-column that did not
+survive being set.
+
+**What the extractor does with it.** `CORRUPT_NUMERATORS` in `src/parsers/narsnet_parser.py` declares the whole
+Blood sub-column and the two named Urine cells — 15 cells. Those rows carry `numerator_status =
+corrupt_in_source`, `reconcilable = false` and no `computed_pct`; `resistant_n` still holds what the page prints.
+The two agreeing Blood cells are declared along with the rest, because which values in a displaced column came to
+rest on their own row is not something the printed table lets a reader establish; the extraction report counts them
+so the decision is visible rather than buried. Declaring the cells by hand, rather than by a rule on the size of the
+disagreement, is what keeps this apart from the eight 2019–2020 `pct_mismatch` cells above — including the 2020
+doxycycline Blood cell, which such a rule would have swept in.
+
+**The percentages are recoverable because the chapter states them.** The 2021 *E. coli* chapter (p19) gives the
+Blood figures for ciprofloxacin (63), TMP/SMX (54) and piperacillin-tazobactam (43), and carbapenem resistance in
+blood "up to 33%", in prose written independently of the table. Those are four of the thirteen cells whose
+numerator is unusable, and the prose confirms the printed `%R` for each. The 2021 *S. aureus* chapter does the same
+for methicillin (59 / 49 / 48) and erythromycin (63 / 51 / 54), naming the stratum in each case.
+
 Verbatim sample rows:
 
 ```
@@ -548,7 +611,7 @@ What exists versus what V3 needs. Concrete items only.
 
 | Item | Why it matters |
 |---|---|
-| ~~Visual inspection of 2021 E. coli Table 6 Blood column~~ | ✅ Done — see B5. Blood `Number Resistant` is corrupt at source and not recoverable; `%R` and `Number Tested` are sound |
+| ~~Visual inspection of 2021 E. coli Table 6 Blood column~~ | ✅ Done — see B5, and the cell-by-cell reading above. Blood `Number Resistant` is corrupt at source and not recoverable; `%R` and `Number Tested` are sound. Encoded as `CORRUPT_NUMERATORS`; 11 of the 13 cells fail, and the printed values are the column's own, displaced across rows |
 | ~~2024 Annexure I, entries 11–54~~ | ✅ Done — full 54-site list read from `amr30.pdf`, recorded in `docs/narsnet_investigation_artifacts.md` |
 | **2020 Fig. 1 site list** | Rendered as an image — 2020 site names are not text-extractable. Cosmetic unless the roster timeline is published |
 | **ICMR-AMRSN Annexure I (full named participant list)** | Would close the ~4–5 unnamed regional centres and let the zero-overlap claim be stated without qualification. In `1725536060_annual_report_2023.pdf`, beyond the point where extraction truncated |

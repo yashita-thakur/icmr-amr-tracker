@@ -4,10 +4,14 @@ Fixtures follow the same convention as `validate.py`: provenance in `note`,
 with "narrative" fixtures valued more highly than "table" ones because the
 chapter prose is written independently of the table it describes, so agreement
 between them is corroboration rather than a tautology. The NARS-Net chapters are
-unusually generous here -- the 2019 and 2020 editions state a dozen specimen-
-stratified percentages in prose, including the stratum each one belongs to.
+unusually generous here -- the 2019, 2020 and 2021 editions state two dozen
+specimen-stratified percentages in prose, including the stratum each one belongs
+to. That pays for itself in the 2021 E. coli table, where the chapter states the
+Blood percentages for ciprofloxacin, TMP/SMX and piperacillin-tazobactam and the
+Blood numerator sub-column beside them is not usable: the prose corroborates the
+printed percentage from outside the table.
 
-Two checks that `parsers/narsnet_parser.py` cannot make on its own:
+Three checks that `parsers/narsnet_parser.py` cannot make on its own:
 
 * `find_degenerate_composite_disagreements` -- the cross-column check. Some
   drugs are reported for one specimen only, with the other blocks greyed out. A
@@ -27,18 +31,31 @@ Two checks that `parsers/narsnet_parser.py` cannot make on its own:
   that is genuinely anomalous. The measured differences are reported instead, so
   a reader can see the size of the effect and judge it.
 
-The two are kept apart because they are different claims. A degenerate composite
-disagreeing with its single stratum is an internal contradiction in the printed
-table. A composite disagreeing with a sum of strata is expected: the columns are
-separately de-duplicated and separately computed, and the reports do not state
-that a pooled column is the arithmetic sum of the ones beside it.
+* `summarise_corrupt_numerators` -- descriptive only, like the one above. The
+  parser has already acted on `CORRUPT_NUMERATORS`; what this adds is the count
+  of cells inside a declared block whose printed numerator does nonetheless
+  agree with the percentage printed beside it. There are two, both in the 2021
+  E. coli Blood sub-column. They are counted here rather than exempted there,
+  so the judgement that the sub-column is the unit of the defect stays visible
+  and can be argued with.
+
+The first two are kept apart because they are different claims. A degenerate
+composite disagreeing with its single stratum is an internal contradiction in
+the printed table. A composite disagreeing with a sum of strata is expected: the
+columns are separately de-duplicated and separately computed, and the reports do
+not state that a pooled column is the arithmetic sum of the ones beside it.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .parsers.narsnet_parser import is_composite
+from .parsers.narsnet_parser import (
+    CORRUPT_NUMERATORS,
+    NUMERATOR_CORRUPT,
+    is_composite,
+    pct_tolerance,
+)
 
 # --- fixtures ---------------------------------------------------------------
 
@@ -64,6 +81,8 @@ class NarsNetFixture:
 
 BLOOD = "blood"
 URINE = "urine"
+PUS_ASPIRATE = "pus_aspirate"
+OSBF = "osbf"
 PA_OSBF = "pus_aspirate+osbf"
 BLOOD_PA_OSBF = "blood+pus_aspirate+osbf"
 ALL_FOUR = "blood+urine+pus_aspirate+osbf"
@@ -141,6 +160,91 @@ NARSNET_FIXTURES: list[NarsNetFixture] = [
                    expected_tested_n=7188, expected_resistant_n=6279),
     NarsNetFixture(EC, "colistin", URINE, 2020, 6.3, "table 8 cell, p33",
                    expected_tested_n=493, expected_resistant_n=31),
+
+    # --- 2021 S. aureus, Ch.V narrative (p22 [13], p23 [14]) ----------------
+    # "59% resistance to methicillin is observed in S. aureus isolates from
+    #  blood, and resistance to methicillin in isolates from aspirated pus and
+    #  other sterile body fluids is found to be 49% and 48% respectively
+    #  (Table 4)." The three percentages are the prose's; the counts on the
+    #  first are the Table 4 cell, hand-read off p24, so the two provenances
+    #  corroborate each other rather than both coming from one rendering.
+    NarsNetFixture(SA, "cefoxitin", BLOOD, 2021, 59.0,
+                   "narrative (%R); table 4 cell, p24 (counts)",
+                   expected_tested_n=5805, expected_resistant_n=3441),
+    NarsNetFixture(SA, "cefoxitin", PUS_ASPIRATE, 2021, 49.0, "narrative"),
+    NarsNetFixture(SA, "cefoxitin", OSBF, 2021, 48.0, "narrative"),
+    # "Erythromycin resistance is observed in 63% of S. aureus isolated from
+    #  blood, 51% from pus aspirates and 54% from OSBF (Table 4)."
+    NarsNetFixture(SA, "erythromycin", BLOOD, 2021, 63.0, "narrative"),
+    NarsNetFixture(SA, "erythromycin", PUS_ASPIRATE, 2021, 51.0, "narrative"),
+    NarsNetFixture(SA, "erythromycin", OSBF, 2021, 54.0, "narrative"),
+    # "Similar to the last four years linezolid resistance to S. aureus is 1%."
+    # Stated without a stratum; all three columns print 1. Counts from the cell.
+    NarsNetFixture(SA, "linezolid", BLOOD, 2021, 1.0,
+                   "narrative (%R, no stratum named); table 4 cell, p24 (counts)",
+                   expected_tested_n=5761, expected_resistant_n=36),
+    # Teicoplanin joins the S. aureus panel in this edition and the chapter does
+    # not mention it, so this one is the table and nothing else.
+    NarsNetFixture(SA, "teicoplanin", OSBF, 2021, 1.0, "table 4 cell, p24",
+                   expected_tested_n=96, expected_resistant_n=1),
+
+    # --- 2021 E. coli, Ch.V narrative (p28 [19]) ----------------------------
+    # "For non-beta-lactam antibiotics, 73% resistance is observed to
+    #  ciprofloxacin, 59% to Trimethoprim-Sulfamethoxazole (TMP/SMX) and 11% to
+    #  nitrofurantoin in urinary isolates. (Table 6)"
+    NarsNetFixture(EC, "ciprofloxacin", URINE, 2021, 73.0,
+                   "narrative (%R); table 6 cell, p29 (counts)",
+                   expected_tested_n=15064, expected_resistant_n=11037),
+    NarsNetFixture(EC, "nitrofurantoin", URINE, 2021, 11.0,
+                   "narrative (%R); table 6 cell, p29 (counts)",
+                   expected_tested_n=16229, expected_resistant_n=1725),
+    # One of the two Urine cells whose printed numerator repeats its
+    # denominator. The prose corroborates the printed %R, which is the figure
+    # this row carries; the denominator is the table's and is sound.
+    NarsNetFixture(EC, "cotrimoxazole", URINE, 2021, 59.0,
+                   "narrative (corroborates the printed %R; the printed "
+                   "numerator repeats the denominator and is corrupt in "
+                   "source); table 6 cell, p29 (denominator)",
+                   expected_tested_n=8918),
+    # The four Blood cells the chapter states. Every one of them sits in the
+    # sub-column whose numerator is corrupt, so the prose is the only
+    # independent confirmation of these percentages, and the denominators are
+    # the table's.
+    # "Similarly, in E. coli isolates from blood, percentage resistance to
+    #  non-beta-lactam antibiotics observed is 63% to ciprofloxacin, 54% to
+    #  TMP/SMX. 43% isolates from blood show resistance to piperacillin
+    #  tazobactam."
+    NarsNetFixture(EC, "ciprofloxacin", BLOOD, 2021, 63.0,
+                   "narrative (corroborates the printed %R; the Blood "
+                   "numerator sub-column is corrupt in source); table 6 cell, "
+                   "p29 (denominator)",
+                   expected_tested_n=1551),
+    NarsNetFixture(EC, "cotrimoxazole", BLOOD, 2021, 54.0,
+                   "narrative (corroborates the printed %R; the Blood "
+                   "numerator sub-column is corrupt in source); table 6 cell, "
+                   "p29 (denominator)",
+                   expected_tested_n=1289),
+    NarsNetFixture(EC, "piperacillin-tazobactam", BLOOD, 2021, 43.0,
+                   "narrative (corroborates the printed %R; the Blood "
+                   "numerator sub-column is corrupt in source); table 6 cell, "
+                   "p29 (denominator)",
+                   expected_tested_n=1350),
+    # "Carbapenem resistance observed in E. coli isolates from blood is up to
+    #  33%." Ertapenem is the highest of the three carbapenems in that column
+    #  (ertapenem 33, imipenem 29, meropenem 25), so "up to 33%" names it.
+    NarsNetFixture(EC, "ertapenem", BLOOD, 2021, 33.0,
+                   "narrative (corroborates the printed %R; the Blood "
+                   "numerator sub-column is corrupt in source); table 6 cell, "
+                   "p29 (denominator)",
+                   expected_tested_n=406),
+    # Three drugs new to the E. coli panel in this edition, none of them named
+    # in the chapter: table only, from the two columns that reconcile.
+    NarsNetFixture(EC, "amikacin", PUS_ASPIRATE, 2021, 24.0, "table 6 cell, p29",
+                   expected_tested_n=5399, expected_resistant_n=1280),
+    NarsNetFixture(EC, "cefuroxime", URINE, 2021, 79.0, "table 6 cell, p29",
+                   expected_tested_n=3257, expected_resistant_n=2581),
+    NarsNetFixture(EC, "fosfomycin", URINE, 2021, 7.0, "table 6 cell, p29",
+                   expected_tested_n=855, expected_resistant_n=58),
 ]
 
 
@@ -193,8 +297,76 @@ def check_narsnet_fixtures(records, fixtures=None):
 
 
 def internal_consistency(records):
-    """Rows whose printed percentage disagrees with their own printed counts."""
+    """Rows whose printed percentage disagrees with their own printed counts.
+
+    Only rows whose numerator is `printed` can reach this: a corrupt cell prints
+    a figure that is not its numerator, so there is nothing for the percentage
+    to disagree with, and folding those rows in here would change what the
+    `pct_mismatch` count means.
+    """
     return [r for r in records if any(f.startswith("pct_mismatch") for f in r.flags)]
+
+
+def summarise_corrupt_numerators(records):
+    """Every declared corrupt-numerator block, against the rows it covers.
+
+    Descriptive only. The declaration has already done its work in the parser;
+    what this adds is how many cells inside a declared block do nonetheless
+    agree with the percentage printed beside them, and which. Reporting them
+    rather than exempting them keeps the judgement -- that the unit of the
+    defect is the sub-column, not the cell -- where a reader can see it.
+
+    A block matching no rows is returned with a zero count rather than dropped,
+    so a declaration left behind by a change of scope shows up instead of
+    quietly doing nothing.
+    """
+    out = []
+    for entry in CORRUPT_NUMERATORS:
+        covered = [
+            r
+            for r in records
+            if r.source_report_year == entry.year
+            and r.organism == entry.organism
+            and r.specimen == entry.specimen
+            and r.numerator_status == NUMERATOR_CORRUPT
+        ]
+        agreeing = []
+        for r in sorted(covered, key=lambda r: r.antibiotic):
+            if not r.tested_n or r.resistant_n is None or r.reported_pct is None:
+                continue
+            computed = 100.0 * r.resistant_n / r.tested_n
+            # `pct_tolerance` wants the percentage as printed and the record
+            # keeps it as a float. "%g" recovers the printed form: no cell in
+            # any of the six tables read so far prints a trailing ".0", so a
+            # whole-number float was printed as a whole number.
+            printed = "%g" % r.reported_pct
+            if abs(r.reported_pct - computed) <= pct_tolerance(printed):
+                agreeing.append(
+                    {
+                        "antibiotic": r.antibiotic,
+                        "tested_n": r.tested_n,
+                        "resistant_n": r.resistant_n,
+                        "reported_pct": r.reported_pct,
+                        "computed_pct": round(computed, 2),
+                    }
+                )
+        out.append(
+            {
+                "source_report_year": entry.year,
+                "organism": entry.organism,
+                "specimen": entry.specimen,
+                "scope": (
+                    "whole sub-column"
+                    if entry.antibiotics is None
+                    else sorted(entry.antibiotics)
+                ),
+                "cells": len(covered),
+                "cells_agreeing_with_their_printed_pct": len(agreeing),
+                "agreeing": agreeing,
+                "note": entry.note,
+            }
+        )
+    return out
 
 
 # --- cross-column checks ----------------------------------------------------

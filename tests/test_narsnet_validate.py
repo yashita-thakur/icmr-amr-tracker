@@ -29,10 +29,12 @@ from src.narsnet_validate import (
     internal_consistency,
     narsnet_panel_by_edition,
     summarise_composite_sums,
+    summarise_corrupt_numerators,
 )
 from src.parsers.base import FIELDNAMES as AMRSN_FIELDNAMES
 from src.parsers.narsnet_parser import (
     NARSNET_FIELDNAMES,
+    NUMERATOR_CORRUPT,
     NUMERATOR_PRINTED,
     NarsNetRecord,
     SPECS,
@@ -45,6 +47,8 @@ EC = "Escherichia coli"
 SA = "Staphylococcus aureus"
 BLOOD = "blood"
 URINE = "urine"
+PUS_ASPIRATE = "pus_aspirate"
+OSBF = "osbf"
 PA_OSBF = "pus_aspirate+osbf"
 ALL_FOUR = "blood+urine+pus_aspirate+osbf"
 
@@ -227,7 +231,7 @@ def test_the_two_schemas_share_no_comparison_column():
 
 # --- integration -------------------------------------------------------------
 
-_missing = [y for y in (2019, 2020) if not NARSNET_SOURCES[y].path.exists()]
+_missing = [y for y in (2019, 2020, 2021) if not NARSNET_SOURCES[y].path.exists()]
 needs_pdfs = pytest.mark.skipif(
     _missing,
     reason="data/raw/ missing narsnet {}; run "
@@ -238,7 +242,7 @@ needs_pdfs = pytest.mark.skipif(
 @pytest.fixture(scope="session")
 def records():
     recs = []
-    for year in (2019, 2020):
+    for year in (2019, 2020, 2021):
         for organism in SPECS:
             recs.extend(
                 parse_narsnet_report(
@@ -307,17 +311,103 @@ def test_real_composite_sums_are_summarised_but_never_flagged(records):
 
 @needs_pdfs
 def test_the_pooled_e_coli_column_is_dropped_after_2019(records):
+    """The 2019 -> 2020 step moves the specimen axis and not the drug axis,
+    which is the case a drug-only comparison would miss entirely."""
     changes = detect_narsnet_panel_changes(narsnet_panel_by_edition(records))
-    ecoli = [c for c in changes if c["organism"] == EC]
-    assert len(ecoli) == 1
-    assert ecoli[0]["specimen_columns_removed"] == [ALL_FOUR]
-    assert ecoli[0]["antibiotics_added"] == []
-    assert ecoli[0]["antibiotics_removed"] == []
+    step = next(
+        c for c in changes
+        if c["organism"] == EC and (c["from_edition"], c["to_edition"]) == (2019, 2020)
+    )
+    assert step["specimen_columns_removed"] == [ALL_FOUR]
+    assert step["antibiotics_added"] == []
+    assert step["antibiotics_removed"] == []
+
+
+@needs_pdfs
+def test_the_2021_edition_moves_both_axes_at_once(records):
+    """Eight drugs are added to the E. coli panel and every specimen column is
+    replaced: PA+OSBF splits into two columns that are not the same set of
+    isolates as it was. No 2021 E. coli column shares a name with a 2020 one, so
+    there is no pair to compare edition over edition."""
+    changes = detect_narsnet_panel_changes(narsnet_panel_by_edition(records))
+    step = next(
+        c for c in changes
+        if c["organism"] == EC and (c["from_edition"], c["to_edition"]) == (2020, 2021)
+    )
+    assert set(step["antibiotics_added"]) == {
+        "amikacin", "amoxicillin-clavulanate", "cefuroxime", "doxycycline",
+        "fosfomycin", "gentamicin", "meropenem", "piperacillin-tazobactam",
+    }
+    assert step["antibiotics_removed"] == []
+    assert step["specimen_columns_added"] == [OSBF, PUS_ASPIRATE]
+    assert step["specimen_columns_removed"] == [PA_OSBF]
+
+
+@needs_pdfs
+def test_teicoplanin_is_the_only_s_aureus_panel_addition_in_2021(records):
+    changes = detect_narsnet_panel_changes(narsnet_panel_by_edition(records))
+    step = next(
+        c for c in changes
+        if c["organism"] == SA and (c["from_edition"], c["to_edition"]) == (2020, 2021)
+    )
+    assert step["antibiotics_added"] == ["teicoplanin"]
+    assert step["antibiotics_removed"] == []
 
 
 @needs_pdfs
 def test_no_cross_edition_revisions(records):
     assert find_narsnet_cross_report_revisions(records) == []
+
+
+# --- the corrupt-numerator summary -------------------------------------------
+
+
+@needs_pdfs
+def test_every_declared_block_matches_rows(records):
+    """A declaration matching nothing would be dead weight that still reads as a
+    live caveat, so it is reported with a zero count rather than dropped."""
+    blocks = summarise_corrupt_numerators(records)
+    assert blocks
+    assert all(b["cells"] > 0 for b in blocks), blocks
+
+
+@needs_pdfs
+def test_the_summary_counts_the_cells_that_do_agree(records):
+    """Two of the thirteen Blood cells agree with their own printed percentage.
+    Counting them here is what keeps the sub-column-wide declaration honest: the
+    number is stated rather than left for a reader to discover."""
+    blocks = summarise_corrupt_numerators(records)
+    blood = next(b for b in blocks if b["specimen"] == BLOOD)
+    assert blood["scope"] == "whole sub-column"
+    assert blood["cells"] == 13
+    assert blood["cells_agreeing_with_their_printed_pct"] == 2
+    assert {a["antibiotic"] for a in blood["agreeing"]} == {
+        "amoxicillin-clavulanate", "colistin",
+    }
+
+    urine = next(b for b in blocks if b["specimen"] == URINE)
+    assert urine["scope"] == ["cotrimoxazole", "piperacillin-tazobactam"]
+    assert urine["cells"] == 2
+    assert urine["cells_agreeing_with_their_printed_pct"] == 0
+
+
+@needs_pdfs
+def test_the_summary_raises_no_flag_of_its_own(records):
+    """The parser has already acted on the declaration. This is a report."""
+    before = {id(r): list(r.flags) for r in records}
+    summarise_corrupt_numerators(records)
+    assert all(list(r.flags) == before[id(r)] for r in records)
+
+
+@needs_pdfs
+def test_corrupt_cells_stay_out_of_the_pct_mismatch_count(records):
+    """`pct_mismatch` means a cell's own numerator disagrees with its own
+    percentage. Folding fifteen cells with no usable numerator into that count
+    would change what the number means."""
+    mismatched = internal_consistency(records)
+    assert all(r.numerator_status != NUMERATOR_CORRUPT for r in mismatched)
+    assert {r.source_report_year for r in mismatched} == {2019, 2020}
+    assert len(mismatched) == 8
 
 
 # --- integration: the committed exports --------------------------------------
@@ -409,11 +499,30 @@ def test_extraction_report_states_the_metric_and_the_scope():
     assert data["network"] == "narsnet"
     assert "PERCENT RESISTANT" in data["metric"]
     assert "never be joined" in data["metric"]
-    assert "2019 and 2020" in data["scope"]
+    assert "2019, 2020 and 2021" in data["scope"]
     cross = data["cross_column_checks"]
     assert cross["degenerate_composites"]["count"] == 1
     assert cross["composite_vs_partition_sums"]["count"] > 0
     assert "NO FLAG IS RAISED" in cross["composite_vs_partition_sums"]["description"]
+
+
+@needs_export
+def test_extraction_report_records_the_corrupt_numerators():
+    with open(
+        PROCESSED_DIR / "narsnet_extraction_report.json", encoding="utf-8"
+    ) as fh:
+        data = json.load(fh)
+    block = data["corrupt_numerators"]
+    assert block["cells"] == 15
+    assert {b["specimen"] for b in block["blocks"]} == {"blood", "urine"}
+    assert all(b["source_report_year"] == 2021 for b in block["blocks"])
+    # The two statements the report has to keep apart.
+    assert "not that cell" in block["description"]
+    assert "nothing is dropped" in block["description"]
+    assert (
+        "cannot appear here"
+        in data["printed_pct_vs_printed_counts"]["description"]
+    )
 
 
 @needs_export
@@ -443,7 +552,7 @@ def test_coverage_and_completeness_are_derived_from_the_records():
     that failed halfway is incomplete for the same reason a filter is."""
     full = [
         make(organism, "ampicillin", BLOOD, year, 10, 5, 50.0)
-        for year in (2019, 2020)
+        for year in (2019, 2020, 2021)
         for organism in (EC, SA)
     ]
     assert builder.coverage(full) == builder.FULL_SCOPE
@@ -465,7 +574,7 @@ def test_export_refuses_an_incomplete_record_set(tmp_path, monkeypatch, capsys):
 @needs_pdfs
 def test_a_narrow_build_does_not_write_the_canonical_files(tmp_path, monkeypatch):
     """The end-to-end guard. `--year 2019 --organism "Escherichia coli"` parses
-    34 of the dataset's 108 rows; before the guard existed it wrote all five
+    34 of the dataset's 192 rows; before the guard existed it wrote all five
     canonical files with that subset."""
     canonical_before = {
         name: (PROCESSED_DIR / name).read_bytes()

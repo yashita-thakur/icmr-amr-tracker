@@ -1,4 +1,4 @@
-"""V3 NARS-Net extraction tests, 2019 and 2020 editions.
+"""V3 NARS-Net extraction tests, 2019, 2020 and 2021 editions.
 
 Two tiers, matching `test_known_values.py` and `test_rc_extraction.py`:
 
@@ -19,8 +19,13 @@ in brackets):
 * `narsnet_2019.pdf` p29 [19] -- Table 6, E. coli, 4 specimen groups x 9 drugs
 * `narsnet_2020.pdf` p25 [21] -- Table 5, S. aureus, 3 specimen groups x 8 drugs
 * `narsnet_2020.pdf` p33 [29] -- Table 8, E. coli, 3 specimen groups x 9 drugs
+* `narsnet_2021.pdf` p24 [15] -- Table 4, S. aureus, 3 specimen groups x 9 drugs
+* `narsnet_2021.pdf` p29 [20] -- Table 6, E. coli, 4 specimen groups x 17 drugs
 
-108 cells in total, which is every printed cell in the four tables.
+192 cells in total, which is every printed cell in the six tables. The 2021
+figures were read the same way and in the same order as the rest, before being
+compared against what `docs/narsnet_v3_research.md` B5 says about that edition,
+so the reading is evidence for that entry rather than a copy of it.
 """
 
 from __future__ import annotations
@@ -32,11 +37,14 @@ import pytest
 from src.parsers.narsnet_parser import (
     ATOMIC_SPECIMENS,
     CAPTION_RE,
+    CORRUPT_NUMERATORS,
     NARSNET_FIELDNAMES,
+    NUMERATOR_CORRUPT,
     NUMERATOR_NOT_PRINTED,
     NUMERATOR_PRINTED,
     NarsNetRecord,
     SPECS,
+    find_corrupt_numerators,
     is_composite,
     parse_narsnet_report,
     pct_tolerance,
@@ -49,6 +57,8 @@ SA = "Staphylococcus aureus"
 
 BLOOD = "blood"
 URINE = "urine"
+PUS_ASPIRATE = "pus_aspirate"
+OSBF = "osbf"
 PA_OSBF = "pus_aspirate+osbf"
 BLOOD_PA_OSBF = "blood+pus_aspirate+osbf"
 ALL_FOUR = "blood+urine+pus_aspirate+osbf"
@@ -61,6 +71,9 @@ _REAL_CAPTIONS = [
     ("6", "Table 6: Resistance profile of E. coli"),
     ("5", "Table 5. Resistance profile of Staphylococcus aureus (N= 9,639)"),
     ("8", "Table 8. Specimen wise resistance profile of E. coli (N=17,271 )"),
+    # The 2021 edition uses two wordings in the same document.
+    ("4", "Table 4: Resistance profile observed in Staphylococcus aureus"),
+    ("6", "Table 6: Resistance profile of Escherichia coli"),
 ]
 
 
@@ -102,10 +115,22 @@ def test_caption_regex_rejects_non_specimen_tables(caption):
         ("Blood + PA + OSBF (N=13,290)", BLOOD_PA_OSBF),
         ("Blood + PA + OSBF (N=9,639)", BLOOD_PA_OSBF),
         ("Blood + Urine + PA + OSBF (N=24,456)", ALL_FOUR),
+        # The 2021 edition spells the same two strata out.
+        ("Pus aspirate (N=7946)", PUS_ASPIRATE),
+        ("Pus Aspirate (N=6434)", PUS_ASPIRATE),
+        ("Other Sterile Body Fluids (N=630)", OSBF),
+        ("OSBF (N=675)", OSBF),
     ],
 )
 def test_specimen_key_reads_every_printed_header(header, expected):
     assert specimen_key(header) == expected
+
+
+def test_a_spelled_out_heading_is_one_specimen_not_four():
+    """"Other Sterile Body Fluids" is matched as a phrase before the word-by-word
+    pass, so its four words cannot be read as four separate strata."""
+    assert specimen_key("Other Sterile Body Fluids (N=630)") == OSBF
+    assert "+" not in specimen_key("Pus Aspirate (N=6434)")
 
 
 def test_composites_are_distinguishable_from_atomic_strata():
@@ -165,7 +190,7 @@ def test_schema_has_no_back_computed_numerator_field():
 
 # --- integration ------------------------------------------------------------
 
-_missing = [y for y in (2019, 2020) if not NARSNET_SOURCES[y].path.exists()]
+_missing = [y for y in (2019, 2020, 2021) if not NARSNET_SOURCES[y].path.exists()]
 needs_pdfs = pytest.mark.skipif(
     _missing,
     reason="data/raw/ missing narsnet {}; run "
@@ -177,6 +202,8 @@ EXPECTED_TABLES = {
     (EC, 2019): "Table 6",
     (SA, 2020): "Table 5",
     (EC, 2020): "Table 8",
+    (SA, 2021): "Table 4",
+    (EC, 2021): "Table 6",
 }
 
 EXPECTED_SPECIMENS = {
@@ -184,6 +211,10 @@ EXPECTED_SPECIMENS = {
     (EC, 2019): {ALL_FOUR, PA_OSBF, BLOOD, URINE},
     (SA, 2020): {BLOOD_PA_OSBF, BLOOD, PA_OSBF},
     (EC, 2020): {PA_OSBF, BLOOD, URINE},
+    # 2021 reports pus aspirate and OSBF as separate columns and prints no
+    # pooled column at all.
+    (SA, 2021): {BLOOD, PUS_ASPIRATE, OSBF},
+    (EC, 2021): {BLOOD, PUS_ASPIRATE, OSBF, URINE},
 }
 
 EXPECTED_PANELS = {
@@ -191,10 +222,18 @@ EXPECTED_PANELS = {
                  "clindamycin", "erythromycin", "linezolid", "doxycycline"},
     (SA, 2020): {"cefoxitin", "gentamicin", "ciprofloxacin", "cotrimoxazole",
                  "clindamycin", "erythromycin", "linezolid", "doxycycline"},
+    (SA, 2021): {"cefoxitin", "gentamicin", "ciprofloxacin", "cotrimoxazole",
+                 "clindamycin", "erythromycin", "linezolid", "doxycycline",
+                 "teicoplanin"},
     (EC, 2019): {"ampicillin", "cefotaxime", "cefepime", "ertapenem", "imipenem",
                  "ciprofloxacin", "cotrimoxazole", "colistin", "nitrofurantoin"},
     (EC, 2020): {"ampicillin", "cefotaxime", "cefepime", "ertapenem", "imipenem",
                  "ciprofloxacin", "cotrimoxazole", "colistin", "nitrofurantoin"},
+    (EC, 2021): {"ampicillin", "cefotaxime", "cefepime", "ertapenem", "imipenem",
+                 "ciprofloxacin", "cotrimoxazole", "colistin", "nitrofurantoin",
+                 "amikacin", "amoxicillin-clavulanate", "gentamicin",
+                 "meropenem", "piperacillin-tazobactam", "fosfomycin",
+                 "cefuroxime", "doxycycline"},
 }
 
 
@@ -291,11 +330,87 @@ HAND_READ.update(_cells(2020, EC, URINE, [
     ("colistin", 493, 31, 6.3),
 ]))
 
+# --- 2021, p24 [15] and p29 [20] --------------------------------------------
+# Read the same way as the four tables above. Every figure below is what the
+# page prints, including the fifteen E. coli cells whose printed numerator is
+# not that cell's numerator: this file records what was printed, and
+# `CORRUPT_NUMERATORS` records which of it can be used.
+HAND_READ.update(_cells(2021, SA, BLOOD, [
+    ("cefoxitin", 5805, 3441, 59.0), ("ciprofloxacin", 5357, 2695, 50.0),
+    ("clindamycin", 5755, 1960, 34.0), ("doxycycline", 5419, 863, 16.0),
+    ("erythromycin", 5911, 3730, 63.0), ("gentamicin", 5437, 1396, 26.0),
+    ("linezolid", 5761, 36, 1.0), ("cotrimoxazole", 4656, 2015, 43.0),
+    ("teicoplanin", 1206, 14, 1.0),
+]))
+HAND_READ.update(_cells(2021, SA, PUS_ASPIRATE, [
+    ("cefoxitin", 7602, 3703, 49.0), ("ciprofloxacin", 6607, 3884, 59.0),
+    ("clindamycin", 7295, 1630, 22.0), ("doxycycline", 6215, 796, 13.0),
+    ("erythromycin", 7430, 3807, 51.0), ("gentamicin", 7258, 1698, 23.0),
+    ("linezolid", 7452, 49, 1.0), ("cotrimoxazole", 6680, 1803, 27.0),
+    ("teicoplanin", 1662, 30, 2.0),
+]))
+HAND_READ.update(_cells(2021, SA, OSBF, [
+    ("cefoxitin", 608, 294, 48.0), ("ciprofloxacin", 524, 209, 40.0),
+    ("clindamycin", 588, 160, 27.0), ("doxycycline", 533, 50, 9.0),
+    ("erythromycin", 626, 341, 54.0), ("gentamicin", 584, 121, 21.0),
+    ("linezolid", 629, 9, 1.0), ("cotrimoxazole", 514, 191, 37.0),
+    ("teicoplanin", 96, 1, 1.0),
+]))
+HAND_READ.update(_cells(2021, EC, BLOOD, [
+    ("amikacin", 1510, 1088, 29.0), ("amoxicillin-clavulanate", 680, 390, 57.0),
+    ("ampicillin", 1294, 584, 84.0), ("cefepime", 1286, 1056, 62.0),
+    ("cefotaxime", 1380, 797, 77.0), ("ciprofloxacin", 1551, 135, 63.0),
+    ("colistin", 914, 0, 0.0), ("ertapenem", 406, 211, 33.0),
+    ("gentamicin", 1260, 431, 39.0), ("imipenem", 1593, 491, 29.0),
+    # 981 resistant of 854 tested, as printed.
+    ("meropenem", 854, 981, 25.0),
+    ("piperacillin-tazobactam", 1350, 701, 43.0),
+    ("cotrimoxazole", 1289, 14, 54.0),
+]))
+HAND_READ.update(_cells(2021, EC, PUS_ASPIRATE, [
+    ("amikacin", 5399, 1280, 24.0), ("amoxicillin-clavulanate", 2848, 1660, 58.0),
+    ("ampicillin", 4986, 4281, 86.0), ("cefepime", 4999, 3014, 60.0),
+    ("cefotaxime", 5302, 4045, 76.0), ("ciprofloxacin", 5820, 4266, 73.0),
+    ("colistin", 1847, 0, 0.0), ("ertapenem", 1186, 283, 24.0),
+    ("gentamicin", 4775, 1696, 36.0), ("imipenem", 5810, 1193, 21.0),
+    ("meropenem", 3605, 592, 16.0),
+    ("piperacillin-tazobactam", 5293, 2268, 43.0),
+    ("cotrimoxazole", 4971, 2872, 58.0), ("doxycycline", 762, 398, 52.0),
+]))
+HAND_READ.update(_cells(2021, EC, OSBF, [
+    ("amikacin", 565, 121, 21.0), ("amoxicillin-clavulanate", 262, 151, 58.0),
+    ("ampicillin", 501, 417, 83.0), ("cefepime", 548, 327, 60.0),
+    ("cefotaxime", 577, 447, 77.0), ("ciprofloxacin", 644, 454, 70.0),
+    ("colistin", 337, 0, 0.0), ("ertapenem", 186, 46, 25.0),
+    ("gentamicin", 421, 132, 31.0), ("imipenem", 646, 161, 25.0),
+    ("meropenem", 302, 58, 19.0), ("piperacillin-tazobactam", 547, 257, 47.0),
+    ("cotrimoxazole", 516, 308, 60.0), ("doxycycline", 111, 49, 44.0),
+]))
+HAND_READ.update(_cells(2021, EC, URINE, [
+    ("amikacin", 12006, 2323, 19.0), ("amoxicillin-clavulanate", 6565, 3435, 52.0),
+    ("ampicillin", 13371, 11357, 85.0), ("cefepime", 12699, 6862, 54.0),
+    ("cefotaxime", 14485, 10377, 72.0), ("ciprofloxacin", 15064, 11037, 73.0),
+    # Counts printed, percentage greyed out.
+    ("colistin", 4293, 1, None),
+    ("ertapenem", 3931, 814, 21.0), ("gentamicin", 7885, 2323, 29.0),
+    ("imipenem", 15254, 2350, 15.0), ("meropenem", 5938, 895, 15.0),
+    # The two cells whose numerator repeats the denominator.
+    ("piperacillin-tazobactam", 2937, 2937, 29.0),
+    ("cotrimoxazole", 8918, 8918, 59.0),
+    ("nitrofurantoin", 16229, 1725, 11.0), ("fosfomycin", 855, 58, 7.0),
+    ("cefuroxime", 3257, 2581, 79.0),
+]))
+
 # Cells where the printed percentage does not follow from the printed counts,
 # read off the same pages. Seven sit just past the half-point of the printed
 # precision, which is the source rounding a percentage it did not compute from
 # the counts it printed. The eighth is a different animal: 24 resistant of 2,638
 # is 0.9%, not the 12% printed beside it.
+#
+# All eight are in 2019 and 2020. Every 2021 cell whose numerator is its own
+# reconciles, so the 2021 edition adds nothing here -- its fifteen problem cells
+# are recorded as corrupt numerators instead, which is a different statement and
+# is checked separately below.
 EXPECTED_MISMATCHES = {
     (2019, SA, "gentamicin", BLOOD),
     (2020, SA, "cefoxitin", PA_OSBF),
@@ -457,6 +572,162 @@ def test_fully_greyed_blocks_emit_no_row(narsnet_records):
     assert seen == {ALL_FOUR, URINE}
 
 
+# --- the 2021 corrupt numerators ---------------------------------------------
+
+# Every cell the parser should mark `corrupt_in_source`, listed here rather than
+# derived from CORRUPT_NUMERATORS so that widening a declaration by accident
+# fails this test instead of quietly agreeing with itself.
+EXPECTED_CORRUPT = {
+    (2021, EC, drug, BLOOD)
+    for drug in (
+        "amikacin", "amoxicillin-clavulanate", "ampicillin", "cefepime",
+        "cefotaxime", "ciprofloxacin", "colistin", "ertapenem", "gentamicin",
+        "imipenem", "meropenem", "piperacillin-tazobactam", "cotrimoxazole",
+    )
+} | {
+    (2021, EC, "piperacillin-tazobactam", URINE),
+    (2021, EC, "cotrimoxazole", URINE),
+}
+
+
+def test_corrupt_declarations_are_scoped_to_one_table():
+    """Whatever else changes, this must not start covering another edition or
+    another organism by accident."""
+    assert {(e.year, e.organism) for e in CORRUPT_NUMERATORS} == {
+        (2021, "Escherichia coli")
+    }
+    assert {e.specimen for e in CORRUPT_NUMERATORS} == {BLOOD, URINE}
+
+
+def test_a_whole_sub_column_declaration_covers_any_drug():
+    """The Blood declaration names no drugs, so it covers the column."""
+    for drug in ("amikacin", "meropenem", "colistin"):
+        assert find_corrupt_numerators(2021, EC, BLOOD, drug) is not None
+    # ... and does not leak into the columns beside it, or into other editions.
+    assert find_corrupt_numerators(2021, EC, PUS_ASPIRATE, "meropenem") is None
+    assert find_corrupt_numerators(2021, EC, OSBF, "meropenem") is None
+    assert find_corrupt_numerators(2020, EC, BLOOD, "imipenem") is None
+    assert find_corrupt_numerators(2021, SA, BLOOD, "cefoxitin") is None
+
+
+def test_a_named_cell_declaration_covers_only_those_cells():
+    assert find_corrupt_numerators(2021, EC, URINE, "cotrimoxazole") is not None
+    assert (
+        find_corrupt_numerators(2021, EC, URINE, "piperacillin-tazobactam")
+        is not None
+    )
+    assert find_corrupt_numerators(2021, EC, URINE, "nitrofurantoin") is None
+
+
+@needs_pdfs
+def test_exactly_the_declared_cells_are_marked_corrupt(narsnet_records):
+    seen = {
+        (r.source_report_year, r.organism, r.antibiotic, r.specimen)
+        for r in narsnet_records
+        if r.numerator_status == NUMERATOR_CORRUPT
+    }
+    assert seen == EXPECTED_CORRUPT
+
+
+@needs_pdfs
+def test_a_corrupt_numerator_is_carried_as_printed_and_never_used(narsnet_records):
+    """The figure is kept exactly as the page prints it -- 981 resistant of 854
+    tested -- and nothing is computed from it."""
+    rec = _index(narsnet_records)[(2021, EC, "meropenem", BLOOD)]
+    assert (rec.tested_n, rec.resistant_n, rec.resistant_pct) == (854, 981, 25.0)
+    assert rec.numerator_status == NUMERATOR_CORRUPT
+    assert rec.reconcilable is False
+    assert rec.computed_pct is None
+    assert "numerator_corrupt_in_source" in rec.flags
+    # No pct_mismatch: there is no numerator of its own to disagree with.
+    assert not [f for f in rec.flags if f.startswith("pct_mismatch")]
+
+
+@needs_pdfs
+def test_a_urine_numerator_that_repeats_its_denominator(narsnet_records):
+    for drug, count, pct in (
+        ("piperacillin-tazobactam", 2937, 29.0),
+        ("cotrimoxazole", 8918, 59.0),
+    ):
+        rec = _index(narsnet_records)[(2021, EC, drug, URINE)]
+        assert rec.tested_n == rec.resistant_n == count
+        assert rec.resistant_pct == pct
+        assert rec.numerator_status == NUMERATOR_CORRUPT
+        assert rec.reconcilable is False
+
+
+@needs_pdfs
+def test_the_columns_beside_the_corrupt_one_are_untouched(narsnet_records):
+    """Pus aspirate and OSBF reconcile throughout the same table, which is what
+    makes the Blood sub-column, rather than the table, the thing at issue."""
+    for specimen in (PUS_ASPIRATE, OSBF):
+        rows = [
+            r for r in narsnet_records
+            if r.source_report_year == 2021 and r.organism == EC
+            and r.specimen == specimen
+        ]
+        assert len(rows) == 14
+        assert all(r.numerator_status == NUMERATOR_PRINTED for r in rows)
+        assert all(r.reconcilable for r in rows)
+        assert not [f for r in rows for f in r.flags if f.startswith("pct_mismatch")]
+
+
+@needs_pdfs
+def test_the_2021_s_aureus_table_reconciles_throughout(narsnet_records):
+    rows = [
+        r for r in narsnet_records
+        if r.source_report_year == 2021 and r.organism == SA
+    ]
+    assert len(rows) == 27
+    assert all(r.numerator_status == NUMERATOR_PRINTED for r in rows)
+    assert all(not r.flags for r in rows)
+
+
+@needs_pdfs
+def test_two_corrupt_cells_agree_with_their_own_printed_percentage(narsnet_records):
+    """Amoxicillin-clavulanate prints 390 of 680 beside 57, and colistin 0 of
+    914 beside 0. Both agree. They are still marked corrupt: the declaration is
+    scoped to the sub-column, and the agreements are counted in the extraction
+    report rather than exempted here."""
+    index = _index(narsnet_records)
+    for drug, tested, resistant, pct in (
+        ("amoxicillin-clavulanate", 680, 390, 57.0),
+        ("colistin", 914, 0, 0.0),
+    ):
+        rec = index[(2021, EC, drug, BLOOD)]
+        assert (rec.tested_n, rec.resistant_n, rec.resistant_pct) == (
+            tested, resistant, pct,
+        )
+        assert abs(100.0 * resistant / tested - pct) <= 0.5
+        assert rec.numerator_status == NUMERATOR_CORRUPT
+        assert rec.reconcilable is False
+
+
+@needs_pdfs
+def test_the_2021_greyed_blocks_emit_no_row(narsnet_records):
+    """Nitrofurantoin, fosfomycin and cefuroxime are printed for urine only;
+    doxycycline for pus aspirate and OSBF only. The other blocks are greyed out
+    entirely, so nothing is emitted for them."""
+    by_drug = {}
+    for r in narsnet_records:
+        if r.source_report_year == 2021 and r.organism == EC:
+            by_drug.setdefault(r.antibiotic, set()).add(r.specimen)
+    assert by_drug["nitrofurantoin"] == {URINE}
+    assert by_drug["fosfomycin"] == {URINE}
+    assert by_drug["cefuroxime"] == {URINE}
+    assert by_drug["doxycycline"] == {PUS_ASPIRATE, OSBF}
+
+
+@needs_pdfs
+def test_the_2021_suppressed_percentage_is_not_read_as_zero(narsnet_records):
+    """E. coli colistin, urine: both counts printed, percentage greyed out."""
+    rec = _index(narsnet_records)[(2021, EC, "colistin", URINE)]
+    assert (rec.tested_n, rec.resistant_n) == (4293, 1)
+    assert rec.resistant_pct is None
+    assert "pct_suppressed_in_source" in rec.flags
+    assert rec.numerator_status == NUMERATOR_PRINTED
+
+
 @needs_pdfs
 def test_provenance_is_carried_on_every_row(narsnet_records):
     for r in narsnet_records:
@@ -465,8 +736,10 @@ def test_provenance_is_carried_on_every_row(narsnet_records):
         assert r.source_url.startswith("https://ncdc.mohfw.gov.in/uploads/pdf/")
         assert r.source_table.startswith("Table ")
         # 2019 and 2020 are exactly the two editions whose cover year is not
-        # their reporting period.
-        assert r.source_cover_year == {2019: 2020, 2020: 2021}[r.source_report_year]
+        # their reporting period; the 2021 edition's cover agrees with it.
+        assert r.source_cover_year == {2019: 2020, 2020: 2021, 2021: None}[
+            r.source_report_year
+        ]
 
 
 @needs_pdfs
@@ -478,10 +751,27 @@ def test_no_confidence_intervals_before_2022(narsnet_records):
 
 @needs_pdfs
 def test_reconcilable_tracks_the_printed_numerator(narsnet_records):
+    """`reconcilable` is true for exactly one of the three numerator states, so
+    a consumer that filters on it can never reach a number it must not use."""
     for r in narsnet_records:
         if r.numerator_status == NUMERATOR_PRINTED:
             assert r.reconcilable is True
             assert r.computed_pct is not None
         else:
+            assert r.numerator_status in (NUMERATOR_CORRUPT, NUMERATOR_NOT_PRINTED)
             assert r.reconcilable is False
             assert r.computed_pct is None
+
+
+@needs_pdfs
+def test_the_three_numerator_states_are_all_present_and_distinct(narsnet_records):
+    """A corrupt cell prints a number and a not-printed cell does not, which is
+    the reason these are two values rather than one value and a flag."""
+    by_status = {}
+    for r in narsnet_records:
+        by_status.setdefault(r.numerator_status, []).append(r)
+    assert set(by_status) == {
+        NUMERATOR_PRINTED, NUMERATOR_NOT_PRINTED, NUMERATOR_CORRUPT,
+    }
+    assert all(r.resistant_n is not None for r in by_status[NUMERATOR_CORRUPT])
+    assert all(r.resistant_n is None for r in by_status[NUMERATOR_NOT_PRINTED])

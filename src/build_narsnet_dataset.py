@@ -21,10 +21,11 @@ AMRSN publishes no % intermediate for E. coli or S. aureus, so an AMRSN
 read side by side as parallel series and must never be joined on a single shared
 value. A reader who has only the filenames should be able to tell that much.
 
-Scope is the 2019 and 2020 editions, E. coli and S. aureus -- the editions whose
-printed numerator is complete enough that every cell can be checked against its
-own printed percentage. See `parsers/narsnet_parser.py` for why the later
-editions are not claimed yet.
+Scope is the 2019, 2020 and 2021 editions, E. coli and S. aureus -- the editions
+that print a numerator at all. In 2019 and 2020 every cell can be checked
+against its own printed percentage; in 2021 all but the fifteen cells declared
+in `CORRUPT_NUMERATORS` can. See `parsers/narsnet_parser.py` for why the
+2022-2024 editions, which print no numerator, are not claimed.
 """
 
 from __future__ import annotations
@@ -48,6 +49,7 @@ from .narsnet_validate import (
     internal_consistency,
     narsnet_panel_by_edition,
     summarise_composite_sums,
+    summarise_corrupt_numerators,
 )
 from .parsers.narsnet_parser import (
     NARSNET_FIELDNAMES,
@@ -59,7 +61,7 @@ from .sources import ATTRIBUTION, NARSNET_SOURCES, PROCESSED_DIR
 # Editions this builder covers. Kept here rather than derived from
 # NARSNET_SOURCES, which holds all eight: the registry records what can be
 # fetched, this records what has been verified against a hand-read of the page.
-BUILD_YEARS = [2020, 2019]
+BUILD_YEARS = [2021, 2020, 2019]
 
 ORGANISMS = list(SPECS)
 
@@ -149,6 +151,26 @@ def export(records, parsed, failed, extracted_date):
     print("  fixtures            {} passed, {} failed".format(len(passes), len(failures)))
     for f in failures:
         print("    [FAIL] {}".format(f))
+
+    corrupt = summarise_corrupt_numerators(records)
+    corrupt_cells = sum(c["cells"] for c in corrupt)
+    print(
+        "  corrupt numerators   {} cell(s) in {} declared block(s)".format(
+            corrupt_cells, len(corrupt)
+        )
+    )
+    for c in corrupt:
+        scope = c["scope"] if isinstance(c["scope"], str) else ", ".join(c["scope"])
+        print(
+            "    {} {} / {}: {} ({} cell(s), {} agree with their own printed %R)".format(
+                c["source_report_year"], c["organism"], c["specimen"], scope,
+                c["cells"], c["cells_agreeing_with_their_printed_pct"],
+            )
+        )
+        if not c["cells"]:
+            print(
+                "      [WARN] this declaration matched no rows in this build"
+            )
 
     mismatches = internal_consistency(records)
     print(
@@ -251,7 +273,12 @@ def export(records, parsed, failed, extracted_date):
                     "editions the E. coli drug panel is identical while the "
                     "pooled specimen column disappears, so an edition-over-"
                     "edition comparison of a pooled figure would be comparing a "
-                    "printed column against one that is no longer printed."
+                    "printed column against one that is no longer printed. The "
+                    "2021 edition moves both axes at once: the drug panels grow "
+                    "from 9 to 17 for E. coli and 8 to 9 for S. aureus, and the "
+                    "pooled and PA+OSBF columns give way to pus_aspirate and "
+                    "osbf reported separately, so no 2021 specimen column has "
+                    "the same membership as any 2020 one."
                 ),
                 "attribution": ATTRIBUTION,
                 "generated": extracted_date,
@@ -296,11 +323,13 @@ def export(records, parsed, failed, extracted_date):
                     "single shared comparison value."
                 ),
                 "scope": (
-                    "The 2019 and 2020 editions, E. coli and S. aureus. These are "
-                    "the editions whose printed numerator is complete enough that "
-                    "every cell can be checked against its own printed "
-                    "percentage. The 2021 edition prints a partly corrupt "
-                    "numerator and the 2022-2024 editions print none."
+                    "The 2019, 2020 and 2021 editions, E. coli and S. aureus. "
+                    "These are the editions that print a numerator at all. In "
+                    "2019 and 2020 every cell can be checked against its own "
+                    "printed percentage; in 2021 every cell can except the "
+                    "fifteen listed under corrupt_numerators below, where the "
+                    "printed figure is not that cell's numerator. The 2022-2024 "
+                    "editions print no numerator and are not covered."
                 ),
                 "total_rows": len(records),
                 "sources": [
@@ -324,12 +353,42 @@ def export(records, parsed, failed, extracted_date):
                     "failed": len(failures),
                     "failures": failures,
                 },
+                "corrupt_numerators": {
+                    "description": (
+                        "Cells whose printed Number Resistant is not that "
+                        "cell's numerator. They are carried exactly as printed "
+                        "and flagged numerator_corrupt_in_source; "
+                        "numerator_status is corrupt_in_source, reconcilable is "
+                        "false, and no computed_pct is derived from them. "
+                        "Nothing is corrected and nothing is dropped. This is a "
+                        "different finding from "
+                        "printed_pct_vs_printed_counts below, where the "
+                        "numerator IS the cell's own figure and disagrees with "
+                        "the percentage beside it. Which cells these are is "
+                        "declared from a hand-read of the printed page rather "
+                        "than inferred from the size of the disagreement. "
+                        "cells_agreeing_with_their_printed_pct counts the cells "
+                        "inside a declared block whose printed numerator does "
+                        "nonetheless agree with the percentage printed beside "
+                        "it; they are reported here rather than exempted, "
+                        "because where the unit of a printing defect is the "
+                        "sub-column, which values came to rest on their own row "
+                        "is not something the printed table lets a reader "
+                        "establish."
+                    ),
+                    "count": len(corrupt),
+                    "cells": corrupt_cells,
+                    "blocks": corrupt,
+                },
                 "printed_pct_vs_printed_counts": {
                     "description": (
                         "Cells whose printed percentage does not follow from "
                         "their own printed counts, allowing half the printed "
                         "precision for rounding. All are carried exactly as "
-                        "printed and flagged; nothing is corrected."
+                        "printed and flagged; nothing is corrected. Cells whose "
+                        "numerator is corrupt in source cannot appear here: "
+                        "there is no numerator of their own for the percentage "
+                        "to disagree with."
                     ),
                     "count": len(mismatches),
                     "rows": [
