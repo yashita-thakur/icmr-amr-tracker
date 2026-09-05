@@ -12,6 +12,23 @@ that has an RC-wise table, susceptibility % by Regional Centre for that
 organism's most recent RC edition, one line per antibiotic. The RC-wise tables
 carry no year axis, so these are single-edition cross-sections, not trends.
 
+V3 adds five NCDC NARS-Net figures, static only -- no companion JSON, the same
+choice V2 made for the RC charts:
+
+    narsnet_<organism>.png                % resistant by specimen, 8 editions
+    narsnet_comparability_<organism>.png  which network reports what
+    narsnet_surveillance_volume.png       isolates tested, both networks
+
+The first two are NARS-Net alone. NARS-Net publishes % resistant and AMRSN
+publishes % susceptible, and AMRSN publishes no % intermediate for either
+organism, so an AMRSN % resistant cannot be computed and the two metrics can
+never share an axis or a value. No figure here draws them together, and no
+figure draws them side by side either: a reader seeing 77% resistant beside 21%
+susceptible will subtract, and the answer would be wrong.
+
+The volume figure is the single exception, and only because it plots counts. An
+isolate tested is the same unit on both sides in a way the percentages are not.
+
 Usage:
     python viz/trend_charts.py
     python viz/trend_charts.py --revisions
@@ -32,7 +49,12 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
-from matplotlib.ticker import FuncFormatter, MaxNLocator  # noqa: E402
+from matplotlib.ticker import (  # noqa: E402
+    FuncFormatter,
+    LogLocator,
+    MaxNLocator,
+    NullLocator,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
@@ -462,6 +484,655 @@ def chart_revisions(out_path, top_n=12):
     return out_path
 
 
+# ---------------------------------------------------------------------------
+# V3 -- NCDC NARS-Net, carried as a parallel series
+#
+# NARS-Net publishes % RESISTANT; AMRSN publishes % SUSCEPTIBLE. On these
+# figures high is bad; on every AMRSN figure above, high is good. AMRSN
+# publishes no % intermediate for either organism, so an AMRSN % resistant
+# cannot be computed and the two metrics can never share an axis or a value.
+# The NARS-Net figures therefore stand alone, use a different colour family so
+# they do not read as a continuation of the AMRSN set, and say "% resistant"
+# in the title, the axis label and the footer.
+#
+# The one exception is the surveillance-volume figure, which puts both networks
+# on one axis on purpose: it plots isolate counts, and a count is the same unit
+# on both sides in a way the two percentages are not.
+# ---------------------------------------------------------------------------
+
+NARSNET_CMAP = "Dark2"  # deliberately not tab10 -- see above
+
+
+def load_narsnet_rows():
+    csv_path = PROCESSED_DIR / "narsnet_trends.csv"
+    if not csv_path.exists():
+        raise SystemExit(
+            "{} not found. Run `python -m src.build_narsnet_dataset` first.".format(
+                csv_path
+            )
+        )
+    with open(csv_path, encoding="utf-8") as fh:
+        return list(csv.DictReader(fh))
+
+
+def load_comparability():
+    path = PROCESSED_DIR / "comparability_matrix.json"
+    if not path.exists():
+        raise SystemExit(
+            "{} not found. Run `python -m src.build_comparability` first.".format(path)
+        )
+    with open(path, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def shared_antibiotics(matrix, organism):
+    """Drugs both networks report somewhere in the series, from the matrix.
+
+    Taken from the matrix rather than recomputed here, so the trend figures and
+    the comparability figures cannot disagree about what "shared" means.
+    """
+    for entry in matrix["summary"]["by_organism"]:
+        if entry["organism"] == organism:
+            return entry["antibiotics_both_networks_report"]
+    return []
+
+
+# The specimen columns each organism's figure is drawn on: the only columns
+# with an unbroken run across all eight editions. Blood qualifies for both
+# organisms and urine for E. coli; every other column is either a composite
+# whose membership changes between editions or one that begins in 2021, and
+# plotting either as a continuous line would join measurements of different
+# things. S. aureus is never surveilled from urine.
+NARSNET_PANELS = {
+    "Escherichia coli": ["blood", "urine"],
+    "Staphylococcus aureus": ["blood"],
+}
+
+# The edition where the panels widen: E. coli 9 drugs -> 17, S. aureus 8 -> 9.
+# Marked so that a line starting mid-chart reads as the panel changing rather
+# than as missing data.
+NARSNET_PANEL_WIDENED = 2021
+
+
+def narsnet_series(rows, organism, specimen, antibiotics=None):
+    """(antibiotic, year) -> printed % resistant, for one specimen column.
+
+    Same presentational filter as `latest_edition_series` -- no percentage
+    printed, or fewer than `MIN_TESTED_FOR_CHART` isolates tested, and the
+    point is not drawn -- with one deliberate difference from the RC charts.
+
+    Cells flagged `pct_mismatch` ARE plotted here. That flag records a
+    disagreement between a printed percentage and the numerator printed beside
+    it, and these charts draw the percentage, which is the figure the source's
+    own chapters restate. The RC charts drop such cells because there the
+    printed percentage is the thing in doubt (0% against counts of 2/3); here
+    it is the numerator, and seven of the eight NARS-Net cases differ from
+    their own counts by under 0.54 percentage points. Dropping them would open
+    a one-year gap in a line over a rounding difference.
+    """
+    wanted = set(antibiotics) if antibiotics else None
+    out = {}
+    for r in rows:
+        if r["organism"] != organism or r["specimen"] != specimen:
+            continue
+        if wanted is not None and r["antibiotic"] not in wanted:
+            continue
+        if not r["resistant_pct"]:
+            continue
+        try:
+            if int(r["tested_n"]) < MIN_TESTED_FOR_CHART:
+                continue
+        except (TypeError, ValueError):
+            continue
+        out[(r["antibiotic"], int(r["year"]))] = float(r["resistant_pct"])
+    return out
+
+
+def chart_narsnet_organism(rows, matrix, organism, out_path):
+    specimens = NARSNET_PANELS[organism]
+    abx = shared_antibiotics(matrix, organism)
+    panels = [(s, narsnet_series(rows, organism, s, abx)) for s in specimens]
+    panels = [(s, v) for s, v in panels if v]
+    if not panels:
+        return None
+
+    # Laid out in inches. The footer runs to several lines and is the same
+    # length whether there are one panel or two, so it needs a fixed allowance
+    # rather than a fraction of a figure whose height changes with the organism.
+    fig_w, panel_h = 9.0, 3.1
+    left, right, top, bottom = 0.85, 0.25, 1.40, 1.70
+    fig_h = top + panel_h * len(panels) + bottom
+    fig, axes = plt.subplots(
+        len(panels), 1, figsize=(fig_w, fig_h), squeeze=False, sharex=True
+    )
+    fig.subplots_adjust(
+        left=left / fig_w,
+        right=1 - right / fig_w,
+        top=1 - top / fig_h,
+        bottom=bottom / fig_h,
+        hspace=0.22,
+    )
+    cmap = plt.get_cmap(NARSNET_CMAP)
+    drawn = set()
+    for ax, (specimen, series) in zip(axes[:, 0], panels):
+        for i, antibiotic in enumerate(abx):
+            pts = sorted(
+                (y, v) for (a, y), v in series.items() if a == antibiotic
+            )
+            # A drug the source prints in one edition only cannot be drawn as
+            # a trend. E. coli ceftazidime (2017) and S. aureus vancomycin
+            # (2018) are each in a single NARS-Net table and drop out here.
+            if len(pts) < 2:
+                continue
+            drawn.add(antibiotic)
+            ax.plot(
+                [p[0] for p in pts],
+                [p[1] for p in pts],
+                marker="o",
+                markersize=4,
+                linewidth=2.0 if antibiotic in CARBAPENEMS else 1.3,
+                linestyle="-" if antibiotic in CARBAPENEMS else "--",
+                color=cmap(i % 8),
+                label=antibiotic,
+            )
+        ax.axvline(
+            NARSNET_PANEL_WIDENED - 0.5, color="#999999", linewidth=1, linestyle=":"
+        )
+        ax.annotate(
+            "panel widens",
+            (NARSNET_PANEL_WIDENED - 0.5, 99),
+            textcoords="offset points",
+            xytext=(4, -2),
+            va="top",
+            fontsize=7,
+            color="#777777",
+        )
+        ax.set_title(
+            "{} isolates".format(specimen.replace("_", " ")),
+            fontsize=10,
+            loc="left",
+            color="#444444",
+        )
+        ax.set_ylabel("% resistant")
+        ax.set_ylim(0, 100)
+        ax.grid(alpha=0.25, linestyle=":")
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+
+    axes[-1, 0].set_xlabel("Year")
+    # In the margin, not on the axes. Seven or eight lines spread over most of
+    # a 0-100 panel leave no corner genuinely free, and a legend placed in the
+    # least-bad one still hides a line -- on the E. coli blood panel it sat on
+    # imipenem for four of its eight years.
+    fig.legend(
+        *axes[0, 0].get_legend_handles_labels(),
+        fontsize=8,
+        ncol=4,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 1 - 0.46 / fig_h),
+        frameon=False,
+        title="Antibiotic",
+    )
+    fig.suptitle(
+        "{}: NARS-Net % RESISTANT, by specimen".format(organism),
+        fontsize=13,
+        style="italic",
+        y=1 - 0.24 / fig_h,
+    )
+    missing = [a for a in abx if a not in drawn]
+    _footer(
+        fig,
+        "NCDC NARS-Net, all eight editions 2017-2024. HIGH IS BAD HERE: this is "
+        "% resistant, not the % susceptible the ICMR-AMRSN figures above show, "
+        "and the two are not two views of one number -- AMRSN publishes no "
+        "% intermediate for this organism, so its % resistant cannot be "
+        "computed. Of the {} drugs both networks report, {} are drawn{}; the "
+        "other drugs in NARS-Net's panel are in the dataset. Carbapenems shown "
+        "as solid lines. Not plotted: points with fewer than {} isolates "
+        "tested and points where the source prints no percentage. Cells "
+        "flagged pct_mismatch ARE plotted: that flag records a printed "
+        "percentage disagreeing with the numerator printed beside it, and it "
+        "is the percentage these charts draw.".format(
+            len(abx),
+            len(drawn),
+            (
+                ", and {} is left out because NARS-Net prints it in one "
+                "edition only, which is not a trend".format(", ".join(missing))
+                if missing
+                else ""
+            ),
+            MIN_TESTED_FOR_CHART,
+        ),
+    )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+    return out_path
+
+
+# Colour and glyph per coverage state. The glyph is not decoration: it carries
+# the same information as the colour, so the matrix survives greyscale
+# printing and does not rely on telling green from orange.
+COVERAGE_STYLE = {
+    "both": ("#4d7c5f", "B"),
+    "narsnet_only": ("#d9822b", "N"),
+    "amrsn_only": ("#6a8caf", "A"),
+    "neither": ("#ededed", ""),
+}
+
+
+def _specimen_rows(cells, organism):
+    """Rows for the specimen strip: which basis each network printed, per year.
+
+    Returns (label, {year: True/False}, colour) tuples -- the NARS-Net specimen
+    columns that organism's editions print, then one row for AMRSN's own basis.
+    """
+    years = sorted({c["year"] for c in cells})
+    narsnet_by_year: dict = {}
+    amrsn_years = set()
+    basis = None
+    for cell in cells:
+        if cell["narsnet"]:
+            for specimen in cell["narsnet"]["specimen_basis"]:
+                narsnet_by_year.setdefault(specimen, set()).add(cell["year"])
+        if cell["amrsn"]:
+            amrsn_years.add(cell["year"])
+            basis = cell["amrsn"]["specimen_basis"]
+
+    def sort_key(specimen):
+        # Composites last, then alphabetical, so the 2021 split reads as a
+        # block of composite rows ending where the single-stratum rows begin.
+        return ("+" in specimen, specimen)
+
+    rows = [
+        (
+            specimen.replace("_", " ").replace("osbf", "OSBF"),
+            {y: y in narsnet_by_year[specimen] for y in years},
+            COVERAGE_STYLE["narsnet_only"][0],
+        )
+        for specimen in sorted(narsnet_by_year, key=sort_key)
+    ]
+    if basis:
+        # The caption wording itself is too long for a row label and is given
+        # in the footer instead; AMRSN prints one pooled column either way.
+        rows.append(
+            (
+                "AMRSN (one pooled column)",
+                {y: y in amrsn_years for y in years},
+                COVERAGE_STYLE["amrsn_only"][0],
+            )
+        )
+    return rows, basis
+
+
+def chart_comparability(matrix, organism, out_path):
+    """One cell per antibiotic x year: which network reports it, on which
+    metric, from which specimen basis.
+
+    The matrix says nothing whatever about whether two reported figures agree,
+    and cannot: the networks share no comparison value. A "both" cell means
+    both networks print that combination, and that is all it means.
+    """
+    cells = [c for c in matrix["matrix"] if c["organism"] == organism]
+    if not cells:
+        return None
+    drugs = sorted({c["antibiotic"] for c in cells})
+    years = sorted({c["year"] for c in cells})
+    by_key = {(c["antibiotic"], c["year"]): c for c in cells}
+    strip, amrsn_basis = _specimen_rows(cells, organism)
+
+    # Laid out in inches rather than by tight_layout, which cannot measure a
+    # grid drawn as patches and clips the longest row labels when it tries.
+    fig_w, grid_h, strip_h = 9.0, 0.30 * len(drugs), 0.30 * len(strip)
+    left, right, top, gap, bottom = 2.15, 0.25, 1.45, 0.68, 2.00
+    fig_h = top + grid_h + gap + strip_h + bottom
+    fig, (ax, ax_strip) = plt.subplots(
+        2, 1, figsize=(fig_w, fig_h), gridspec_kw={"height_ratios": [grid_h, strip_h]}
+    )
+    fig.subplots_adjust(
+        left=left / fig_w,
+        right=1 - right / fig_w,
+        top=1 - top / fig_h,
+        bottom=bottom / fig_h,
+        hspace=gap / ((grid_h + strip_h) / 2),
+    )
+
+    for row, drug in enumerate(drugs):
+        for col, year in enumerate(years):
+            colour, glyph = COVERAGE_STYLE[by_key[(drug, year)]["coverage"]]
+            ax.add_patch(
+                plt.Rectangle(
+                    (col, row), 1, 1, facecolor=colour, edgecolor="white", linewidth=1.2
+                )
+            )
+            if glyph:
+                ax.text(
+                    col + 0.5,
+                    row + 0.5,
+                    glyph,
+                    ha="center",
+                    va="center",
+                    fontsize=7.5,
+                    color="white",
+                    fontweight="bold",
+                )
+    _grid_axes(ax, years, drugs)
+    fig.suptitle(
+        "{}: which network reports what".format(organism),
+        fontsize=13,
+        style="italic",
+        y=1 - 0.42 / fig_h,
+    )
+
+    for row, (label, present, colour) in enumerate(strip):
+        for col, year in enumerate(years):
+            ax_strip.add_patch(
+                plt.Rectangle(
+                    (col, row),
+                    1,
+                    1,
+                    facecolor=colour if present[year] else COVERAGE_STYLE["neither"][0],
+                    edgecolor="white",
+                    linewidth=1.2,
+                )
+            )
+    _grid_axes(ax_strip, years, [label for label, _p, _c in strip])
+    ax_strip.set_title(
+        "specimen basis each network prints", fontsize=9, loc="left", color="#444444"
+    )
+    ax_strip.set_xlabel("Year")
+
+    handles = [
+        plt.Rectangle((0, 0), 1, 1, facecolor=colour, edgecolor="white")
+        for colour, _g in COVERAGE_STYLE.values()
+    ]
+    labels = [
+        "B  both networks report it",
+        "N  NARS-Net only (% resistant)",
+        "A  AMRSN only (% susceptible)",
+        "    neither reports it",
+    ]
+    ax.legend(
+        handles,
+        labels,
+        fontsize=8,
+        ncol=2,
+        loc="lower left",
+        bbox_to_anchor=(0, 1.06),
+        frameon=False,
+    )
+
+    counts = _coverage_counts(cells)
+    shared = sorted({c["antibiotic"] for c in cells if c["amrsn"]} &
+                    {c["antibiotic"] for c in cells if c["narsnet"]})
+    both_years = {
+        d: [y for y in years if by_key[(d, y)]["coverage"] == "both"] for d in shared
+    }
+    both_every_year = [d for d in shared if len(both_years[d]) == len(years)]
+    partial = [d for d in shared if d not in both_every_year]
+    # The organism's own sharpest case, found rather than named: the shared
+    # drug that actually overlaps in the fewest years. E. coli ceftazidime and
+    # S. aureus vancomycin are each in one NARS-Net table only.
+    sharpest = min(partial, key=lambda d: (len(both_years[d]), d)) if partial else None
+    _footer(
+        fig,
+        "{} drugs x {} years = {} cells: {} reported by both networks, {} by "
+        "NARS-Net only, {} by AMRSN only, {} by neither.\n"
+        "PANEL-LEVEL OVERLAP IS NOT CELL-LEVEL OVERLAP. {} of the {} drugs "
+        "both networks report are reported by both in every year; {} "
+        "{}.{}\n"
+        "A 'both' cell means both networks print that combination. It does NOT "
+        "mean the two figures are comparable: NARS-Net prints % resistant and "
+        "AMRSN % susceptible, and AMRSN publishes no % intermediate for these "
+        "organisms, so its % resistant cannot be computed. Take each value "
+        "from its own dataset. The specimen bases are not equivalent either: "
+        "AMRSN's one pooled column is captioned '{}', NARS-Net prints a column "
+        "per specimen, and no NARS-Net column from 2021 has the same "
+        "membership as any earlier one.".format(
+            len(drugs),
+            len(years),
+            len(cells),
+            counts["both"],
+            counts["narsnet_only"],
+            counts["amrsn_only"],
+            counts["neither"],
+            len(both_every_year),
+            len(shared),
+            len(partial),
+            "overlap in some years only" if partial else "overlap in none",
+            (
+                " {} is the sharp case: it counts as a drug both networks "
+                "report on {} of its {} cells ({}).".format(
+                    sharpest,
+                    len(both_years[sharpest]),
+                    len(years),
+                    ", ".join(str(y) for y in both_years[sharpest]),
+                )
+                if sharpest
+                else ""
+            ),
+            amrsn_basis,
+        ),
+    )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+    return out_path
+
+
+def _grid_axes(ax, years, row_labels):
+    ax.set_xlim(0, len(years))
+    ax.set_ylim(0, len(row_labels))
+    ax.set_xticks([i + 0.5 for i in range(len(years))])
+    ax.set_xticklabels([str(y) for y in years], fontsize=8)
+    ax.set_yticks([i + 0.5 for i in range(len(row_labels))])
+    ax.set_yticklabels(row_labels, fontsize=8)
+    ax.invert_yaxis()
+    ax.tick_params(length=0)
+    for side in ax.spines.values():
+        side.set_visible(False)
+
+
+def _coverage_counts(cells):
+    counts = {state: 0 for state in COVERAGE_STYLE}
+    for cell in cells:
+        counts[cell["coverage"]] += 1
+    return counts
+
+
+def _constituents(specimen):
+    return frozenset(specimen.split("+"))
+
+
+def _best_disjoint_total(printed):
+    """Largest all-specimen denominator recoverable from one drug-year's columns.
+
+    `printed` maps specimen column -> isolates tested. Columns overlap: an
+    edition can print blood, urine and a pooled Blood+Urine+PA+OSBF column
+    covering both. Summing everything would double-count, and summing only the
+    single strata would understate any year whose pooled column is the sole
+    place a stratum appears. So: take the pairwise-disjoint subset covering the
+    most strata, preferring the one printed as fewest columns -- which means a
+    pooled column is used as printed where one exists, and the strata are
+    summed where none does.
+    """
+    columns = sorted(printed)
+    best = None
+    for mask in range(1, 1 << len(columns)):
+        chosen = [columns[i] for i in range(len(columns)) if mask >> i & 1]
+        covered: set = set()
+        for specimen in chosen:
+            parts = _constituents(specimen)
+            if parts & covered:
+                break
+            covered |= parts
+        else:
+            key = (len(covered), -len(chosen))
+            if best is None or key > best[0]:
+                best = (key, sum(printed[s] for s in chosen))
+    return best[1] if best else None
+
+
+def narsnet_volume(rows, organism, specimen=None):
+    """year -> the largest number of isolates any one drug was tested against.
+
+    With `specimen`, that column alone. Without, every specimen the edition
+    prints, combined by `_best_disjoint_total` so nothing is double-counted.
+
+    A per-drug denominator, not an isolate count: neither network publishes
+    "isolates tested" for an organism, only "isolates tested against this
+    drug", and those differ widely inside one year. The maximum is the
+    best-supported lower bound on how many isolates the year's panel reached.
+    """
+    per_drug: dict = {}
+    for r in rows:
+        if r["organism"] != organism:
+            continue
+        if specimen is not None and r["specimen"] != specimen:
+            continue
+        try:
+            tested = int(r["tested_n"])
+        except (TypeError, ValueError):
+            continue
+        per_drug.setdefault((int(r["year"]), r["antibiotic"]), {})[r["specimen"]] = tested
+
+    out: dict = {}
+    for (year, _drug), printed in per_drug.items():
+        total = (
+            printed[specimen] if specimen is not None else _best_disjoint_total(printed)
+        )
+        if total is None:
+            continue
+        out[year] = max(out.get(year, 0), total)
+    return out
+
+
+def amrsn_volume(rows, organism):
+    """year -> largest printed denominator, from the most recent edition to
+    report that year. Same rule as `latest_edition_series` for which edition
+    wins, so the figure and the AMRSN trend charts quote the same numbers."""
+    best: dict = {}
+    for r in rows:
+        if r["organism"] != organism:
+            continue
+        try:
+            tested = int(r["tested_n"])
+        except (TypeError, ValueError):
+            continue
+        year, edition = int(r["year"]), int(r["source_report_year"])
+        if year not in best or edition > best[year][0]:
+            best[year] = (edition, tested)
+        elif edition == best[year][0]:
+            best[year] = (edition, max(best[year][1], tested))
+    return {y: v for y, (_e, v) in best.items()}
+
+
+def _spread(rows, organism, year, specimen=None, edition=None):
+    """min and max printed denominator across one year's panel, for the footer."""
+    vals = []
+    for r in rows:
+        if r["organism"] != organism or int(r["year"]) != year:
+            continue
+        if specimen is not None and r.get("specimen") != specimen:
+            continue
+        if edition is not None and int(r["source_report_year"]) != edition:
+            continue
+        try:
+            vals.append(int(r["tested_n"]))
+        except (TypeError, ValueError):
+            continue
+    return (min(vals), max(vals)) if vals else (None, None)
+
+
+def chart_surveillance_volume(amrsn_rows, narsnet_rows, out_path, organisms=None):
+    """Isolates tested per year, both networks, on one count axis.
+
+    THE ONE FIGURE IN V3 THAT PUTS THE TWO NETWORKS ON A SHARED AXIS, and it
+    does so because a count is the same unit on both sides. The percentages are
+    not: NARS-Net prints % resistant, AMRSN % susceptible, and no % intermediate
+    is published for these organisms, so those two can never share an axis.
+    """
+    organisms = organisms or ["Escherichia coli", "Staphylococcus aureus"]
+    fig, axes = plt.subplots(
+        len(organisms), 1, figsize=(9, 3.6 * len(organisms) + 1.6), squeeze=False
+    )
+
+    for ax, organism in zip(axes[:, 0], organisms):
+        blood = narsnet_volume(narsnet_rows, organism, specimen="blood")
+        every = narsnet_volume(narsnet_rows, organism)
+        amrsn = amrsn_volume(amrsn_rows, organism)
+        for label, data, style in (
+            ("NARS-Net, blood", blood, {"color": "#d9822b", "linestyle": "-"}),
+            (
+                "NARS-Net, every specimen printed",
+                every,
+                {"color": "#d9822b", "linestyle": ":"},
+            ),
+            ("AMRSN, as printed", amrsn, {"color": "#6a8caf", "linestyle": "-"}),
+        ):
+            pts = sorted(data.items())
+            if len(pts) < 2:
+                continue
+            ax.plot(
+                [p[0] for p in pts],
+                [p[1] for p in pts],
+                marker="o",
+                markersize=4,
+                linewidth=1.8,
+                label=label,
+                **style
+            )
+        ax.set_yscale("log")
+        ax.set_ylabel("isolates tested (log)")
+        ax.set_title(organism, fontsize=11, style="italic", loc="left")
+        ax.grid(alpha=0.25, linestyle=":", which="both")
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        # Ticks at 1/2/5 per decade, labelled as plain counts. Left to
+        # matplotlib, one panel comes out reading "10,000" and the other
+        # "2 x 10^4" -- two renderings of a count, on one figure.
+        ax.yaxis.set_major_locator(LogLocator(base=10.0, subs=(1.0, 2.0, 5.0)))
+        ax.yaxis.set_minor_locator(NullLocator())
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _p: "{:,.0f}".format(v)))
+        ax.legend(fontsize=8, loc="lower right", frameon=True)
+
+    axes[-1, 0].set_xlabel("Year")
+    fig.suptitle(
+        "Surveillance volume: the one metric the two networks share",
+        fontsize=13,
+    )
+    fig.tight_layout(rect=(0, 0.15, 1, 0.97))
+
+    ec_lo, ec_hi = _spread(narsnet_rows, "Escherichia coli", 2024, specimen="urine")
+    am_lo, am_hi = _spread(amrsn_rows, "Escherichia coli", 2024, edition=2024)
+    _footer(
+        fig,
+        "Counts, not percentages -- which is why this is the one figure here "
+        "that puts both networks on one axis. An isolate tested is the same "
+        "unit on both sides; the two resistance metrics are not, since "
+        "NARS-Net prints % resistant, AMRSN % susceptible, and no "
+        "% intermediate is published for these organisms.\n"
+        "Each line is the LARGEST printed denominator in that year's panel. "
+        "Neither network publishes 'isolates tested' for an organism -- only "
+        "isolates tested against each drug -- and those differ widely within "
+        "one year: E. coli urine in 2024 runs {:,}-{:,} across sixteen "
+        "NARS-Net drugs, and the AMRSN 2024 panel runs {:,}-{:,} across ten. "
+        "Log axis: equal vertical distance is equal proportional change, so "
+        "what is comparable here is the TRAJECTORY, not the size.\n"
+        "The two cover different populations. AMRSN prints one pooled column, "
+        "captioned 'all samples (except faeces and urine)' for E. coli and "
+        "'all samples' for S. aureus; NARS-Net prints a column per specimen "
+        "and no pooled column at all from 2021, so its dotted line is combined "
+        "here from the columns each edition prints. The AMRSN dip in 2023 is "
+        "in the source and is not a revision: E. coli "
+        "piperacillin-tazobactam runs 14,728 tested in 2022 to 7,559 in 2023 "
+        "and 11,679 in 2024, and the 2023 and 2024 editions print the 2023 "
+        "figure identically.".format(ec_lo, ec_hi, am_lo, am_hi),
+    )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+    return out_path
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--revisions", action="store_true", help="also draw revisions chart")
@@ -484,6 +1155,31 @@ def main(argv=None) -> int:
         out = chart_organism_rc(rc_rows, organism, FIGURES_DIR / "rc_{}.png".format(slug))
         if out:
             written.append(out)
+
+    # V3 -- NARS-Net, drawn as its own series and never joined to the AMRSN
+    # figures above. No companion JSON: these are static figures only, as the
+    # V2 RC charts are. Two rendering paths are only safe while they share one
+    # source of truth, and there is no reason to multiply them here.
+    narsnet_rows = load_narsnet_rows()
+    matrix = load_comparability()
+    for organism in NARSNET_PANELS:
+        slug = organism.lower().replace(" ", "_").replace(".", "")
+        out = chart_narsnet_organism(
+            narsnet_rows, matrix, organism, FIGURES_DIR / "narsnet_{}.png".format(slug)
+        )
+        if out:
+            written.append(out)
+        out = chart_comparability(
+            matrix, organism, FIGURES_DIR / "narsnet_comparability_{}.png".format(slug)
+        )
+        if out:
+            written.append(out)
+
+    out = chart_surveillance_volume(
+        rows, narsnet_rows, FIGURES_DIR / "narsnet_surveillance_volume.png"
+    )
+    if out:
+        written.append(out)
 
     if args.revisions:
         out = chart_revisions(FIGURES_DIR / "cross_report_revisions.png")
