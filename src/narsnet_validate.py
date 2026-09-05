@@ -11,6 +11,17 @@ Blood percentages for ciprofloxacin, TMP/SMX and piperacillin-tazobactam and the
 Blood numerator sub-column beside them is not usable: the prose corroborates the
 printed percentage from outside the table.
 
+It pays for itself again, differently, in 2017 and 2018. Those editions print no
+numerator and no interval, so none of the checks below reaches them and the
+narrative fixtures are the only independent statement about those rows there is.
+They are therefore treated differently from the rest: every specimen-stratified
+percentage the two chapters state is pinned -- twenty-one of them -- rather than
+a representative handful, and each carries the denominator hand-read from the
+cell beside it. Four of the twenty-one name no stratum; each is pinned on the
+column that prints the figure, and where more than one column does, the note
+says which. What none of this amounts to is a per-cell check, and the parser's
+module docstring and the extraction report both say so in those words.
+
 Three checks that `parsers/narsnet_parser.py` cannot make on its own:
 
 * `find_degenerate_composite_disagreements` -- the cross-column check. Some
@@ -61,7 +72,9 @@ from dataclasses import dataclass
 
 from .parsers.narsnet_parser import (
     CORRUPT_NUMERATORS,
+    NO_INTERNAL_CHECK_FLAG,
     NUMERATOR_CORRUPT,
+    NUMERATOR_NOT_PRINTED,
     is_composite,
     pct_tolerance,
 )
@@ -116,6 +129,157 @@ EC = "Escherichia coli"
 SA = "Staphylococcus aureus"
 
 NARSNET_FIXTURES: list[NarsNetFixture] = [
+    # --- 2017 S. aureus, Ch. narrative (p5) ---------------------------------
+    # These two editions print no numerator and no interval, so no check inside
+    # a cell reaches them and the fixtures below are the only thing that does.
+    # They are weighted accordingly: every percentage the chapters state is
+    # pinned, not a sample of them, and the denominator beside each one is
+    # hand-read off the table so the two provenances corroborate each other.
+    #
+    # "S. aureus isolates from blood showed 57.1% resistance to cefoxitin
+    #  (surrogate for mecA-mediated oxacillin resistance), overall resistance to
+    #  cefoxitin including other sterile body fluids and pus aspirates was found
+    #  to be 55.7% (Table 3 and 4)."
+    # The 2018 chapter restates the first of these a year later, as 57%.
+    NarsNetFixture(SA, "cefoxitin", BLOOD, 2017, 57.1,
+                   "narrative (%R; the 2018 chapter restates it as 57%); "
+                   "table 4 cell, p6 (denominator)",
+                   expected_tested_n=2159),
+    NarsNetFixture(SA, "cefoxitin", BLOOD_PA_OSBF, 2017, 55.7,
+                   "narrative (%R); table 4 cell, p6 (denominator)",
+                   expected_tested_n=3732),
+    # "emergence of linezolid resistant S. aureus isolates ... to the extent of
+    #  2.2% ... is a matter of concern." The sentence names no stratum, and 2.2
+    #  is the figure only the PA+OSBF column prints (1.7 pooled, 1.3 blood).
+    NarsNetFixture(SA, "linezolid", PA_OSBF, 2017, 2.2,
+                   "narrative (%R, no stratum named; 2.2 is printed by the "
+                   "PA+OSBF column alone); table 4 cell, p6 (denominator)",
+                   expected_tested_n=1529),
+    # "Resistance to gentamicin (aminoglycoside) was observed to be 38.7% for
+    #  S. aureus". Again no stratum, and again only one column prints it
+    #  (32 pooled, 26.3 blood).
+    NarsNetFixture(SA, "gentamicin", PA_OSBF, 2017, 38.7,
+                   "narrative (%R, no stratum named; 38.7 is printed by the "
+                   "PA+OSBF column alone); table 4 cell, p6 (denominator)",
+                   expected_tested_n=1552),
+    # Doxycycline is the smallest panel entry and the chapter does not mention
+    # it: this one is the table and nothing else.
+    NarsNetFixture(SA, "doxycycline", PA_OSBF, 2017, 15.6, "table 4 cell, p6",
+                   expected_tested_n=282),
+
+    # --- 2017 E. coli, Ch. narrative (p7) -----------------------------------
+    # "E. coli isolated from blood showed 81.4% resistance to cefotaxime and
+    #  68.3% to cefepime. Similar trend was observed for urine isolates with
+    #  resistance 79.3% to cefotaxime and 72.3% to cefepime."
+    NarsNetFixture(EC, "cefotaxime", BLOOD, 2017, 81.4,
+                   "narrative (%R); table 5 cell, p7 (denominator)",
+                   expected_tested_n=301),
+    NarsNetFixture(EC, "cefepime", BLOOD, 2017, 68.3,
+                   "narrative (%R); table 5 cell, p7 (denominator)",
+                   expected_tested_n=240),
+    NarsNetFixture(EC, "cefotaxime", URINE, 2017, 79.3,
+                   "narrative (%R); table 5 cell, p7 (denominator)",
+                   expected_tested_n=4755),
+    NarsNetFixture(EC, "cefepime", URINE, 2017, 72.3,
+                   "narrative (%R); table 5 cell, p7 (denominator)",
+                   expected_tested_n=1926),
+    # "Resistance to carbapenems that is ertapenem and imipenem was observed to
+    #  be 36.7% and 25.2% in blood isolates. While in urine isolates, slightly
+    #  higher resistance was observed for imipenem (34%) than ertapenem
+    #  (30.8%)."
+    # The 2018 chapter restates the two blood figures a year later, rounded to
+    # 37% and 25%.
+    NarsNetFixture(EC, "ertapenem", BLOOD, 2017, 36.7,
+                   "narrative (%R; the 2018 chapter restates it as 37%); "
+                   "table 5 cell, p7 (denominator)",
+                   expected_tested_n=251),
+    NarsNetFixture(EC, "imipenem", BLOOD, 2017, 25.2,
+                   "narrative (%R; the 2018 chapter restates it as 25%); "
+                   "table 5 cell, p7 (denominator)",
+                   expected_tested_n=349),
+    NarsNetFixture(EC, "imipenem", URINE, 2017, 34.0,
+                   "narrative (%R); table 5 cell, p7 (denominator)",
+                   expected_tested_n=1260),
+    NarsNetFixture(EC, "ertapenem", URINE, 2017, 30.8,
+                   "narrative (%R); table 5 cell, p7 (denominator)",
+                   expected_tested_n=2233),
+    # The first and last rows of the panel, neither named in the chapter, so
+    # that the ends of the table are pinned as well as its middle.
+    NarsNetFixture(EC, "ampicillin", URINE, 2017, 84.3, "table 5 cell, p7",
+                   expected_tested_n=2338),
+    NarsNetFixture(EC, "ciprofloxacin", URINE, 2017, 76.1, "table 5 cell, p7",
+                   expected_tested_n=3106),
+
+    # --- 2018 S. aureus, Ch. narrative (p6 [5]) -----------------------------
+    # "Staph. aureus isolates from blood showed 69% resistance to cefoxitin
+    #  (surrogate marker for mecA-mediated oxacillin resistance) which was found
+    #  to be higher than that reported in 2017 (57%). Overall resistance to
+    #  cefoxitin, including isolates from other sterile body fluids and pus
+    #  aspirates, was found to be 63% (Table 4)."
+    NarsNetFixture(SA, "cefoxitin", BLOOD, 2018, 69.0,
+                   "narrative (%R); table 4 cell, p7 [6] (denominator)",
+                   expected_tested_n=3962),
+    NarsNetFixture(SA, "cefoxitin", BLOOD_PA_OSBF, 2018, 63.0,
+                   "narrative (%R); table 4 cell, p7 [6] (denominator)",
+                   expected_tested_n=10607),
+    # "Emergence of linezolid resistant Staph. aureus and Enterococcus species
+    #  to the extent of 1% and 6% respectively". No stratum, and here it needs
+    #  none: all three S. aureus columns print 1.
+    NarsNetFixture(SA, "linezolid", BLOOD_PA_OSBF, 2018, 1.0,
+                   "narrative (%R, no stratum named; all three columns print "
+                   "1); table 4 cell, p7 [6] (denominator)",
+                   expected_tested_n=9040),
+    # "Resistance to gentamicin was observed to be 19% in Staph. aureus".
+    # Two columns print 19 -- the pooled and PA+OSBF -- and the sentence is
+    # about the organism rather than a specimen, so it is pinned on the pooled
+    # column. The distinction is recorded because it is a real ambiguity in the
+    # source, not because it changes the figure.
+    NarsNetFixture(SA, "gentamicin", BLOOD_PA_OSBF, 2018, 19.0,
+                   "narrative (%R, no stratum named; the pooled and PA+OSBF "
+                   "columns both print 19); table 4 cell, p7 [6] (denominator)",
+                   expected_tested_n=10119),
+    # Vancomycin joins the panel in this edition on fourteen isolates, under a
+    # footnote saying so: "% resistance of Staph. aureus against vancomycin is
+    # of low statistical validity as the number of isolates tested using broth
+    # microdilution method are <=30". Pinned as printed, footnote and all.
+    NarsNetFixture(SA, "vancomycin", BLOOD_PA_OSBF, 2018, 0.0,
+                   "table 4 cell, p7 [6] (the page footnotes this row as of "
+                   "low statistical validity; it is carried as printed)",
+                   expected_tested_n=14),
+
+    # --- 2018 E. coli, Ch. narrative (p10 [9]) ------------------------------
+    # "E. coli isolated from blood showed 84% resistance to cefotaxime and 63%
+    #  to cefepime. E. coli from urine showed higher resistance rates to
+    #  cefepime (70%) than those isolated from blood (63%). (Table 6)."
+    NarsNetFixture(EC, "cefotaxime", BLOOD, 2018, 84.0,
+                   "narrative (%R); table 6 cell, p10 [9] (denominator)",
+                   expected_tested_n=500),
+    NarsNetFixture(EC, "cefepime", BLOOD, 2018, 63.0,
+                   "narrative (%R); table 6 cell, p10 [9] (denominator)",
+                   expected_tested_n=496),
+    NarsNetFixture(EC, "cefepime", URINE, 2018, 70.0,
+                   "narrative (%R); table 6 cell, p10 [9] (denominator)",
+                   expected_tested_n=4289),
+    # "Resistance to carbapenems that is ertapenem and imipenem was observed to
+    #  be 40% and 33% in E.coli blood isolates which is higher than that
+    #  observed in 2017 (37% to ertapenem and 25% to imipenem in year 2017)."
+    # The second half of that sentence is what corroborates the 2017 fixtures
+    # above.
+    NarsNetFixture(EC, "ertapenem", BLOOD, 2018, 40.0,
+                   "narrative (%R); table 6 cell, p10 [9] (denominator)",
+                   expected_tested_n=402),
+    NarsNetFixture(EC, "imipenem", BLOOD, 2018, 33.0,
+                   "narrative (%R); table 6 cell, p10 [9] (denominator)",
+                   expected_tested_n=589),
+    # The one drug in either new edition reported for some specimens and not
+    # others: nitrofurantoin prints only a pooled and a urine column, with the
+    # blood and PA+OSBF blocks greyed out. Pinned so that the greying stays
+    # read as greying rather than as a column shifted along.
+    NarsNetFixture(EC, "nitrofurantoin", URINE, 2018, 12.0,
+                   "table 6 cell, p10 [9] (the blood and PA+OSBF blocks of "
+                   "this row are greyed out and emit no record)",
+                   expected_tested_n=13194),
+
     # --- 2019 E. coli, Ch.2 narrative (p29 [19]) ----------------------------
     # "E. coli isolated from blood showed 82% resistance to cefotaxime and 63%
     #  to cefepime whereas urine isolates show higher level of resistance to
@@ -547,6 +711,69 @@ def summarise_corrupt_numerators(records):
     return out
 
 
+def summarise_unchecked_cells(records):
+    """Cells carrying `no_internal_check_possible`, counted by why.
+
+    Descriptive, like the summaries above: the parser has already raised the
+    flag. What this adds is the shape of the set, because it is not one
+    edition's and the three reasons are different facts about the source. A
+    reader who knows only that 2017 and 2018 support no check would otherwise
+    take the flag's absence elsewhere to mean a check ran, and on seventeen rows
+    in 2020 and 2021 it did not.
+    """
+    reasons = {
+        "no numerator and no interval printed": lambda r: (
+            r.numerator_status == NUMERATOR_NOT_PRINTED and r.resistant_pct is not None
+        ),
+        "numerator corrupt in source, no interval printed": lambda r: (
+            r.numerator_status == NUMERATOR_CORRUPT
+        ),
+        "no percentage printed, so nothing for the counts to disagree with": (
+            lambda r: r.resistant_pct is None
+        ),
+    }
+    covered = [
+        r for r in records if any(f == NO_INTERNAL_CHECK_FLAG for f in r.flags)
+    ]
+    by_edition: dict = {}
+    for r in covered:
+        entry = by_edition.setdefault(r.source_report_year, {"cells": 0, "reasons": {}})
+        entry["cells"] += 1
+        for label, test in reasons.items():
+            if test(r):
+                entry["reasons"][label] = entry["reasons"].get(label, 0) + 1
+                break
+    return {
+        "count": len(covered),
+        "by_edition": {
+            str(year): by_edition[year] for year in sorted(by_edition)
+        },
+        "rows": [
+            {
+                "organism": r.organism,
+                "antibiotic": r.antibiotic,
+                "specimen": r.specimen,
+                "source_report_year": r.source_report_year,
+                "tested_n": r.tested_n,
+                "resistant_n": r.resistant_n,
+                "reported_pct": r.reported_pct,
+                "numerator_status": r.numerator_status,
+                "reconcilable": r.reconcilable,
+            }
+            for r in sorted(
+                covered,
+                key=lambda r: (
+                    r.source_report_year, r.organism, r.antibiotic, r.specimen
+                ),
+            )
+            # The 2017 and 2018 rows are every row of those editions, so listing
+            # them here would restate the dataset. The rows worth naming are the
+            # ones a reader would not predict from the edition alone.
+            if r.source_report_year not in (2017, 2018)
+        ],
+    }
+
+
 CI_EXCLUDES_FLAG = "ci_excludes_point_estimate"
 CI_INVERTED_FLAG = "ci_bounds_inverted"
 
@@ -730,9 +957,18 @@ def summarise_composite_sums(records):
             if not disjoint or union != _constituents(comp.specimen):
                 continue
             tested_sum = sum(p.tested_n for p in parts if p.tested_n is not None)
-            resistant_sum = sum(
-                p.resistant_n for p in parts if p.resistant_n is not None
-            )
+            # None, not zero, where no part printed a numerator. A sum of
+            # nothing rendered as 0 would put a count in the report that the
+            # page never printed -- next to a composite_resistant_n of null,
+            # which reads as a pooled column disagreeing with its parts by its
+            # whole size rather than as neither figure existing.
+            #
+            # Only 2017 and 2018 reach this: they are the only editions that
+            # both print a pooled column and print no numerator. No edition from
+            # 2021 on prints a pooled column at all, so the 2022-2024 rows, which
+            # also print no numerator, never get here.
+            printed = [p.resistant_n for p in parts if p.resistant_n is not None]
+            resistant_sum = sum(printed) if printed else None
             out.append(
                 {
                     "organism": organism,
@@ -749,7 +985,7 @@ def summarise_composite_sums(records):
                     "partition_resistant_sum": resistant_sum,
                     "resistant_difference": (
                         None
-                        if comp.resistant_n is None
+                        if comp.resistant_n is None or resistant_sum is None
                         else comp.resistant_n - resistant_sum
                     ),
                 }

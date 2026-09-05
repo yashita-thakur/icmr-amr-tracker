@@ -318,6 +318,137 @@ comparison value.
   before being compared against `docs/narsnet_v3_research.md`. Test count
   311 → 340.
 
+- **The 2017 and 2018 editions**, *E. coli* and *S. aureus* — `BUILD_YEARS`
+  becomes `[2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017]` and the dataset
+  goes from 450 rows to 558. All eight NARS-Net reporting periods are now
+  covered. These two print a denominator and a percentage and nothing else.
+  - **No check inside a cell reaches either edition, and the dataset says so.**
+    There is no numerator for the percentage to be reconciled against and no
+    interval for it to fall outside of, so all 108 of those rows carry
+    `numerator_status = not_printed_in_source`, `reconcilable = false`, no
+    `resistant_n`, no `ci_low` and no `ci_high`, and neither
+    `printed_pct_vs_printed_counts` nor `printed_pct_vs_printed_ci` can ever
+    contain one. The parser docstring, `DATA_LICENSE.md` and a new
+    `editions_no_check_reaches` field in `narsnet_extraction_report.json` all
+    state it in those words. This module previously stopped at 2019 on exactly
+    this ground; extending to them does not answer the objection, it moves who
+    has to know about it, and the objection is carried forward rather than
+    dropped.
+  - **`no_internal_check_possible`, a flag on the row.** Whether a cell was
+    checked was previously answerable only from `reconcilable`, and
+    `reconcilable` does not answer it. It says whether the printed numerator can
+    be trusted as that cell's numerator, and the two questions come apart in
+    both directions: it is false on all 258 rows of 2022-2024, and those rows
+    ARE checked, against their own interval; and it is true on the 2021
+    *E. coli* urine colistin row, whose numerator is printed and sound and which
+    is checked against nothing, because that cell's percentage column is blank.
+    All four combinations of the two occur in the dataset, so neither value of
+    `reconcilable` implies either answer.
+
+    The flag is raised where neither comparison had two printed figures to work
+    with, and is derived per cell from what the cell prints rather than from its
+    edition — a flag keyed on the year would be a year lookup wearing the name
+    of a fact about the cell, and would miss seventeen rows. It lands on 125
+    cells in four editions for three reasons: all 108 rows of 2017 and 2018,
+    which print no numerator and no interval; the fifteen 2021 cells whose
+    printed numerator is not that cell's, which leaves the percentage nothing to
+    disagree with; and two cells that print no percentage at all — 2020
+    *E. coli* nitrofurantoin PA+OSBF, and the colistin row above.
+    `summarise_unchecked_cells` breaks it down by edition and reason into
+    `cells_no_internal_check_reaches` in the extraction report, naming the
+    seventeen rows outside 2017 and 2018 individually, since those are the ones
+    a reader who knows only which editions print what would not predict.
+  - **The back-computed numerator the research doc suggested was not taken.**
+    `docs/narsnet_v3_research.md` proposed recovering an approximate numerator
+    as denominator × %R and labelling it derived. It would be the only invented
+    count in the repository, and a percentage checked against a numerator
+    computed from that same percentage cannot disagree with it, so the check it
+    appears to buy is empty. The doc now records the decision.
+  - **26 new fixtures**, 86 in total. Twenty-one of the twenty-six are every
+    specimen-stratified percentage the two chapters state — all of them, not a
+    sample, because here the prose is the only independent statement about those
+    rows there is. Each carries the denominator hand-read from the cell beside
+    it, so the two provenances corroborate each other. Four name no stratum and
+    are pinned on the column that prints the figure, with the note saying so
+    where more than one column does. The 2018 chapter also restates three 2017
+    figures — blood cefoxitin as 57%, blood ertapenem and imipenem as 37% and
+    25%, against a 2017 table printing 57.1, 36.7 and 25.2 — which is the only
+    place in the series where one edition says anything about another's numbers.
+  - **A third column layout, two wide.** `NO_NUMERATOR_SHAPE` joins
+    `COUNT_SHAPE` and `CI_SHAPE`, and the group scan now tries the widest layout
+    first at each position: the first two columns of a 2022–2024 group are
+    `tested` then `pct`, which is the whole of the new layout, so a scan trying
+    the shorter width first would halve every one of those groups and orphan its
+    interval.
+  - **A count column named only `Number`.** The 2018 sub-header stops there,
+    having no numerator to distinguish it from. `Number` cannot join the words
+    that name a column — it opens both `Number tested` and `Number Resistant` in
+    2019–2021, so it does not say which — and is read as a last resort instead,
+    naming a column only where no other sub-header word reaches it. True of the
+    2018 tables and of no other edition. The research doc recorded 2017 and 2018
+    as sharing the 2017 sub-header wording; they do not, and it is corrected.
+  - **Percentages printed with their sign.** The 2018 tables print `63%` where
+    every other edition prints `63`. Not previously recorded anywhere.
+  - **Tables end at the last rule that runs their full width**, not at
+    pdfplumber's bounding box. In the 2017 *S. aureus* table and both 2018
+    tables that box reaches about ten points past the last full-width rule and
+    takes in the abbreviation footnote below. Read as content, one line of
+    footnote does three unrelated-looking kinds of damage: its "tested" is taken
+    for a column heading and puts the bottom of the sub-header below the bottom
+    of the data, leaving no data rows at all; its "Pus" holds a sliver between
+    two rules open as a column; and its opening words land in the last data
+    row's antibiotic label. The other thirteen tables already end at that rule.
+  - **Rows are banded on whether their words overlap vertically**, not on a grid
+    of fixed-height buckets. The two halves of a printed row are two or three
+    tenths of a point apart everywhere in the series, and a fixed grid splits a
+    row whenever those tenths fall either side of a bucket edge. Two rows do:
+    2018 *S. aureus* linezolid, counts at y=321.9 and percentages at 322.1, and
+    2018 *E. coli* trimethoprim/sulfamethoxazole at 554.0 and 554.2. Split, each
+    lost its denominators to a band of its own and kept only its percentages.
+    The grid had worked on the 2019–2024 tables by coincidence.
+  - **The table is bound to its caption**, not taken as the largest ruled table
+    on the page. The 2018 *S. aureus* table shares its page with the
+    *Enterococcus* table, both full-width, ruled alike and within a tenth of
+    each other in area; picking by area gets the right one there for a reason
+    that has nothing to do with which table the caption is over. Across all
+    sixteen tables the caption rule picks the same table the area rule did.
+  - **A second caption grammar.** 2017 and 2018 write "Resistance (%) in *X*"
+    where every later edition writes "Resistance profile of" or "observed in".
+    The older form is the looser of the two and matches every pathogen's table
+    in those editions; it was checked against every caption in all eight
+    editions that it adds exactly the four tables intended and nothing in
+    2019–2024.
+  - **A partition sum of nothing is now reported as null, not 0.**
+    `summarise_composite_sums` summed the printed numerators of a composite's
+    parts and rendered an empty sum as zero, which put a count in the extraction
+    report that the page never printed, beside a null composite — reading as a
+    pooled column disagreeing with its parts by its whole size. It changes 26 of
+    the 50 rows in that block, all of them in 2017 and 2018, from
+    `partition_resistant_sum: 0` to `null`. **It corrects nothing already
+    committed:** no edition from 2021 on prints a pooled column at all, so that
+    block held 24 rows before this commit, every one of them 2019 or 2020 and
+    every one with printed numerators. The bug was reachable only by the
+    editions this commit adds.
+  - **The unused `_NUMBER_RE` constant is removed.** A regex defined in
+    `narsnet_parser.py` and referenced nowhere in the repository, tests
+    included. It predates this work; it is deleted here rather than left for a
+    later reader to wonder which of the three value regexes is the live one.
+  - **Verified on the six earlier editions.** Running HEAD's parser and this one
+    over the same PDFs produces the same 450 records: the same set of keys, and
+    every field identical except `flags` on seventeen rows, which gain
+    `no_internal_check_possible` and lose nothing. Across the six geometry
+    changes alone the output was byte-identical to HEAD at
+    `90645bb5704a90ca52d1e52353508ef7073b37e5b4bb04a9b7fbc2431b29b1df`; the flag
+    is the one intended change to those editions, and it takes the hash to
+    `e0d30511b8fd33bc9a6e1ae81f0b19d0258cde245bece82b41894bd4f84b563c`.
+- `tests/test_narsnet_extraction.py` — **108 more hand-read cells**, 558 in
+  total, in a third dictionary `HAND_READ_PCT` because these editions do not
+  print the same columns as either other group. Pages read: `narsnet_2017.pdf`
+  p6 and p7, `narsnet_2018.pdf` p7 and p10, all read before being compared
+  against `docs/narsnet_v3_research.md`. That dictionary carries more weight
+  than the other two: the 2019–2024 cells are checked against something printed
+  beside them as well, and these have nothing. Test count 340 → 376.
+
 ### Fixed — the four deferred statements
 
 `data/processed/` now carries NARS-Net rows, so the four statements recorded
@@ -327,9 +458,8 @@ as carrying ICMR AMRSN data and nothing else:
 - **`ATTRIBUTION` in `src/sources.py`** now names both networks and disclaims
   affiliation with both ICMR and NCDC. It is written into every export file, so
   this is the correction with the widest reach. See the note below on the AMRSN
-  export files. Its NARS-Net range reads 2019–2024 now that every edition
-  printing either a numerator or an interval is ingested, and `DATA_LICENSE.md`
-  quotes the same string.
+  export files. Its NARS-Net range reads 2017–2024 now that all eight editions
+  are ingested, and `DATA_LICENSE.md` quotes the same string.
 - **`index.html`** — the “This is not” list now reads “a pooled cross-network
   figure” rather than “NARS-Net data”, and says NARS-Net is carried as a separate
   parallel series in its own files.

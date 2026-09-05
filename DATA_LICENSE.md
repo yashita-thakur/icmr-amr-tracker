@@ -55,7 +55,7 @@ Any use of the processed dataset must cite **both**:
 ## Disclaimer
 
 > Derived from the publicly available annual reports of two independent Indian national
-> AMR surveillance networks: ICMR-AMRSN (2017–2024) and NCDC NARS-Net (2019–2024). The
+> AMR surveillance networks: ICMR-AMRSN (2017–2024) and NCDC NARS-Net (2017–2024). The
 > two are published here as parallel series and are never pooled. Independent,
 > unofficial analysis — not endorsed by or affiliated with ICMR or NCDC.
 
@@ -74,3 +74,22 @@ difference is a limitation of this extraction** — please open an issue.
   % resistant respectively — and AMRSN publishes no % intermediate for *E. coli* or
   *S. aureus*, so the two cannot be converted onto a shared value. They are kept in
   separate files and must be read as parallel series, each labelled with its network.
+- Not uniformly checkable, within NARS-Net. The 2019–2021 editions print a numerator,
+  so each cell is checked against its own printed percentage; the 2022–2024 editions
+  print a 95% confidence interval, so each cell is checked against its own interval.
+  **The 2017 and 2018 editions print neither, so no check inside a cell reaches any of
+  their 108 rows.** They are published because the chapters of those two editions
+  state twenty-one specimen-stratified percentages that the extraction is pinned
+  against, and because the 2018 chapter restates three 2017 figures — not because
+  anything printed in those tables can contradict a mis-read cell.
+  `editions_no_check_reaches` in `narsnet_extraction_report.json` says so in full.
+
+  **To ask of any single row whether a check ran on it, read the flag
+  `no_internal_check_possible`, not `reconcilable`.** The two are different questions
+  and the answers come apart in both directions: `reconcilable` is false on every
+  2022–2024 row, and those rows are checked; it is true on one 2021 row that is
+  checked against nothing, because that cell's percentage column is blank. The flag is
+  raised on 125 cells across four editions — all 108 of 2017 and 2018, the fifteen
+  2021 cells whose printed numerator is not that cell's, and two cells that print no
+  percentage at all — and is derived from what each cell prints rather than from its
+  edition. `cells_no_internal_check_reaches` in the extraction report breaks it down.

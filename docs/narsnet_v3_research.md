@@ -214,7 +214,8 @@ caption matching needs to be fuzzy.
 
 | Years | Printed columns | Numerator | 95% CI |
 |---|---|---|---|
-| 2017, 2018 | `No. tested` · `% Resistance` | **No** | No |
+| 2017 | `No. tested` · `% Resistance` | **No** | No |
+| 2018 | `Number` · `%R` | **No** | No |
 | **2019, 2020** | `Number tested` · **`Number Resistant`** · `%R` | **Yes** | No |
 | **2021** | `Number Tested` · `Number Resistant` · `(%) Resistance` | **Partial** (see below) | No |
 | 2022, 2023, 2024 | `Number Tested` · `(%R)` · `95% CI` | **No** | Yes |
@@ -406,6 +407,57 @@ rediscovers and mistakes for an extraction fault.
 
 These three editions also publish an interval for every cell, which is what makes any internal check possible at
 all once the numerator column is gone.
+
+### Extending to 2017 and 2018 — no check at all, and what is used instead
+
+These two editions print a denominator and a percentage and nothing else. There is no numerator for the percentage
+to be reconciled against and no interval for it to fall outside of, so **neither of the two checks above reaches a
+single one of their 108 cells.** Every one of those rows carries `numerator_status = not_printed_in_source`,
+`reconcilable = false`, no `resistant_n`, no `ci_low` and no `ci_high`.
+
+**The suggestion above — that "an approximate numerator can be back-computed as denominator × %R" and labelled as
+derived — was considered and not taken.** It would be the only invented count in the repository, and a percentage
+checked against a numerator computed from that same percentage cannot disagree with it, so the check it appears to
+buy is empty. The rows are published with the gap visible instead.
+
+All 108 cells were read by eye off renderings of `narsnet_2017.pdf` p6 and p7 and `narsnet_2018.pdf` p7 and p10,
+independently of this document, before being compared with it. Three things stand behind them:
+
+1. **The chapters, which are unusually specific for these two editions.** They state twenty-one specimen-stratified
+   percentages between them — four for 2017 *S. aureus*, eight for 2017 *E. coli*, four for 2018 *S. aureus*, five
+   for 2018 *E. coli*. All twenty-one are pinned as fixtures, not a sample of them, and each carries the denominator
+   hand-read from the cell beside it, so prose and table corroborate each other. Four of the twenty-one name no
+   stratum; each is pinned on the column that prints the figure, and where two columns do (2018 gentamicin, printed
+   19 in both the pooled and the PA+OSBF column) the fixture's note says so.
+2. **The 2018 chapter restating 2017.** "Staph. aureus isolates from blood showed 69% resistance to cefoxitin …
+   higher than that reported in 2017 (57%)", and "ertapenem and imipenem was observed to be 40% and 33% in E.coli
+   blood isolates which is higher than that observed in 2017 (37% to ertapenem and 25% to imipenem)". The 2017
+   table prints 57.1, 36.7 and 25.2. This is the only place in the whole series where one edition says anything
+   about another edition's figures — no NARS-Net edition reprints a retrospective table.
+3. **The column geometry, for every other cell**, and nothing else.
+
+### Corrections to this document from that reading
+
+- **The 2018 sub-header is `Number` · `%R`, not `No. tested` · `% Resistance`.** This document grouped 2017 and
+  2018 together under the 2017 wording. They are not the same. It matters: `Number` alone opens both `Number tested`
+  and `Number Resistant` in 2019–2021, so it cannot name a column the way `tested` does, and the parser reads it
+  only where nothing else names that column.
+- **The 2018 tables print their percentages with the sign attached** — `63%`, not `63` — which this document does
+  not record and which no other edition does.
+- **The 2018 *E. coli* table adds a fourth specimen column.** 2017 prints a four-way pooled column, blood and urine;
+  2018 prints the same pooled column plus blood, urine **and PA+OSBF**. This document notes the pooled column in
+  2017–2019 but not the column that arrives between them.
+- **The 2017 and 2018 pooled columns are worded differently.** 2017 prints `Blood+OSBF+PA+Urine (N=8445)` and 2018
+  `Blood+ Pus Aspirate + OSBF+urine (N=18109)` — the same four strata, one abbreviated and one spelled out.
+- **The 2018 *E. coli* nitrofurantoin row is reported for the pooled and urine columns only**; its blood and
+  PA+OSBF blocks are greyed. That is the only partly-greyed row in either edition, and it is not recorded here.
+- **The 2018 *S. aureus* table shares its page with the *Enterococcus* table**, both full-width and within a tenth
+  of each other in area. Any rule that picks "the largest ruled table on the page" gets the right one there by
+  luck. The parser binds the table to its caption instead.
+- **The abbreviation footnote under three of the four tables falls inside the ruled region pdfplumber returns.**
+  Read as content it does three separate things: its "tested" is taken for a column heading, its "Pus" holds a
+  sliver open as a column, and its opening words land in the last row's antibiotic label. The tables end at the
+  last rule that runs their full width; the footnote strip does not.
 
 Verbatim sample rows:
 
@@ -646,7 +698,7 @@ What exists versus what V3 needs. Concrete items only.
 | Gap | Detail |
 |---|---|
 | **Metric direction** | NARS-Net publishes **%Resistant only**; the repo's schema is susceptibility-oriented (`susceptible_n`, `susceptible_pct`). Needs a `metric_direction` field or parallel `resistant_*` columns. **%S must not be derived as 100−%R** — intermediates are classified separately and are in neither figure. |
-| **Numerator absence** | `resistant_n` is **not printed for 2017–2018 or 2022–2024**; printed and usable for 2019–2020; for **2021** usable for S. aureus and for the E. coli PA/OSBF columns only (E. coli Blood column and two Urine cells are corrupt in the source). Needs a nullable numerator plus a status field distinguishing "not printed in source", "corrupt in source", and "zero". |
+| **Numerator absence** | ✅ **Done.** `numerator_status` carries `printed`, `not_printed_in_source` and `corrupt_in_source`, and `reconcilable` is true for the first alone, so a consumer filtering on it can never reach a count it must not use. Printed and usable for 2019–2020; for **2021** usable for S. aureus and for the E. coli PA/OSBF columns only; not printed at all for 2017–2018 or 2022–2024. A numerator is never back-computed |
 | **Reconciliation scope** | The repo's `pct_mismatch` check runs in full only on **2019–2020** NARS-Net rows, plus **2021** for S. aureus and for E. coli PA/OSBF. Needs an explicit `reconcilable` flag so the absence of a check is not mistaken for a passed check. |
 | **Confidence intervals** | 2022–2024 print 95% CIs; AMRSN does not. New optional `ci_low` / `ci_high` fields. |
 | **Specimen stratum** | NARS-Net rows are **per specimen type**, with no pooled column from 2021. Needs a `specimen` dimension — which AMRSN national rows do not have. This is the main schema divergence. |
@@ -657,7 +709,7 @@ What exists versus what V3 needs. Concrete items only.
 
 | Item | Status |
 |---|---|
-| 2017 Table 1 header says `Klebsiella pneumoniae`, rest of document says `Klebsiella species` | ⚠️ Documented — needs a flag if 2017 is ingested |
+| 2017 Table 1 header says `Klebsiella pneumoniae`, rest of document says `Klebsiella species` | ✅ **No longer reachable.** 2017 is ingested, but only its Table 4 (*S. aureus*) and Table 5 (*E. coli*). Table 1 is a specimen-count table for every pathogen and is not parsed, and Klebsiella is not in V3 scope at either genus or species level |
 | 2019 ceftazidime appears in figures (Figs. 13–16) but not in Tables 6/7 | ⚠️ Documented — figure-only value, not table-extractable |
 | **2021 E. coli Table 6, Blood column: `Number Resistant` does not reconcile** (e.g. Amikacin `1510 1088 29`; Ampicillin `1294 584 84`; Ciprofloxacin `1551 135 63`; Meropenem `854 981 25`, resistant > tested) | ✅ **Resolved by rendering the page.** The printed table itself is wrong — the Blood `Number Resistant` sub-column is corrupt at source, as are the Urine `Pip/Taz` and `TMP/SMX` cells (`Number Resistant` = `Number Tested`) and the Urine `Colistin` % (blank). The printed `%R` and `Number Tested` are sound; Pus Aspirate and OSBF columns reconcile; Klebsiella Table 7 Blood reconciles, so it is a one-table defect. Flag the affected cells; do not use the 2021 E. coli Blood numerator |
 | 2023 Table 7 (Enterococcus): caption N=11,072 vs column headers summing to 14,705 | ⚠️ Flagged — out of V3 scope (Enterococcus), but indicates the 2023 edition has at least one caption/column inconsistency |
@@ -750,7 +802,8 @@ differ in several editions):
   S. aureus:  2017 T4 | 2018 T4 | 2019 T4 | 2020 T5 | 2021 T4 | 2022 T5 | 2023 T6 | 2024 T6
 
 DATA FORMAT — changes twice mid-series, this is the critical extraction fact:
-  2017, 2018        "No. tested" + "% Resistance"                    → denominator only, no CI
+  2017              "No. tested" + "% Resistance"                    → denominator only, no CI
+  2018              "Number" + "%R", percentages printed "63%"     → denominator only, no CI
   2019, 2020, 2021  "Number tested" + "Number Resistant" + "%R"      → NUMERATOR PRINTED, no CI
   2022, 2023, 2024  "Number Tested" + "(%R)" + "95% CI"              → denominator only, CI printed
 Every edition prints %RESISTANT. %Susceptible is never printed in any edition. Do not derive %S as 100−%R:

@@ -1,4 +1,4 @@
-"""V3 NARS-Net extraction tests, the 2019 to 2024 editions.
+"""V3 NARS-Net extraction tests, all eight editions, 2017 to 2024.
 
 Two tiers, matching `test_known_values.py` and `test_rc_extraction.py`:
 
@@ -15,6 +15,10 @@ copied from it would only prove the parser agrees with the same transcription,
 not with the source. Pages read, by PDF page number (the printed page number is
 in brackets):
 
+* `narsnet_2017.pdf` p6  [6]  -- Table 4, S. aureus, 3 specimen groups x 9 drugs
+* `narsnet_2017.pdf` p7  [7]  -- Table 5, E. coli, 3 specimen groups x 7 drugs
+* `narsnet_2018.pdf` p7  [6]  -- Table 4, S. aureus, 3 specimen groups x 10 drugs
+* `narsnet_2018.pdf` p10 [9]  -- Table 6, E. coli, 4 specimen groups x 8 drugs
 * `narsnet_2019.pdf` p24 [14] -- Table 4, S. aureus, 3 specimen groups x 8 drugs
 * `narsnet_2019.pdf` p29 [19] -- Table 6, E. coli, 4 specimen groups x 9 drugs
 * `narsnet_2020.pdf` p25 [21] -- Table 5, S. aureus, 3 specimen groups x 8 drugs
@@ -29,18 +33,25 @@ in brackets):
 * `narsnet_2024.pdf` p34 [unnumbered; p33 is 26 and p35 is 28]
                             -- Table 8, E. coli, 4 specimen groups x 17 drugs
 
-450 cells in total, which is every printed cell in the twelve tables.
+558 cells in total, which is every printed cell in the sixteen tables.
 
-The 2021 figures, and then the 2022-2024 figures, were each read the same way
-and in the same order as the rest, before being compared against what
-`docs/narsnet_v3_research.md` says about those editions, so the reading is
-evidence for that document rather than a copy of it.
+The 2021 figures, then the 2022-2024 figures, then the 2017-2018 figures, were
+each read the same way and in the same order as the rest, before being compared
+against what `docs/narsnet_v3_research.md` says about those editions, so the
+reading is evidence for that document rather than a copy of it.
 
-Two dictionaries, because the editions do not print the same columns.
-`HAND_READ` holds the 2019-2021 cells as (Number Tested, Number Resistant, %R).
-`HAND_READ_CI` holds the 2022-2024 cells as (Number Tested, %R, CI low, CI
-high): those editions print no numerator at all and a 95% confidence interval in
-its place.
+Three dictionaries, because the editions do not print the same columns.
+`HAND_READ_PCT` holds the 2017-2018 cells as (No. tested, %R). `HAND_READ` holds
+the 2019-2021 cells as (Number Tested, Number Resistant, %R). `HAND_READ_CI`
+holds the 2022-2024 cells as (Number Tested, %R, CI low, CI high).
+
+The first of the three carries more weight than the other two. The 2019-2024
+cells are checked against something printed beside them as well as against this
+file -- their own percentage, or their own interval -- so a mis-read there has
+two chances to be caught. The 2017 and 2018 cells have none: they print a
+denominator and a percentage and nothing else. For those 108 cells this
+dictionary and the narrative fixtures in `test_narsnet_validate.py` are the
+whole of what stands between the dataset and a mis-cut column.
 """
 
 from __future__ import annotations
@@ -54,11 +65,13 @@ from src.parsers.narsnet_parser import (
     CAPTION_RE,
     CORRUPT_NUMERATORS,
     NARSNET_FIELDNAMES,
+    NO_INTERNAL_CHECK_FLAG,
     NUMERATOR_CORRUPT,
     NUMERATOR_NOT_PRINTED,
     NUMERATOR_PRINTED,
     NarsNetRecord,
     SPECS,
+    _value_bands,
     find_corrupt_numerators,
     is_composite,
     parse_narsnet_report,
@@ -82,6 +95,12 @@ ALL_FOUR = "blood+urine+pus_aspirate+osbf"
 # --- unit: caption grammar --------------------------------------------------
 
 _REAL_CAPTIONS = [
+    # The 2017 and 2018 editions use a different caption grammar entirely, and
+    # the 2018 one appends the reporting year after the organism.
+    ("4", "Table 4: Resistance (%) in Staphylococcus aureus**"),
+    ("5", "Table 5: Resistance (%) in Escherichia coli"),
+    ("4", "Table 4: Resistance (%) in Staph. aureus observed in the year 2018"),
+    ("6", "Table 6: Resistance (%) in E. coli observed in year 2018"),
     ("4", "Table 4 Resistance profile of Staphylococcus aureus"),
     ("6", "Table 6: Resistance profile of E. coli"),
     ("5", "Table 5. Resistance profile of Staphylococcus aureus (N= 9,639)"),
@@ -169,6 +188,40 @@ def test_specimen_order_is_stable_regardless_of_printed_order():
     assert specimen_key("OSBF + PA + Blood") == BLOOD_PA_OSBF
 
 
+# --- unit: row banding ------------------------------------------------------
+
+
+def _w(text, top, x0, height=9.0):
+    return {"text": text, "top": top, "bottom": top + height,
+            "x0": x0, "x1": x0 + 20.0, "upright": True}
+
+
+def test_words_that_overlap_vertically_are_one_row():
+    """Two halves of a printed row are never on exactly the same baseline in
+    this series; they are two or three tenths of a point apart everywhere."""
+    bands = _value_bands([_w("9040", 321.9, 285.0), _w("1", 322.1, 345.0)])
+    assert len(bands) == 1
+    assert {w["text"] for w in bands[0]} == {"9040", "1"}
+
+
+def test_words_that_do_not_overlap_are_different_rows():
+    bands = _value_bands([_w("9130", 302.4, 285.0), _w("9040", 321.9, 285.0)])
+    assert [[w["text"] for w in b] for b in bands] == [["9130"], ["9040"]]
+
+
+def test_banding_does_not_depend_on_where_the_rows_fall():
+    """The failure a fixed grid of buckets has: a row split because its two
+    halves happen to straddle a bucket edge. Shifting every word by the same
+    amount must not change how many rows there are."""
+    rows = [(321.9, 322.1), (341.3, 341.6), (360.8, 361.0)]
+    for shift in (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5):
+        words = []
+        for i, (a, b) in enumerate(rows):
+            words.append(_w("n{}".format(i), a + shift, 285.0))
+            words.append(_w("p{}".format(i), b + shift, 345.0))
+        assert len(_value_bands(words)) == 3, shift
+
+
 # --- unit: reconciliation tolerance -----------------------------------------
 
 
@@ -206,7 +259,7 @@ def test_schema_has_no_back_computed_numerator_field():
 # --- integration ------------------------------------------------------------
 
 _missing = [
-    y for y in (2019, 2020, 2021, 2022, 2023, 2024)
+    y for y in (2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024)
     if not NARSNET_SOURCES[y].path.exists()
 ]
 needs_pdfs = pytest.mark.skipif(
@@ -216,6 +269,10 @@ needs_pdfs = pytest.mark.skipif(
 )
 
 EXPECTED_TABLES = {
+    (SA, 2017): "Table 4",
+    (EC, 2017): "Table 5",
+    (SA, 2018): "Table 4",
+    (EC, 2018): "Table 6",
     (SA, 2019): "Table 4",
     (EC, 2019): "Table 6",
     (SA, 2020): "Table 5",
@@ -230,12 +287,21 @@ EXPECTED_TABLES = {
     (EC, 2024): "Table 8",
 }
 
-# The editions that print a numerator, and the editions that print a 95% CI
-# instead. No edition prints both.
+# The three printed layouts. The 2017-2018 editions print a denominator and a
+# percentage; 2019-2021 add a numerator; 2022-2024 replace the numerator with a
+# 95% CI. No edition prints both a numerator and an interval, and none of the
+# eight is in more than one of these groups.
+PCT_YEARS = (2017, 2018)
 COUNT_YEARS = (2019, 2020, 2021)
 CI_YEARS = (2022, 2023, 2024)
 
 EXPECTED_SPECIMENS = {
+    # 2017 pools S. aureus over three strata and E. coli over four; 2018 adds a
+    # separate PA+OSBF column to the E. coli table without changing the pool.
+    (SA, 2017): {BLOOD_PA_OSBF, BLOOD, PA_OSBF},
+    (EC, 2017): {ALL_FOUR, BLOOD, URINE},
+    (SA, 2018): {BLOOD_PA_OSBF, BLOOD, PA_OSBF},
+    (EC, 2018): {ALL_FOUR, BLOOD, URINE, PA_OSBF},
     (SA, 2019): {BLOOD_PA_OSBF, BLOOD, PA_OSBF},
     (EC, 2019): {ALL_FOUR, PA_OSBF, BLOOD, URINE},
     (SA, 2020): {BLOOD_PA_OSBF, BLOOD, PA_OSBF},
@@ -268,6 +334,20 @@ _EC_2021_PANEL = {
 _EC_2023_PANEL = (_EC_2021_PANEL - {"cefuroxime"}) | {"ceftriaxone"}
 
 EXPECTED_PANELS = {
+    # Vancomycin is in the 2018 S. aureus panel alone, on fourteen isolates and
+    # under a footnote saying the figure is of low statistical validity.
+    (SA, 2017): {"cefoxitin", "erythromycin", "clindamycin", "cotrimoxazole",
+                 "gentamicin", "ciprofloxacin", "linezolid", "doxycycline",
+                 "tetracycline"},
+    (SA, 2018): {"cefoxitin", "erythromycin", "clindamycin", "cotrimoxazole",
+                 "gentamicin", "ciprofloxacin", "linezolid", "doxycycline",
+                 "tetracycline", "vancomycin"},
+    # Ceftazidime is in the 2017 E. coli panel and no other edition's.
+    (EC, 2017): {"ampicillin", "cefotaxime", "ceftazidime", "cefepime",
+                 "ertapenem", "imipenem", "ciprofloxacin"},
+    (EC, 2018): {"ampicillin", "cefotaxime", "cefepime", "ertapenem",
+                 "imipenem", "ciprofloxacin", "cotrimoxazole",
+                 "nitrofurantoin"},
     (SA, 2019): {"cefoxitin", "gentamicin", "ciprofloxacin", "cotrimoxazole",
                  "clindamycin", "erythromycin", "linezolid", "doxycycline"},
     (SA, 2020): {"cefoxitin", "gentamicin", "ciprofloxacin", "cotrimoxazole",
@@ -291,6 +371,14 @@ def _cells(year, organism, specimen, rows):
     return {
         (year, organism, drug, specimen): (tested, resistant, pct)
         for drug, tested, resistant, pct in rows
+    }
+
+
+def _pct_cells(year, organism, specimen, rows):
+    """The 2017-2018 shape: a denominator and a percentage, and nothing else."""
+    return {
+        (year, organism, drug, specimen): (tested, pct)
+        for drug, tested, pct in rows
     }
 
 
@@ -691,6 +779,117 @@ HAND_READ_CI.update(_ci_cells(2024, EC, URINE, [
 ]))
 
 
+# --- 2017 and 2018: a denominator and a percentage, and nothing else ---------
+#
+# The third dictionary. These two editions print no numerator and no interval,
+# so no check inside a cell reaches any of these 108 values and the hand-read is
+# doing more work here than anywhere else in the file. Each was read off a
+# rendering of the page at 500 dots per inch, column by column, before being
+# compared with anything the parser produced.
+#
+# The 2018 percentages are printed with their signs -- "63%", not "63" -- and
+# are recorded here as the numbers they are.
+
+HAND_READ_PCT: dict = {}
+
+# --- 2017, p6 [6] and p7 [7] ------------------------------------------------
+# Table 4, S. aureus: pooled, blood, PA+OSBF, in that printed order.
+HAND_READ_PCT.update(_pct_cells(2017, SA, BLOOD_PA_OSBF, [
+    ("cefoxitin", 3732, 55.7), ("erythromycin", 3256, 63.4),
+    ("clindamycin", 2841, 31.5), ("cotrimoxazole", 2825, 45.8),
+    ("gentamicin", 3370, 32.0), ("ciprofloxacin", 3259, 55.9),
+    ("linezolid", 3396, 1.7), ("doxycycline", 695, 11.1),
+    ("tetracycline", 1546, 19.5),
+]))
+HAND_READ_PCT.update(_pct_cells(2017, SA, BLOOD, [
+    ("cefoxitin", 2159, 57.1), ("erythromycin", 2180, 62.9),
+    ("clindamycin", 1857, 32.7), ("cotrimoxazole", 1423, 46.2),
+    ("gentamicin", 1834, 26.3), ("ciprofloxacin", 2141, 49.4),
+    ("linezolid", 1885, 1.3), ("doxycycline", 418, 7.9),
+    ("tetracycline", 918, 14.2),
+]))
+HAND_READ_PCT.update(_pct_cells(2017, SA, PA_OSBF, [
+    ("cefoxitin", 1590, 53.7), ("erythromycin", 1092, 64.5),
+    ("clindamycin", 999, 29.4), ("cotrimoxazole", 1413, 45.4),
+    ("gentamicin", 1552, 38.7), ("ciprofloxacin", 1134, 68.3),
+    ("linezolid", 1529, 2.2), ("doxycycline", 282, 15.6),
+    ("tetracycline", 633, 27.2),
+]))
+# Table 5, E. coli: a four-way pooled column, blood, urine. Ceftazidime is in
+# this panel and no later one.
+HAND_READ_PCT.update(_pct_cells(2017, EC, ALL_FOUR, [
+    ("ampicillin", 3011, 85.1), ("cefotaxime", 5568, 80.2),
+    ("ceftazidime", 2648, 66.0), ("cefepime", 2427, 72.1),
+    ("ertapenem", 2846, 30.9), ("imipenem", 2147, 30.5),
+    ("ciprofloxacin", 4312, 73.2),
+]))
+HAND_READ_PCT.update(_pct_cells(2017, EC, BLOOD, [
+    ("ampicillin", 222, 85.6), ("cefotaxime", 301, 81.4),
+    ("ceftazidime", 222, 73.0), ("cefepime", 240, 68.3),
+    ("ertapenem", 251, 36.7), ("imipenem", 349, 25.2),
+    ("ciprofloxacin", 453, 58.1),
+]))
+HAND_READ_PCT.update(_pct_cells(2017, EC, URINE, [
+    ("ampicillin", 2338, 84.3), ("cefotaxime", 4755, 79.3),
+    ("ceftazidime", 2054, 62.3), ("cefepime", 1926, 72.3),
+    ("ertapenem", 2233, 30.8), ("imipenem", 1260, 34.0),
+    ("ciprofloxacin", 3106, 76.1),
+]))
+
+# --- 2018, p7 [6] and p10 [9] -----------------------------------------------
+# Table 4, S. aureus: pooled, PA+OSBF, blood -- note the middle and right
+# columns are the other way round from 2017, which is why the specimen is read
+# from the heading over each group and never from its position.
+HAND_READ_PCT.update(_pct_cells(2018, SA, BLOOD_PA_OSBF, [
+    ("cefoxitin", 10607, 63.0), ("gentamicin", 10119, 19.0),
+    ("ciprofloxacin", 9889, 60.0), ("cotrimoxazole", 8186, 36.0),
+    ("clindamycin", 9965, 25.0), ("erythromycin", 9130, 64.0),
+    ("linezolid", 9040, 1.0), ("vancomycin", 14, 0.0),
+    ("doxycycline", 3609, 15.0), ("tetracycline", 3852, 16.0),
+]))
+HAND_READ_PCT.update(_pct_cells(2018, SA, PA_OSBF, [
+    ("cefoxitin", 6645, 60.0), ("gentamicin", 6429, 19.0),
+    ("ciprofloxacin", 6228, 67.0), ("cotrimoxazole", 5614, 29.0),
+    ("clindamycin", 6442, 22.0), ("erythromycin", 5983, 60.0),
+    ("linezolid", 5737, 1.0), ("vancomycin", 11, 0.0),
+    ("doxycycline", 2071, 15.0), ("tetracycline", 2238, 15.0),
+]))
+HAND_READ_PCT.update(_pct_cells(2018, SA, BLOOD, [
+    ("cefoxitin", 3962, 69.0), ("gentamicin", 3690, 20.0),
+    ("ciprofloxacin", 3661, 49.0), ("cotrimoxazole", 2572, 51.0),
+    ("clindamycin", 3523, 31.0), ("erythromycin", 3147, 72.0),
+    ("linezolid", 3303, 1.0), ("vancomycin", 3, 0.0),
+    ("doxycycline", 1538, 15.0), ("tetracycline", 1614, 18.0),
+]))
+# Table 6, E. coli: pooled, blood, urine, PA+OSBF. Nitrofurantoin is printed for
+# the pooled and urine columns only; its blood and PA+OSBF blocks are greyed and
+# emit no record, which is why this block has 30 entries and not 32.
+HAND_READ_PCT.update(_pct_cells(2018, EC, ALL_FOUR, [
+    ("ampicillin", 6585, 92.0), ("cefotaxime", 10096, 83.0),
+    ("cefepime", 6480, 71.0), ("ertapenem", 6208, 38.0),
+    ("imipenem", 5885, 35.0), ("ciprofloxacin", 11110, 74.0),
+    ("cotrimoxazole", 12821, 66.0), ("nitrofurantoin", 13358, 12.0),
+]))
+HAND_READ_PCT.update(_pct_cells(2018, EC, BLOOD, [
+    ("ampicillin", 509, 86.0), ("cefotaxime", 500, 84.0),
+    ("cefepime", 496, 63.0), ("ertapenem", 402, 40.0),
+    ("imipenem", 589, 33.0), ("ciprofloxacin", 731, 59.0),
+    ("cotrimoxazole", 392, 56.0),
+]))
+HAND_READ_PCT.update(_pct_cells(2018, EC, URINE, [
+    ("ampicillin", 4791, 93.0), ("cefotaxime", 7721, 82.0),
+    ("cefepime", 4289, 70.0), ("ertapenem", 4278, 37.0),
+    ("imipenem", 3479, 37.0), ("ciprofloxacin", 7536, 75.0),
+    ("cotrimoxazole", 11301, 66.0), ("nitrofurantoin", 13194, 12.0),
+]))
+HAND_READ_PCT.update(_pct_cells(2018, EC, PA_OSBF, [
+    ("ampicillin", 1285, 89.0), ("cefotaxime", 1875, 87.0),
+    ("cefepime", 1695, 76.0), ("ertapenem", 1528, 39.0),
+    ("imipenem", 1817, 32.0), ("ciprofloxacin", 2843, 75.0),
+    ("cotrimoxazole", 1128, 69.0),
+]))
+
+
 # Cells where the printed percentage does not follow from the printed counts,
 # read off the same pages. Seven sit just past the half-point of the printed
 # precision, which is the source rounding a percentage it did not compute from
@@ -806,17 +1005,46 @@ def test_every_hand_read_ci_cell_matches(narsnet_records):
 
 
 @needs_pdfs
-def test_no_cell_is_extracted_that_was_not_hand_read(narsnet_records):
-    """The reverse direction: a phantom row invented by the grid would show up
-    here even though every hand-read cell still matched."""
-    assert set(_index(narsnet_records)) == set(HAND_READ) | set(HAND_READ_CI)
+def test_every_hand_read_pct_cell_matches(narsnet_records):
+    """The 2017-2018 counterpart: a denominator and a percentage, and no
+    numerator or interval to go with them."""
+    index = _index(narsnet_records)
+    wrong = []
+    for key, expected in sorted(HAND_READ_PCT.items(), key=str):
+        rec = index.get(key)
+        if rec is None:
+            wrong.append("{}: no record extracted".format(key))
+            continue
+        got = (rec.tested_n, rec.resistant_pct)
+        if got != expected:
+            wrong.append("{}: hand-read {}, parsed {}".format(key, expected, got))
+        if (rec.resistant_n, rec.ci_low, rec.ci_high) != (None, None, None):
+            wrong.append(
+                "{}: these editions print neither a numerator nor an interval, "
+                "but the row carries {}".format(
+                    key, (rec.resistant_n, rec.ci_low, rec.ci_high)
+                )
+            )
+    assert not wrong, "\n".join(wrong)
 
 
 @needs_pdfs
-def test_the_two_hand_read_sets_do_not_overlap(narsnet_records):
-    """No edition prints both a numerator and an interval, so no cell belongs to
-    both dictionaries."""
+def test_no_cell_is_extracted_that_was_not_hand_read(narsnet_records):
+    """The reverse direction: a phantom row invented by the grid would show up
+    here even though every hand-read cell still matched."""
+    assert set(_index(narsnet_records)) == (
+        set(HAND_READ_PCT) | set(HAND_READ) | set(HAND_READ_CI)
+    )
+
+
+@needs_pdfs
+def test_the_three_hand_read_sets_do_not_overlap(narsnet_records):
+    """Each edition prints one of the three layouts, so no cell belongs to two
+    of the dictionaries."""
+    assert not set(HAND_READ_PCT) & set(HAND_READ)
+    assert not set(HAND_READ_PCT) & set(HAND_READ_CI)
     assert not set(HAND_READ) & set(HAND_READ_CI)
+    assert {k[0] for k in HAND_READ_PCT} == set(PCT_YEARS)
     assert {k[0] for k in HAND_READ} == set(COUNT_YEARS)
     assert {k[0] for k in HAND_READ_CI} == set(CI_YEARS)
 
@@ -1188,9 +1416,10 @@ def test_provenance_is_carried_on_every_row(narsnet_records):
         assert r.source_url.startswith("https://ncdc.mohfw.gov.in/uploads/pdf/")
         assert r.source_table.startswith("Table ")
         # 2019 and 2020 are exactly the two editions whose cover year is not
-        # their reporting period; every later cover agrees with its own period.
+        # their reporting period; every cover either side of them agrees with
+        # its own period.
         assert r.source_cover_year == {
-            2019: 2020, 2020: 2021, 2021: None,
+            2017: None, 2018: None, 2019: 2020, 2020: 2021, 2021: None,
             2022: None, 2023: None, 2024: None,
         }[r.source_report_year]
 
@@ -1221,3 +1450,263 @@ def test_the_three_numerator_states_are_all_present_and_distinct(narsnet_records
     }
     assert all(r.resistant_n is not None for r in by_status[NUMERATOR_CORRUPT])
     assert all(r.resistant_n is None for r in by_status[NUMERATOR_NOT_PRINTED])
+
+
+# --- the 2017 and 2018 editions: no numerator, no interval, no check ---------
+
+
+@needs_pdfs
+def test_the_earliest_editions_print_neither_a_numerator_nor_an_interval(
+    narsnet_records,
+):
+    """The property the whole treatment of these two editions rests on.
+
+    Every other edition supports one check inside a cell. These support none,
+    and the record has to say so on every row rather than leave it to be
+    inferred from three null columns."""
+    rows = [r for r in narsnet_records if r.source_report_year in PCT_YEARS]
+    assert len(rows) == 108
+    for r in rows:
+        assert r.resistant_n is None
+        assert r.ci_low is None and r.ci_high is None
+        assert r.numerator_status == NUMERATOR_NOT_PRINTED
+        assert r.reconcilable is False
+        assert r.computed_pct is None
+        assert "numerator_not_printed_in_source" in r.flags
+        # Said on the row, not left to be inferred from three null columns.
+        assert NO_INTERNAL_CHECK_FLAG in r.flags
+        # And the two checks that do exist cannot have fired.
+        assert not [f for f in r.flags if f.startswith("pct_mismatch")]
+        assert not [f for f in r.flags if f.startswith("ci_")]
+        # A denominator and a percentage are printed on every one of them.
+        assert r.tested_n is not None
+        assert r.resistant_pct is not None
+
+
+@needs_pdfs
+def test_a_percentage_printed_with_its_sign_is_read_as_a_number(narsnet_records):
+    """The 2018 tables print "63%" where every other edition prints "63"."""
+    index = _index(narsnet_records)
+    cefoxitin = index[(2018, SA, "cefoxitin", BLOOD)]
+    assert cefoxitin.resistant_pct == 69.0
+    assert isinstance(cefoxitin.resistant_pct, float)
+    # Including the row printed as a bare "0%" in one column and "0" in two.
+    for specimen, tested in ((BLOOD_PA_OSBF, 14), (PA_OSBF, 11), (BLOOD, 3)):
+        vanc = index[(2018, SA, "vancomycin", specimen)]
+        assert (vanc.tested_n, vanc.resistant_pct) == (tested, 0.0)
+
+
+@needs_pdfs
+def test_the_2018_s_aureus_page_also_carries_the_enterococcus_table(
+    narsnet_records,
+):
+    """Two full-width ruled tables share that page, within a tenth of each other
+    in area. Binding the table to its caption rather than taking the largest on
+    the page is what keeps Enterococcus out of the S. aureus rows -- and the
+    drug panel is the visible difference, since the Enterococcus table prints
+    ampicillin and gentamicin-high and no cefoxitin."""
+    import pdfplumber
+
+    from src.parsers.narsnet_parser import _TABLE_SETTINGS
+
+    with pdfplumber.open(NARSNET_SOURCES[2018].path) as pdf:
+        page = pdf.pages[6]
+        areas = sorted(
+            (t.bbox[2] - t.bbox[0]) * (t.bbox[3] - t.bbox[1])
+            for t in page.find_tables(table_settings=_TABLE_SETTINGS)
+        )
+    assert len(areas) >= 2
+    assert areas[-1] / areas[-2] < 1.2, "the two tables are close enough in size"
+
+    panel = {
+        r.antibiotic for r in narsnet_records
+        if r.organism == SA and r.source_report_year == 2018
+    }
+    assert "cefoxitin" in panel
+    assert "ampicillin" not in panel
+
+
+@needs_pdfs
+def test_the_footnote_under_a_table_is_not_read_as_part_of_it(narsnet_records):
+    """The 2018 tables print their abbreviation key inside the region
+    pdfplumber returns. Read as content it takes "tested" for a column heading,
+    holds a sliver open as a column, and lands in the last row's label."""
+    index = _index(narsnet_records)
+    # The last row of the 2018 E. coli table, directly above the footnote.
+    last = index[(2018, EC, "nitrofurantoin", URINE)]
+    assert (last.tested_n, last.resistant_pct) == (13194, 12.0)
+    # Nothing from the footnote became a row of its own.
+    drugs = {
+        r.antibiotic for r in narsnet_records
+        if r.organism == EC and r.source_report_year == 2018
+    }
+    assert drugs == EXPECTED_PANELS[(EC, 2018)]
+
+
+@needs_pdfs
+def test_the_greyed_blocks_of_the_2018_nitrofurantoin_row_emit_no_row(
+    narsnet_records,
+):
+    """Nitrofurantoin is reported for the pooled and urine columns only. The
+    blood and PA+OSBF blocks are grey, and a grey block is not a zero."""
+    seen = {
+        r.specimen for r in narsnet_records
+        if r.organism == EC and r.source_report_year == 2018
+        and r.antibiotic == "nitrofurantoin"
+    }
+    assert seen == {ALL_FOUR, URINE}
+
+
+@needs_pdfs
+def test_the_2018_column_order_differs_between_its_two_tables(narsnet_records):
+    """The S. aureus table prints pooled, PA+OSBF, blood and the E. coli table
+    pooled, blood, urine, PA+OSBF. A parser reading the specimen from a column's
+    position rather than from the heading over it would swap two of them."""
+    index = _index(narsnet_records)
+    assert index[(2018, SA, "cefoxitin", PA_OSBF)].tested_n == 6645
+    assert index[(2018, SA, "cefoxitin", BLOOD)].tested_n == 3962
+    assert index[(2018, EC, "cefotaxime", BLOOD)].tested_n == 500
+    assert index[(2018, EC, "cefotaxime", PA_OSBF)].tested_n == 1875
+
+
+@needs_pdfs
+def test_a_row_whose_halves_sit_on_different_baselines_stays_one_row(
+    narsnet_records,
+):
+    """2018 S. aureus linezolid prints its counts at y=321.9 and its
+    percentages at y=322.1; 2018 E. coli trimethoprim/sulfamethoxazole at 554.0
+    and 554.2. Banded on a grid of fixed-height buckets rather than on whether
+    the words overlap, each row loses its denominators to a band of its own and
+    keeps only its percentages."""
+    index = _index(narsnet_records)
+    for key, expected in (
+        ((2018, SA, "linezolid", BLOOD_PA_OSBF), (9040, 1.0)),
+        ((2018, SA, "linezolid", PA_OSBF), (5737, 1.0)),
+        ((2018, SA, "linezolid", BLOOD), (3303, 1.0)),
+        ((2018, EC, "cotrimoxazole", ALL_FOUR), (12821, 66.0)),
+        ((2018, EC, "cotrimoxazole", BLOOD), (392, 56.0)),
+        ((2018, EC, "cotrimoxazole", URINE), (11301, 66.0)),
+        ((2018, EC, "cotrimoxazole", PA_OSBF), (1128, 69.0)),
+    ):
+        rec = index[key]
+        assert (rec.tested_n, rec.resistant_pct) == expected, key
+
+
+@needs_pdfs
+def test_a_label_wrapped_across_two_printed_lines_is_read_whole(narsnet_records):
+    """The 2018 E. coli table breaks its longest label as "Trimethoprim/Sul" and
+    "famethoxazole" across two lines of one cell."""
+    index = _index(narsnet_records)
+    assert (2018, EC, "cotrimoxazole", URINE) in index
+    assert not [
+        r for r in narsnet_records
+        if r.source_report_year == 2018 and r.antibiotic.startswith("trimethoprim")
+    ]
+
+
+@needs_pdfs
+def test_the_2017_gentamicin_spelling_resolves_to_the_shared_name(
+    narsnet_records,
+):
+    """The 2017 edition spells it "Gentamycin" and every later one
+    "Gentamicin". Both must land on the canonical name AMRSN uses, or the two
+    networks cannot be lined up on the antibiotic column."""
+    index = _index(narsnet_records)
+    assert index[(2017, SA, "gentamicin", PA_OSBF)].resistant_pct == 38.7
+    assert index[(2018, SA, "gentamicin", PA_OSBF)].resistant_pct == 19.0
+
+
+# --- no_internal_check_possible ---------------------------------------------
+
+
+def _check_ran(record):
+    """Whether either comparison had two printed figures, read off the record."""
+    against_counts = record.reconcilable and record.resistant_pct is not None
+    against_interval = record.ci_low is not None and record.ci_high is not None
+    return bool(against_counts or against_interval)
+
+
+@needs_pdfs
+def test_the_flag_is_on_exactly_the_cells_no_check_reached(narsnet_records):
+    """The invariant: the flag and the fact are the same set, both directions.
+
+    A flag on a checked cell would understate the dataset; a checked-looking
+    cell with no flag is the failure the flag exists to prevent."""
+    flagged = {
+        (r.source_report_year, r.organism, r.antibiotic, r.specimen)
+        for r in narsnet_records
+        if NO_INTERNAL_CHECK_FLAG in r.flags
+    }
+    unchecked = {
+        (r.source_report_year, r.organism, r.antibiotic, r.specimen)
+        for r in narsnet_records
+        if not _check_ran(r)
+    }
+    assert flagged == unchecked
+    assert len(flagged) == 125
+
+
+@needs_pdfs
+def test_reconcilable_does_not_answer_whether_a_check_ran(narsnet_records):
+    """Why the flag exists rather than a reading of `reconcilable`.
+
+    All four combinations occur, so neither value of `reconcilable` implies
+    either answer, and a consumer reading it as "was this checked" is wrong on
+    259 of the 558 rows."""
+    seen = {(r.reconcilable, _check_ran(r)) for r in narsnet_records}
+    assert seen == {(True, True), (True, False), (False, True), (False, False)}
+    disagree = [r for r in narsnet_records if r.reconcilable != _check_ran(r)]
+    assert len(disagree) == 259
+
+    # False and checked: every 2022-2024 row prints no numerator and is checked
+    # against its own interval instead.
+    false_but_checked = [
+        r for r in narsnet_records if not r.reconcilable and _check_ran(r)
+    ]
+    assert {r.source_report_year for r in false_but_checked} == {2022, 2023, 2024}
+
+    # True and not checked: one row, whose numerator is printed and sound and
+    # whose percentage column is blank, so there is no second figure.
+    true_but_unchecked = [
+        r for r in narsnet_records if r.reconcilable and not _check_ran(r)
+    ]
+    assert len(true_but_unchecked) == 1
+    only = true_but_unchecked[0]
+    assert (only.source_report_year, only.organism, only.antibiotic, only.specimen) == (
+        2021, EC, "colistin", URINE,
+    )
+    assert only.resistant_pct is None
+    assert "pct_suppressed_in_source" in only.flags
+    assert NO_INTERNAL_CHECK_FLAG in only.flags
+
+
+@needs_pdfs
+def test_the_flag_is_derived_from_the_cell_and_not_the_edition(narsnet_records):
+    """It lands in four editions for three different reasons. Keyed on the year
+    it would miss the seventeen rows outside 2017 and 2018, and would be a year
+    lookup wearing the name of a fact about the cell."""
+    flagged = [r for r in narsnet_records if NO_INTERNAL_CHECK_FLAG in r.flags]
+    by_year = {}
+    for r in flagged:
+        by_year[r.source_report_year] = by_year.get(r.source_report_year, 0) + 1
+    assert by_year == {2017: 48, 2018: 60, 2020: 1, 2021: 16}
+
+    # And no edition is flagged throughout except the two that print neither
+    # figure, so the flag is not an edition in disguise.
+    totals = {}
+    for r in narsnet_records:
+        totals[r.source_report_year] = totals.get(r.source_report_year, 0) + 1
+    whole_editions = {y for y, n in by_year.items() if n == totals[y]}
+    assert whole_editions == {2017, 2018}
+
+
+@needs_pdfs
+def test_the_corrupt_2021_cells_are_flagged_as_unchecked(narsnet_records):
+    """A printed numerator that is not the cell's leaves the percentage nothing
+    to disagree with, which is the same statement as printing none at all --
+    even though `numerator_status` distinguishes the two, correctly."""
+    corrupt = [r for r in narsnet_records if r.numerator_status == NUMERATOR_CORRUPT]
+    assert len(corrupt) == 15
+    for r in corrupt:
+        assert r.resistant_n is not None, "the figure is printed"
+        assert NO_INTERNAL_CHECK_FLAG in r.flags, "and nothing checks it"

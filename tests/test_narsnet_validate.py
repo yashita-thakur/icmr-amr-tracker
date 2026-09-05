@@ -31,6 +31,7 @@ from src.narsnet_validate import (
     summarise_ci_checks,
     summarise_composite_sums,
     summarise_corrupt_numerators,
+    summarise_unchecked_cells,
 )
 from src.parsers.base import FIELDNAMES as AMRSN_FIELDNAMES
 from src.parsers.narsnet_parser import (
@@ -232,7 +233,7 @@ def test_the_two_schemas_share_no_comparison_column():
 
 # --- integration -------------------------------------------------------------
 
-ALL_YEARS = (2019, 2020, 2021, 2022, 2023, 2024)
+ALL_YEARS = (2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024)
 
 _missing = [y for y in ALL_YEARS if not NARSNET_SOURCES[y].path.exists()]
 needs_pdfs = pytest.mark.skipif(
@@ -593,7 +594,14 @@ def test_extraction_report_states_the_metric_and_the_scope():
     assert data["network"] == "narsnet"
     assert "PERCENT RESISTANT" in data["metric"]
     assert "never be joined" in data["metric"]
-    assert "2019 to 2024" in data["scope"]
+    assert "2017 to 2024" in data["scope"]
+    # The two editions no check reaches get their own field rather than a
+    # sentence inside the scope paragraph, so a reader scanning the report meets
+    # the limitation instead of having to finish a paragraph to find it.
+    caveat = data["editions_no_check_reaches"]
+    assert "NO CHECK INSIDE A CELL APPLIES" in caveat
+    assert "2017 OR 2018" in caveat
+    assert "108" in caveat
     cross = data["cross_column_checks"]
     assert cross["degenerate_composites"]["count"] == 1
     assert cross["composite_vs_partition_sums"]["count"] > 0
@@ -684,7 +692,7 @@ def test_export_refuses_an_incomplete_record_set(tmp_path, monkeypatch, capsys):
 @needs_pdfs
 def test_a_narrow_build_does_not_write_the_canonical_files(tmp_path, monkeypatch):
     """The end-to-end guard. `--year 2019 --organism "Escherichia coli"` parses
-    34 of the dataset's 450 rows; before the guard existed it wrote all five
+    34 of the dataset's 558 rows; before the guard existed it wrote all five
     canonical files with that subset."""
     canonical_before = {
         name: (PROCESSED_DIR / name).read_bytes()
@@ -712,3 +720,140 @@ def test_a_complete_build_still_writes(tmp_path, monkeypatch, records):
     assert not failures
     for name in CANONICAL:
         assert (tmp_path / name).exists(), name
+
+
+# --- the two editions no check reaches ---------------------------------------
+
+
+@needs_pdfs
+def test_no_check_reaches_the_2017_and_2018_rows(records):
+    """The point of this module for those two editions: neither check applies,
+    so neither can be read as covering for the other's absence."""
+    rows = [r for r in records if r.source_report_year in (2017, 2018)]
+    assert len(rows) == 108
+    assert not [r for r in rows if r.reconcilable]
+    assert not [r for r in rows if r.ci_low is not None]
+    assert not [r for r in internal_consistency(records)
+                if r.source_report_year in (2017, 2018)]
+    assert not [c for c in summarise_ci_checks(records)
+                if c["source_report_year"] in (2017, 2018)]
+
+
+@needs_pdfs
+def test_every_percentage_those_chapters_state_is_pinned(records):
+    """Where no check inside a cell applies, the narrative fixtures are the only
+    independent statement there is, so all of them are pinned rather than a
+    sample being taken."""
+    early = [fx for fx in NARSNET_FIXTURES if fx.year in (2017, 2018)]
+    narrative = [fx for fx in early if fx.note.startswith("narrative")]
+    assert len(narrative) == 21
+    assert {fx.year for fx in narrative} == {2017, 2018}
+    # Every one carries the denominator from the cell beside it, so the prose
+    # and the table corroborate each other rather than the prose standing alone.
+    assert all(fx.expected_tested_n is not None for fx in early)
+    passes, failures = check_narsnet_fixtures(records, early)
+    assert not failures, "\n".join(failures)
+    assert len(passes) == len(early)
+
+
+@needs_pdfs
+def test_a_partition_sum_of_nothing_is_not_reported_as_zero(records):
+    """A sum over no printed numerators rendered as 0 would put a count in the
+    report the page never printed, beside a null composite -- which reads as a
+    pooled column disagreeing with its parts by its whole size.
+
+    Only 2017 and 2018 reach it: they are the only editions that both print a
+    pooled column and print no numerator. That is also why the bug corrected
+    nothing already committed -- before this commit the block held 24 rows, all
+    2019 or 2020, all with printed numerators."""
+    rows = summarise_composite_sums(records)
+    early = [r for r in rows if r["source_report_year"] in (2017, 2018)]
+    assert early, "the 2017 and 2018 tables do print pooled columns"
+    for r in early:
+        assert r["composite_resistant_n"] is None
+        assert r["partition_resistant_sum"] is None
+        assert r["resistant_difference"] is None
+        # The denominators are printed, so those are compared as usual.
+        assert r["composite_tested_n"] is not None
+        assert r["tested_difference"] is not None
+
+
+@needs_pdfs
+def test_the_2017_and_2018_panel_changes_are_detected(records):
+    """Both axes move at the front of the series too, and an edition-over-
+    edition comparison that missed it would compare a printed column against one
+    that is not printed."""
+    changes = detect_narsnet_panel_changes(narsnet_panel_by_edition(records))
+    ec_17_18 = next(
+        c for c in changes
+        if c["organism"] == EC and (c["from_edition"], c["to_edition"]) == (2017, 2018)
+    )
+    assert ec_17_18["antibiotics_removed"] == ["ceftazidime"]
+    assert ec_17_18["antibiotics_added"] == ["cotrimoxazole", "nitrofurantoin"]
+    assert ec_17_18["specimen_columns_added"] == [PA_OSBF]
+
+    sa_17_18 = next(
+        c for c in changes
+        if c["organism"] == SA and (c["from_edition"], c["to_edition"]) == (2017, 2018)
+    )
+    assert sa_17_18["antibiotics_added"] == ["vancomycin"]
+    assert sa_17_18["specimen_columns_added"] == []
+    assert sa_17_18["specimen_columns_removed"] == []
+
+    sa_18_19 = next(
+        c for c in changes
+        if c["organism"] == SA and (c["from_edition"], c["to_edition"]) == (2018, 2019)
+    )
+    assert sa_18_19["antibiotics_removed"] == ["tetracycline", "vancomycin"]
+
+
+# --- the unchecked-cell summary ----------------------------------------------
+
+
+@needs_pdfs
+def test_the_unchecked_summary_names_the_rows_a_reader_could_not_predict(records):
+    """2017 and 2018 are flagged throughout, so listing them would restate the
+    dataset. The seventeen rows in 2020 and 2021 are the ones a reader who knows
+    only which editions print what would not expect."""
+    summary = summarise_unchecked_cells(records)
+    assert summary["count"] == 125
+    assert {y: e["cells"] for y, e in summary["by_edition"].items()} == {
+        "2017": 48, "2018": 60, "2020": 1, "2021": 16,
+    }
+    assert len(summary["rows"]) == 17
+    assert {r["source_report_year"] for r in summary["rows"]} == {2020, 2021}
+
+
+@needs_pdfs
+def test_the_summary_separates_the_three_reasons(records):
+    """Three different facts about the source, not one. A cell can print no
+    numerator, print one that is not its own, or print no percentage for either
+    to be compared against."""
+    summary = summarise_unchecked_cells(records)
+    reasons = {}
+    for entry in summary["by_edition"].values():
+        for label, n in entry["reasons"].items():
+            reasons[label] = reasons.get(label, 0) + n
+    assert reasons == {
+        "no numerator and no interval printed": 108,
+        "numerator corrupt in source, no interval printed": 15,
+        "no percentage printed, so nothing for the counts to disagree with": 2,
+    }
+    assert sum(reasons.values()) == summary["count"]
+
+
+@needs_export
+def test_the_report_warns_against_reading_reconcilable_for_this(records):
+    """The report has to say what the flag is for, because `reconcilable` is
+    the column a reader would otherwise reach for."""
+    with open(
+        PROCESSED_DIR / "narsnet_extraction_report.json", encoding="utf-8"
+    ) as fh:
+        data = json.load(fh)
+    # Top level, beside printed_pct_vs_printed_counts and
+    # printed_pct_vs_printed_ci: it is a statement about the within-cell checks,
+    # not one of the cross-column ones.
+    block = data["cells_no_internal_check_reaches"]
+    assert block["count"] == 125
+    assert "RECONCILABLE DOES NOT ANSWER THIS QUESTION" in block["description"]
+    assert len(block["rows_outside_2017_2018"]) == 17

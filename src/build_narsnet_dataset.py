@@ -21,13 +21,20 @@ AMRSN publishes no % intermediate for E. coli or S. aureus, so an AMRSN
 read side by side as parallel series and must never be joined on a single shared
 value. A reader who has only the filenames should be able to tell that much.
 
-Scope is the 2019-2024 editions, E. coli and S. aureus. The series changes what
-it prints twice inside that window, and the checks follow it: 2019-2021 print a
-numerator, so each cell is checked against its own printed percentage (all but
-the fifteen cells declared in `CORRUPT_NUMERATORS`); 2022-2024 print a 95%
-confidence interval instead, so each cell is checked against its own interval.
-The 2017 and 2018 editions print neither and support neither check, so they are
-not covered.
+Scope is all eight editions, 2017-2024, E. coli and S. aureus. The series
+changes what it prints twice inside that window, and the checks follow it:
+2019-2021 print a numerator, so each cell is checked against its own printed
+percentage (all but the fifteen cells declared in `CORRUPT_NUMERATORS`);
+2022-2024 print a 95% confidence interval instead, so each cell is checked
+against its own interval. The 2017 and 2018 editions print neither, so no check
+inside a cell reaches them at all; what does stand behind those rows is set out
+in the parser's module docstring and repeated in the `scope` field of
+narsnet_extraction_report.json, where a reader of the data will meet it.
+
+Whether a check actually ran on a given cell is on the row itself, as the flag
+`no_internal_check_possible`, and not inferable from `reconcilable`, which
+answers a different question -- see the parser's module docstring. It is raised
+on 125 cells across four editions.
 """
 
 from __future__ import annotations
@@ -53,6 +60,7 @@ from .narsnet_validate import (
     summarise_ci_checks,
     summarise_composite_sums,
     summarise_corrupt_numerators,
+    summarise_unchecked_cells,
 )
 from .parsers.narsnet_parser import (
     NARSNET_FIELDNAMES,
@@ -62,9 +70,12 @@ from .parsers.narsnet_parser import (
 from .sources import ATTRIBUTION, NARSNET_SOURCES, PROCESSED_DIR
 
 # Editions this builder covers. Kept here rather than derived from
-# NARSNET_SOURCES, which holds all eight: the registry records what can be
+# NARSNET_SOURCES, which holds the same eight: the registry records what can be
 # fetched, this records what has been verified against a hand-read of the page.
-BUILD_YEARS = [2024, 2023, 2022, 2021, 2020, 2019]
+# The two now agree, and the separation is still worth keeping -- a ninth
+# edition would be fetchable the day it is registered and buildable only once
+# someone had read it.
+BUILD_YEARS = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017]
 
 ORGANISMS = list(SPECS)
 
@@ -192,6 +203,23 @@ def export(records, parsed, failed, extracted_date):
                 else "; bounds printed in reverse order"
                 if c["bounds_inverted"]
                 else "",
+            )
+        )
+
+    unchecked = summarise_unchecked_cells(records)
+    print(
+        "  no check reached    {} cell(s), in {} edition(s)".format(
+            unchecked["count"], len(unchecked["by_edition"])
+        )
+    )
+    for year, entry in unchecked["by_edition"].items():
+        print(
+            "    {}: {} cell(s) -- {}".format(
+                year, entry["cells"],
+                "; ".join(
+                    "{} ({})".format(reason, n)
+                    for reason, n in sorted(entry["reasons"].items())
+                ),
             )
         )
 
@@ -346,21 +374,45 @@ def export(records, parsed, failed, extracted_date):
                     "single shared comparison value."
                 ),
                 "scope": (
-                    "The 2019 to 2024 editions, E. coli and S. aureus. What the "
-                    "series prints changes twice inside that window and the "
-                    "checks follow it. 2019-2021 print Number Tested, Number "
-                    "Resistant and a percentage, so every cell is checked "
-                    "against its own printed percentage, except the fifteen "
-                    "listed under corrupt_numerators where the printed figure "
-                    "is not that cell's numerator. 2022-2024 print Number "
-                    "Tested, a percentage and a 95% confidence interval and no "
-                    "numerator at all, so numerator_status is "
+                    "All eight editions, 2017 to 2024, E. coli and S. aureus. "
+                    "What the series prints changes twice inside that window "
+                    "and the checks follow it. 2019-2021 print Number Tested, "
+                    "Number Resistant and a percentage, so every cell is "
+                    "checked against its own printed percentage, except the "
+                    "fifteen listed under corrupt_numerators where the printed "
+                    "figure is not that cell's numerator. 2022-2024 print "
+                    "Number Tested, a percentage and a 95% confidence interval "
+                    "and no numerator at all, so numerator_status is "
                     "not_printed_in_source and reconcilable is false on every "
                     "one of those rows, and the check that applies instead is "
                     "the percentage against its own interval, under "
-                    "printed_pct_vs_printed_ci. The 2017 and 2018 editions "
-                    "print neither a numerator nor an interval, support "
-                    "neither check, and are not covered."
+                    "printed_pct_vs_printed_ci."
+                ),
+                "editions_no_check_reaches": (
+                    "READ THIS BEFORE USING A 2017 OR 2018 FIGURE. Those two "
+                    "editions print a denominator and a percentage and nothing "
+                    "else. There is no numerator for the percentage to be "
+                    "reconciled against and no interval for it to fall outside "
+                    "of, so NO CHECK INSIDE A CELL APPLIES TO THEM: all 108 "
+                    "of those rows carry the flag no_internal_check_possible, "
+                    "numerator_status is not_printed_in_source, and neither "
+                    "printed_pct_vs_printed_counts nor "
+                    "printed_pct_vs_printed_ci can ever contain one. Read the "
+                    "flag rather than reconcilable, which answers a different "
+                    "question and is false on the 2022-2024 rows too, and those "
+                    "ARE checked -- see cells_no_internal_check_reaches. What "
+                    "stands behind them instead is, first, the chapter prose: "
+                    "both editions state specimen-stratified percentages, "
+                    "twenty-one in all, and every one is pinned as a fixture "
+                    "rather than a sample being taken. Second, the 2018 "
+                    "chapter restating 2017 -- it gives the previous year's "
+                    "S. aureus blood cefoxitin as 57% and its E. coli blood "
+                    "ertapenem and imipenem as 37% and 25%, against a 2017 "
+                    "table printing 57.1, 36.7 and 25.2. Third, for every "
+                    "other cell, the column geometry and nothing else. A "
+                    "figure from those two editions that no fixture covers is "
+                    "the extraction's reading of the page, with nothing "
+                    "printed on the page able to contradict it."
                 ),
                 "total_rows": len(records),
                 "sources": [
@@ -410,6 +462,32 @@ def export(records, parsed, failed, extracted_date):
                     "count": len(corrupt),
                     "cells": corrupt_cells,
                     "blocks": corrupt,
+                },
+                "cells_no_internal_check_reaches": {
+                    "description": (
+                        "Cells flagged no_internal_check_possible: cells where "
+                        "neither check had two printed figures to compare, so "
+                        "neither ran. RECONCILABLE DOES NOT ANSWER THIS "
+                        "QUESTION and must not be read as though it did. It "
+                        "says whether the printed numerator can be trusted as "
+                        "that cell's numerator, which is a different fact: it "
+                        "is false on every 2022-2024 row, and those rows ARE "
+                        "checked, against their own interval; and it is true on "
+                        "one 2021 row that is checked against nothing, because "
+                        "the percentage column is blank there. The flag is "
+                        "derived per cell from what the cell prints, never from "
+                        "its edition. It lands on all 108 rows of 2017 and "
+                        "2018, which print no numerator and no interval; on the "
+                        "fifteen 2021 cells whose numerator is corrupt in "
+                        "source, which leaves the percentage nothing to "
+                        "disagree with; and on two cells that print no "
+                        "percentage at all. by_edition gives the shape; rows "
+                        "names the ones outside 2017 and 2018, which are the "
+                        "ones a reader could not predict from the edition."
+                    ),
+                    "count": unchecked["count"],
+                    "by_edition": unchecked["by_edition"],
+                    "rows_outside_2017_2018": unchecked["rows"],
                 },
                 "printed_pct_vs_printed_ci": {
                     "description": (
