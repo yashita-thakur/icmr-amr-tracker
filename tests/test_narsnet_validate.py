@@ -857,3 +857,65 @@ def test_the_report_warns_against_reading_reconcilable_for_this(records):
     assert block["count"] == 125
     assert "RECONCILABLE DOES NOT ANSWER THIS QUESTION" in block["description"]
     assert len(block["rows_outside_2017_2018"]) == 17
+
+
+# --- the whole series at once, not consecutive pairs -------------------------
+
+
+@needs_pdfs
+def test_every_panel_member_is_present_over_one_unbroken_run(records):
+    """No drug and no specimen column appears, disappears and returns.
+
+    `detect_narsnet_panel_changes` compares consecutive editions only, so a
+    member absent from one edition between two that print it would reach the
+    export as two unrelated rows -- a removal at one step and an addition at a
+    later one, with nothing tying them together. Whether that shape occurs is
+    not something the pairwise view can answer, and it had never been asked of
+    the whole series.
+
+    It does not occur, on either axis of either organism, which is what makes
+    the pairwise `changes` list a complete account of what moves rather than a
+    partial one. Asserted here so that a future edition introducing a gap, or an
+    extraction fault that dropped a drug from one edition, fails loudly instead
+    of being rendered as two unrelated changes.
+    """
+    panel = narsnet_panel_by_edition(records)
+    assert set(panel) == {EC, SA}
+
+    interrupted, checked = [], 0
+    for organism in sorted(panel):
+        editions = sorted(panel[organism])
+        assert editions == list(ALL_YEARS), organism
+        for axis in ("antibiotics", "specimens"):
+            members = sorted({m for y in editions for m in panel[organism][y][axis]})
+            for member in members:
+                checked += 1
+                printed = [member in panel[organism][y][axis] for y in editions]
+                first, last = printed.index(True), len(printed) - printed[::-1].index(True)
+                if not all(printed[first:last]):
+                    vector = "".join("#" if p else "." for p in printed)
+                    interrupted.append(
+                        "{} / {} / {}: {} over {}".format(
+                            organism, axis, member, vector, editions
+                        )
+                    )
+    assert not interrupted, "\n".join(interrupted)
+    # A count, so that a map that had somehow come back empty could not pass by
+    # checking nothing.
+    assert checked == 41
+
+
+@needs_export
+def test_the_panel_export_records_that_no_member_returns(records):
+    """The claim above is one a reader of the data has no way to re-derive from
+    the `changes` list alone, so the export states it."""
+    with open(PROCESSED_DIR / "narsnet_panel.json", encoding="utf-8") as fh:
+        data = json.load(fh)
+    assert "APPEARS, DISAPPEARS AND RETURNS" in data["description"]
+    assert "all eight editions" in data["description"]
+    # And the exported map is the one the assertion above was made against.
+    fresh = narsnet_panel_by_edition(records)
+    assert data["panel"] == {
+        organism: {str(year): axes for year, axes in years.items()}
+        for organism, years in fresh.items()
+    }

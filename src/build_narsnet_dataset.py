@@ -329,7 +329,17 @@ def export(records, parsed, failed, extracted_date):
                     "from 9 to 17 for E. coli and 8 to 9 for S. aureus, and the "
                     "pooled and PA+OSBF columns give way to pus_aspirate and "
                     "osbf reported separately, so no 2021 specimen column has "
-                    "the same membership as any 2020 one."
+                    "the same membership as any 2020 one. "
+                    "NOTHING IN THE SERIES APPEARS, DISAPPEARS AND RETURNS. "
+                    "Checked across all eight editions, on both axes and both "
+                    "organisms: each of the 41 drugs and specimen columns is "
+                    "printed over one unbroken run of editions, so the changes "
+                    "below, which compare consecutive editions only, describe "
+                    "the whole of what moves. A drug or column absent from an "
+                    "edition between two that print it would not be visible "
+                    "there, and there is none. Two drugs run for a single "
+                    "edition -- E. coli ceftazidime in 2017 and S. aureus "
+                    "vancomycin in 2018 -- and neither returns."
                 ),
                 "attribution": ATTRIBUTION,
                 "generated": extracted_date,
