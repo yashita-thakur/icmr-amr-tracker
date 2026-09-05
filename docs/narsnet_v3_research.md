@@ -4,6 +4,12 @@ Prepared 1 September 2026 for `icmr-amr-tracker` V3 scoping.
 Every factual claim below is sourced to a document that was actually retrieved and read. Where something could
 not be determined, it says so rather than filling the gap with a plausible guess.
 
+**Status: V3 is built. All eight NARS-Net editions, 2017 through 2024, are extracted and verified — both organisms,
+558 rows, no edition outstanding.** This document has been amended as each group of editions landed, so parts of it
+record what was expected before the pages were read and parts record what reading them established. Where the two
+differ the later reading wins, and the corrections are set out under A4 rather than applied silently to the earlier
+text.
+
 ---
 
 ## Corrections to the starting assumptions
@@ -474,10 +480,12 @@ Verbatim sample rows:
 
 ### Two further format facts
 
-- **The metric is %Resistant, in every edition. %Susceptible is never printed.** This inverts the repo's current
-  susceptibility-oriented schema (`susceptible_n`, `susceptible_pct`). V3 needs either a `resistant_*` parallel or an
-  explicit `metric_direction` field — deriving %S as 100−%R would be **wrong**, because intermediate isolates are
-  classified separately (methods describe three-way S/I/R) and are in neither figure.
+- **The metric is %Resistant, in every edition. %Susceptible is never printed.** This inverts the repo's
+  susceptibility-oriented AMRSN schema (`susceptible_n`, `susceptible_pct`). V3 resolved it with a separate record
+  type carrying `resistant_pct` and no susceptibility field at all, rather than a `metric_direction` flag on a
+  shared one, so the two networks cannot be addressed as one series by accident. Deriving %S as 100−%R would be
+  **wrong**, because intermediate isolates are classified separately (methods describe three-way S/I/R) and are in
+  neither figure.
 - **No pooled all-specimen column from 2021 onward.** 2017–2019 carry a pooled column ("Blood+OSBF+PA+Urine");
   2020 has one for S. aureus only (`Blood + PA + OSBF, N=9,639`); 2021–2024 have none. A single national %R per
   antibiotic across all specimens is **not printed** in the recent editions and would have to be reconstructed by
@@ -629,7 +637,11 @@ having it discovered.
   AMRSN-derived rather than NARS-Net, unreviewed, self-cited, claims geocoded hospital locations for a network whose
   centres ICMR de-identifies, and ships a file literally named `amr_data_real.csv` alongside its others.
 
-**So a clean, documented digitisation of the NARS-Net tables would be a genuine contribution — nobody has published one.**
+**So a clean, documented digitisation of the NARS-Net tables would be a genuine contribution — nobody had
+published one.** As of this repository's V3, one exists: all eight editions, both comparable organisms, every cell
+hand-read against the rendered page, with the provenance of each figure and the limits of each edition's
+checkability carried in the data rather than in prose. Whether it is useful to anyone else is not something this
+document can settle.
 
 ---
 
@@ -669,7 +681,7 @@ What exists versus what V3 needs. Concrete items only.
 | Item | Status |
 |---|---|
 | NARS-Net 2017–2024 PDF URLs identified and verified reachable | ✅ Done (A3) |
-| **NARS-Net PDFs downloaded into the local extraction pipeline** | ❌ **Not done — 8 PDFs to fetch** |
+| **NARS-Net PDFs downloaded into the local extraction pipeline** | ✅ **Done — all 8.** Registered in `NARSNET_SOURCES` with SHA-256 pinned as verified on 2026-09-01, fetched by `fetch.py --network narsnet`, and extracted. A hash mismatch is a hard failure for this registry, since the table locations and source defects recorded here were established against exactly those bytes |
 | ICMR AMRSN 2022/2023/2024 PDFs | ✅ Already held |
 | NARS-Net semi-annual bulletins (Issues 01–06, 2023–2025) | ⬜ Not assessed — out of V3 scope unless intra-year granularity is wanted |
 | Archival copies (Wayback/Zenodo) of all 8 NARS-Net PDFs | ❌ Not done — needed, given documented URL churn |
@@ -683,7 +695,7 @@ What exists versus what V3 needs. Concrete items only.
 | Which organisms are comparable? | ✅ **E. coli and S. aureus only** |
 | Which years overlap both networks? | ✅ **2017–2024** for both (AMRSN historical tables 2017–2024; NARS-Net editions 2017–2024) |
 
-## B3. Panel overlap — one input still missing
+## B3. Panel overlap
 
 | Item | Status |
 |---|---|
@@ -691,18 +703,18 @@ What exists versus what V3 needs. Concrete items only.
 | NARS-Net S. aureus panel, all 8 editions, as printed | ✅ Extracted (A2) |
 | S. aureus overlap vs AMRSN 11-drug panel | ✅ **7 of 11** for 2021–2024; 6 of 11 for 2019–2020 |
 | E. coli overlap vs AMRSN 10-drug panel | ✅ **7 of 10** for 2021–2024 (5 of 10 for 2017, 4 of 10 for 2018–2020), checked against the repo's actual `CANONICAL_PANEL`. `cefazolin` and `levofloxacin` are never in any NARS-Net E. coli panel; `ceftazidime` is in one in 2017 only |
-| Drug-name normalisation map | ⚠️ **Variants catalogued (A2), mapping table not yet written** |
+| Drug-name normalisation map | ✅ **Written** — `src/parsers/narsnet_antibiotics.py`, a second alias table consulted before the shared one, which is not edited. `normalise_antibiotic` ends in a substring scan, so a key added to the shared table would become a candidate substring for every AMRSN label too; a separate table leaves the AMRSN path unchanged by construction |
 
 ## B4. Schema changes V3 requires
 
 | Gap | Detail |
 |---|---|
-| **Metric direction** | NARS-Net publishes **%Resistant only**; the repo's schema is susceptibility-oriented (`susceptible_n`, `susceptible_pct`). Needs a `metric_direction` field or parallel `resistant_*` columns. **%S must not be derived as 100−%R** — intermediates are classified separately and are in neither figure. |
+| **Metric direction** | ✅ **Done.** `NarsNetRecord` carries `resistant_pct` and has no field meaning the same thing as `Record.susceptible_pct`, so the separation is structural rather than a convention to remember. **%S is not derived as 100−%R** — intermediates are classified separately and are in neither figure. |
 | **Numerator absence** | ✅ **Done.** `numerator_status` carries `printed`, `not_printed_in_source` and `corrupt_in_source`, and `reconcilable` is true for the first alone, so a consumer filtering on it can never reach a count it must not use. Printed and usable for 2019–2020; for **2021** usable for S. aureus and for the E. coli PA/OSBF columns only; not printed at all for 2017–2018 or 2022–2024. A numerator is never back-computed |
-| **Reconciliation scope** | The repo's `pct_mismatch` check runs in full only on **2019–2020** NARS-Net rows, plus **2021** for S. aureus and for E. coli PA/OSBF. Needs an explicit `reconcilable` flag so the absence of a check is not mistaken for a passed check. |
-| **Confidence intervals** | 2022–2024 print 95% CIs; AMRSN does not. New optional `ci_low` / `ci_high` fields. |
-| **Specimen stratum** | NARS-Net rows are **per specimen type**, with no pooled column from 2021. Needs a `specimen` dimension — which AMRSN national rows do not have. This is the main schema divergence. |
-| **Network / source dimension** | Every row needs `network` (`amrsn` \| `narsnet`) and NARS-Net's own `source_report_year` handled separately from cover-page year. |
+| **Reconciliation scope** | ✅ **Done**, and then found insufficient on its own. `reconcilable` says whether the printed numerator can be trusted as that cell's numerator; it does **not** say whether a check ran, and the two come apart in both directions — false on every 2022–2024 row, which are checked against their intervals, and true on one 2021 row that is checked against nothing. Whether a check ran is the separate flag `no_internal_check_possible`, on 125 cells across four editions |
+| **Confidence intervals** | ✅ **Done.** 2022–2024 print 95% CIs; AMRSN does not. `ci_low` and `ci_high` are optional fields, and the percentage against its own interval is the check those editions support |
+| **Specimen stratum** | ✅ **Done.** NARS-Net rows are **per specimen type**, with no pooled column from 2021. The `specimen` dimension has no AMRSN counterpart, which remains the main schema divergence; composites keep every constituent in their value rather than collapsing to one "pooled" label, because the composites are not the same set across editions |
+| **Network / source dimension** | ✅ **Done.** Every row carries `network` (`amrsn` \| `narsnet`), and `source_report_year` is the reporting period throughout, with `source_cover_year` recording a cover year that differs from it — which it does for the 2019 and 2020 editions |
 | **Site-level data** | ❌ **Not available at all for NARS-Net** — only national aggregates are published. The repo's RC-level (V2) apparatus has no NARS-Net counterpart. V3 is national-level only. |
 
 ## B5. Known source-data issues to encode as flags
@@ -721,6 +733,9 @@ What exists versus what V3 needs. Concrete items only.
 
 ## B6. Verification still outstanding
 
+Nothing here concerns the extraction, which is complete for all eight editions. These are loose ends in the
+surrounding research.
+
 | Item | Why it matters |
 |---|---|
 | ~~Visual inspection of 2021 E. coli Table 6 Blood column~~ | ✅ Done — see B5, and the cell-by-cell reading above. Blood `Number Resistant` is corrupt at source and not recoverable; `%R` and `Number Tested` are sound. Encoded as `CORRUPT_NUMERATORS`; 11 of the 13 cells fail, and the printed values are the column's own, displaced across rows |
@@ -738,9 +753,14 @@ What exists versus what V3 needs. Concrete items only.
 
 ---
 
-# PART C — READY-TO-PASTE PROMPT FOR CLAUDE CODE
+# PART C — THE ORIGINAL INVESTIGATION BRIEF, AS ISSUED
 
-Copy everything below the line into Claude Code, at the repo root.
+**This brief was executed and is kept as a record of how the work was commissioned. Do not follow it.** Its
+instructions — investigate the eight PDFs, report before building, write no extraction code — describe work that is
+finished; Parts A and B above are its output, and the extraction it asked for is in `src/parsers/narsnet_parser.py`.
+Figures inside it are as they stood on 1 September 2026 and were not updated afterwards: the test count it quotes,
+the provisional panel-overlap numbers it asks to be checked, and the open questions it poses have all since been
+answered above.
 
 ---
 

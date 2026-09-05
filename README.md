@@ -52,10 +52,13 @@ plainly why that year's isolate counts were down.
 ---
 
 > **Scope and maintenance.** Data is current through the ICMR AMRSN **8th
-> edition (2024)**. This repository is *not* actively maintained against future
-> editions — for anything published after 2024, check the
-> [ICMR AMRSN site](https://iamrsn.icmr.org.in/) directly. Stating the boundary
-> is preferable to implying a currency this project does not have.
+> edition (2024)**, and through **all eight NCDC NARS-Net editions, 2017–2024**,
+> which are extracted in full — every edition NARS-Net has published for the two
+> organisms both networks report at species level. This repository is *not*
+> actively maintained against future editions — for anything published after
+> 2024, check the [ICMR AMRSN site](https://iamrsn.icmr.org.in/) or the
+> [NCDC reports page](https://ncdc.mohfw.gov.in/reports/) directly. Stating the
+> boundary is preferable to implying a currency this project does not have.
 
 ## Coverage
 
@@ -141,6 +144,16 @@ python viz/trend_charts.py --revisions
 | `data/processed/rc_panel.json` | **V2** — the RC set each edition printed, and what changed between editions |
 | `data/processed/rc_revisions.json` | **V2** — cross-edition RC revision check (near-empty by design) |
 | `data/processed/rc_extraction_report.json` | **V2** — RC run metadata |
+| `data/processed/narsnet_trends.{csv,json}` | **V3** — NCDC NARS-Net, one row per organism × antibiotic × specimen × edition, all eight editions 2017–2024 |
+| `data/processed/narsnet_panel.json` | **V3** — the drug panel and specimen columns each edition prints, and what changed between them |
+| `data/processed/narsnet_revisions.json` | **V3** — cross-edition revision check (structurally empty; see its own `note`) |
+| `data/processed/narsnet_extraction_report.json` | **V3** — NARS-Net run metadata, per-edition checks, and which cells no check reaches |
+
+The `narsnet_*` files deliberately drop the `amr_` prefix the AMRSN exports
+carry. The two datasets are not concatenable and share no comparison column:
+AMRSN publishes **% susceptible**, NARS-Net **% resistant**, and AMRSN publishes
+no % intermediate for either organism, so an AMRSN % resistant cannot be
+computed. Read them as parallel series, never as one.
 
 ![E. coli national susceptibility trend](docs/figures/trend_escherichia_coli.png)
 
@@ -590,13 +603,14 @@ extracted numbers may then differ from previously published results.
 ## Roadmap
 
 - **V1.1** — six organisms across three chapters, 2017–2024, 3 editions.
-- **V2 (current)** — Regional Centre breakdowns for the three organisms that
-  have an RC-wise susceptibility table, flagging editions whose RC panel changed
-  rather than averaging across it as if it were stable. See
+- **V2** — Regional Centre breakdowns for the three organisms that have an
+  RC-wise susceptibility table, flagging editions whose RC panel changed rather
+  than averaging across it as if it were stable. See
   [Regional Centre breakdowns](#regional-centre-breakdowns-v2).
-- **V3** — Cross-reference against NCDC NARS-Net where both networks report the
-  same pathogen/antibiotic, and surface where they differ.
-- **V4** — Extend the series back to 2014.
+- **V3 (current)** — NCDC NARS-Net carried as a parallel series, all eight
+  editions 2017–2024, *E. coli* and *S. aureus*. The two networks are published
+  side by side and never pooled: they do not share a comparison value.
+- **V4** — Extend the AMRSN series back to 2014.
 
 > **Note for V4:** the spec assumed pre-2022 editions were reachable only
 > through Joomla "flipbook" viewers needing reverse-engineering. That turns out
