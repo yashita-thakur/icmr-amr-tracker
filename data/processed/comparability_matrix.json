@@ -1,0 +1,7214 @@
+{
+  "description": "Which of the two networks reports each organism x antibiotic x year, on which metric, from which specimen basis, and out of which printed table. THE MATRIX CARRIES NO PERCENTAGE AND NO COUNT FROM EITHER NETWORK, and that is enforced by assert_carries_no_values() at build time and again in tests/test_comparability.py, not merely intended. The two networks share no comparison value: AMRSN publishes percent susceptible, NARS-Net publishes percent resistant, and AMRSN publishes no percent intermediate for E. coli or S. aureus, so an AMRSN percent resistant cannot be computed. A 'both' cell therefore means both networks report that combination, NEVER that the two figures are comparable with each other. Read the two datasets as parallel series and take each value from its own file: amr_trends.csv for AMRSN, narsnet_trends.csv for NARS-Net.",
+  "specimen_basis_note": "The specimen bases are not equivalent and are not equivalent in the same way for the two organisms. AMRSN prints ONE pooled column per year with no specimen breakdown in these trend tables, captioned 'all samples (except faeces and urine)' for E. coli but 'all samples' -- no exclusion stated -- for S. aureus. NARS-Net prints a separate column per specimen and, from the 2021 edition, no pooled column at all, so a single national NARS-Net percentage across specimens is not printed anywhere and is not reconstructed here. Where a NARS-Net specimen_basis entry contains '+', the source column is a composite of those strata, and composite membership changes between editions: no post-2021 column has the same membership as any pre-2021 one.",
+  "sources_note": "AMRSN carries each calendar year in up to three editions' retrospective tables, so its 'sources' list usually holds more than one entry; that repetition is what makes cross-edition revision detection possible, and revisions.json records the 17 found. Each NARS-Net edition reports its own period only, so its 'sources' list always holds exactly one entry and narsnet_revisions.json is empty by design.",
+  "attribution": "Derived from the publicly available annual reports of two independent Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net (2017-2024). The two are published here as parallel series and are never pooled. Independent, unofficial analysis - not endorsed by or affiliated with ICMR or NCDC.",
+  "generated": "2026-09-05",
+  "metrics": {
+    "amrsn": "percent_susceptible",
+    "narsnet": "percent_resistant"
+  },
+  "coverage_states": [
+    "both",
+    "narsnet_only",
+    "amrsn_only",
+    "neither"
+  ],
+  "summary": {
+    "cells": 272,
+    "coverage_counts": {
+      "both": 100,
+      "narsnet_only": 72,
+      "amrsn_only": 68,
+      "neither": 32
+    },
+    "by_organism": [
+      {
+        "organism": "Escherichia coli",
+        "antibiotics": [
+          "amikacin",
+          "amoxicillin-clavulanate",
+          "ampicillin",
+          "cefazolin",
+          "cefepime",
+          "cefotaxime",
+          "ceftazidime",
+          "ceftriaxone",
+          "cefuroxime",
+          "ciprofloxacin",
+          "colistin",
+          "cotrimoxazole",
+          "doxycycline",
+          "ertapenem",
+          "fosfomycin",
+          "gentamicin",
+          "imipenem",
+          "levofloxacin",
+          "meropenem",
+          "nitrofurantoin",
+          "piperacillin-tazobactam"
+        ],
+        "antibiotic_count": 21,
+        "years": [
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024
+        ],
+        "cells": 168,
+        "coverage_counts": {
+          "both": 45,
+          "narsnet_only": 56,
+          "amrsn_only": 35,
+          "neither": 32
+        },
+        "antibiotics_both_networks_report": [
+          "amikacin",
+          "cefotaxime",
+          "ceftazidime",
+          "ciprofloxacin",
+          "ertapenem",
+          "imipenem",
+          "meropenem",
+          "piperacillin-tazobactam"
+        ],
+        "antibiotics_narsnet_only": [
+          "amoxicillin-clavulanate",
+          "ampicillin",
+          "cefepime",
+          "ceftriaxone",
+          "cefuroxime",
+          "colistin",
+          "cotrimoxazole",
+          "doxycycline",
+          "fosfomycin",
+          "gentamicin",
+          "nitrofurantoin"
+        ],
+        "antibiotics_amrsn_only": [
+          "cefazolin",
+          "levofloxacin"
+        ]
+      },
+      {
+        "organism": "Staphylococcus aureus",
+        "antibiotics": [
+          "cefoxitin",
+          "ciprofloxacin",
+          "clindamycin",
+          "cotrimoxazole",
+          "doxycycline",
+          "erythromycin",
+          "gentamicin",
+          "linezolid",
+          "oxacillin",
+          "teicoplanin",
+          "tetracycline",
+          "tigecycline",
+          "vancomycin"
+        ],
+        "antibiotic_count": 13,
+        "years": [
+          2017,
+          2018,
+          2019,
+          2020,
+          2021,
+          2022,
+          2023,
+          2024
+        ],
+        "cells": 104,
+        "coverage_counts": {
+          "both": 55,
+          "narsnet_only": 16,
+          "amrsn_only": 33,
+          "neither": 0
+        },
+        "antibiotics_both_networks_report": [
+          "cefoxitin",
+          "ciprofloxacin",
+          "clindamycin",
+          "cotrimoxazole",
+          "erythromycin",
+          "linezolid",
+          "teicoplanin",
+          "tetracycline",
+          "vancomycin"
+        ],
+        "antibiotics_narsnet_only": [
+          "doxycycline",
+          "gentamicin"
+        ],
+        "antibiotics_amrsn_only": [
+          "oxacillin",
+          "tigecycline"
+        ]
+      }
+    ]
+  },
+  "matrix": [
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amikacin",
+      "year": 2017,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amikacin",
+      "year": 2018,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amikacin",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amikacin",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amikacin",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amikacin",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amikacin",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amikacin",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amoxicillin-clavulanate",
+      "year": 2017,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amoxicillin-clavulanate",
+      "year": 2018,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amoxicillin-clavulanate",
+      "year": 2019,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amoxicillin-clavulanate",
+      "year": 2020,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amoxicillin-clavulanate",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amoxicillin-clavulanate",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amoxicillin-clavulanate",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "amoxicillin-clavulanate",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ampicillin",
+      "year": 2017,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ampicillin",
+      "year": 2018,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ampicillin",
+      "year": 2019,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ampicillin",
+      "year": 2020,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ampicillin",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ampicillin",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ampicillin",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ampicillin",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefazolin",
+      "year": 2017,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefazolin",
+      "year": 2018,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefazolin",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefazolin",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefazolin",
+      "year": 2021,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefazolin",
+      "year": 2022,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefazolin",
+      "year": 2023,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefazolin",
+      "year": 2024,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefepime",
+      "year": 2017,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefepime",
+      "year": 2018,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefepime",
+      "year": 2019,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefepime",
+      "year": 2020,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefepime",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefepime",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefepime",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefepime",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefotaxime",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefotaxime",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefotaxime",
+      "year": 2019,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefotaxime",
+      "year": 2020,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefotaxime",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefotaxime",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefotaxime",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefotaxime",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftazidime",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftazidime",
+      "year": 2018,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftazidime",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftazidime",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftazidime",
+      "year": 2021,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftazidime",
+      "year": 2022,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftazidime",
+      "year": 2023,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftazidime",
+      "year": 2024,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftriaxone",
+      "year": 2017,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftriaxone",
+      "year": 2018,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftriaxone",
+      "year": 2019,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftriaxone",
+      "year": 2020,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftriaxone",
+      "year": 2021,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftriaxone",
+      "year": 2022,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftriaxone",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ceftriaxone",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefuroxime",
+      "year": 2017,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefuroxime",
+      "year": 2018,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefuroxime",
+      "year": 2019,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefuroxime",
+      "year": 2020,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefuroxime",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefuroxime",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefuroxime",
+      "year": 2023,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cefuroxime",
+      "year": 2024,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ciprofloxacin",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ciprofloxacin",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ciprofloxacin",
+      "year": 2019,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ciprofloxacin",
+      "year": 2020,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ciprofloxacin",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ciprofloxacin",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ciprofloxacin",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ciprofloxacin",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "colistin",
+      "year": 2017,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "colistin",
+      "year": 2018,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "colistin",
+      "year": 2019,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "colistin",
+      "year": 2020,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "colistin",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "colistin",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "colistin",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "colistin",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cotrimoxazole",
+      "year": 2017,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cotrimoxazole",
+      "year": 2018,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cotrimoxazole",
+      "year": 2019,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cotrimoxazole",
+      "year": 2020,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cotrimoxazole",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cotrimoxazole",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cotrimoxazole",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "cotrimoxazole",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "doxycycline",
+      "year": 2017,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "doxycycline",
+      "year": 2018,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "doxycycline",
+      "year": 2019,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "doxycycline",
+      "year": 2020,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "doxycycline",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "doxycycline",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "doxycycline",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "doxycycline",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ertapenem",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ertapenem",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ertapenem",
+      "year": 2019,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ertapenem",
+      "year": 2020,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ertapenem",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ertapenem",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ertapenem",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "ertapenem",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "fosfomycin",
+      "year": 2017,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "fosfomycin",
+      "year": 2018,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "fosfomycin",
+      "year": 2019,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "fosfomycin",
+      "year": 2020,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "fosfomycin",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "fosfomycin",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "fosfomycin",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "fosfomycin",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "gentamicin",
+      "year": 2017,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "gentamicin",
+      "year": 2018,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "gentamicin",
+      "year": 2019,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "gentamicin",
+      "year": 2020,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "gentamicin",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "gentamicin",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "gentamicin",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "gentamicin",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "imipenem",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "imipenem",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "imipenem",
+      "year": 2019,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+urine+pus_aspirate+osbf",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "imipenem",
+      "year": 2020,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "imipenem",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "imipenem",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "imipenem",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "imipenem",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "levofloxacin",
+      "year": 2017,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "levofloxacin",
+      "year": 2018,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "levofloxacin",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "levofloxacin",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "levofloxacin",
+      "year": 2021,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "levofloxacin",
+      "year": 2022,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "levofloxacin",
+      "year": 2023,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "levofloxacin",
+      "year": 2024,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "meropenem",
+      "year": 2017,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "meropenem",
+      "year": 2018,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "meropenem",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "meropenem",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "meropenem",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "meropenem",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "meropenem",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "meropenem",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "nitrofurantoin",
+      "year": 2017,
+      "coverage": "neither",
+      "amrsn": null,
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "nitrofurantoin",
+      "year": 2018,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood+urine+pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "nitrofurantoin",
+      "year": 2019,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood+urine+pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "nitrofurantoin",
+      "year": 2020,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "pus_aspirate+osbf",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "nitrofurantoin",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "nitrofurantoin",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "nitrofurantoin",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "nitrofurantoin",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "piperacillin-tazobactam",
+      "year": 2017,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "piperacillin-tazobactam",
+      "year": 2018,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "piperacillin-tazobactam",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "piperacillin-tazobactam",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "piperacillin-tazobactam",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "piperacillin-tazobactam",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 7"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "piperacillin-tazobactam",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 3.6"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Escherichia coli",
+      "antibiotic": "piperacillin-tazobactam",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 2.6"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples (except faeces and urine)"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 8"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate",
+          "urine"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cefoxitin",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cefoxitin",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cefoxitin",
+      "year": 2019,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cefoxitin",
+      "year": 2020,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cefoxitin",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cefoxitin",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cefoxitin",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cefoxitin",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "ciprofloxacin",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "ciprofloxacin",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "ciprofloxacin",
+      "year": 2019,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "ciprofloxacin",
+      "year": 2020,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "ciprofloxacin",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "ciprofloxacin",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "ciprofloxacin",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "ciprofloxacin",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "clindamycin",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "clindamycin",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "clindamycin",
+      "year": 2019,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "clindamycin",
+      "year": 2020,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "clindamycin",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "clindamycin",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "clindamycin",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "clindamycin",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cotrimoxazole",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cotrimoxazole",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cotrimoxazole",
+      "year": 2019,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cotrimoxazole",
+      "year": 2020,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cotrimoxazole",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cotrimoxazole",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cotrimoxazole",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "cotrimoxazole",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "doxycycline",
+      "year": 2017,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "doxycycline",
+      "year": 2018,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "doxycycline",
+      "year": 2019,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "doxycycline",
+      "year": 2020,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "doxycycline",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "doxycycline",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "doxycycline",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "doxycycline",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "erythromycin",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "erythromycin",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "erythromycin",
+      "year": 2019,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "erythromycin",
+      "year": 2020,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "erythromycin",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "erythromycin",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "erythromycin",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "erythromycin",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "gentamicin",
+      "year": 2017,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "gentamicin",
+      "year": 2018,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "gentamicin",
+      "year": 2019,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "gentamicin",
+      "year": 2020,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "gentamicin",
+      "year": 2021,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "gentamicin",
+      "year": 2022,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "gentamicin",
+      "year": 2023,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "gentamicin",
+      "year": 2024,
+      "coverage": "narsnet_only",
+      "amrsn": null,
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "linezolid",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "linezolid",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "linezolid",
+      "year": 2019,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2019,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "linezolid",
+      "year": 2020,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2020,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "linezolid",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "linezolid",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "linezolid",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "linezolid",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "oxacillin",
+      "year": 2017,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "oxacillin",
+      "year": 2018,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "oxacillin",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "oxacillin",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "oxacillin",
+      "year": 2021,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "oxacillin",
+      "year": 2022,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "oxacillin",
+      "year": 2023,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "oxacillin",
+      "year": 2024,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "teicoplanin",
+      "year": 2017,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "teicoplanin",
+      "year": 2018,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "teicoplanin",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "teicoplanin",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "teicoplanin",
+      "year": 2021,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2021,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "teicoplanin",
+      "year": 2022,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 5"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "teicoplanin",
+      "year": 2023,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "teicoplanin",
+      "year": 2024,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "osbf",
+          "pus_aspirate"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tetracycline",
+      "year": 2017,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2017,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tetracycline",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tetracycline",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tetracycline",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tetracycline",
+      "year": 2021,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tetracycline",
+      "year": 2022,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tetracycline",
+      "year": 2023,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tetracycline",
+      "year": 2024,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tigecycline",
+      "year": 2017,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tigecycline",
+      "year": 2018,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tigecycline",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tigecycline",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tigecycline",
+      "year": 2021,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tigecycline",
+      "year": 2022,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tigecycline",
+      "year": 2023,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "tigecycline",
+      "year": 2024,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "vancomycin",
+      "year": 2017,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "vancomycin",
+      "year": 2018,
+      "coverage": "both",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": {
+        "sources": [
+          {
+            "report_year": 2018,
+            "table": "Table 4"
+          }
+        ],
+        "metric": "percent_resistant",
+        "specimen_basis": [
+          "blood",
+          "blood+pus_aspirate+osbf",
+          "pus_aspirate+osbf"
+        ]
+      }
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "vancomycin",
+      "year": 2019,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "vancomycin",
+      "year": 2020,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "vancomycin",
+      "year": 2021,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "vancomycin",
+      "year": 2022,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2022,
+            "table": "Table 6.4"
+          },
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "vancomycin",
+      "year": 2023,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2023,
+            "table": "Table 7.4"
+          },
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    },
+    {
+      "organism": "Staphylococcus aureus",
+      "antibiotic": "vancomycin",
+      "year": 2024,
+      "coverage": "amrsn_only",
+      "amrsn": {
+        "sources": [
+          {
+            "report_year": 2024,
+            "table": "Table 6.4"
+          }
+        ],
+        "metric": "percent_susceptible",
+        "specimen_basis": "all samples"
+      },
+      "narsnet": null
+    }
+  ]
+}
