@@ -505,6 +505,330 @@ edition reports a lower numerator. For example *S. aureus* / tigecycline / 2022
 is `2452/2452` (100%) in the 2022 edition but `2314/2452` (94.4%) in the 2023
 and 2024 editions.
 
+---
+
+## NARS-Net cross-reference (V3)
+
+India runs a **second** national AMR surveillance network: NCDC's **NARS-Net**,
+which feeds WHO GLASS and is entirely separate from ICMR's AMRSN. V3 extracts
+all eight of its published editions, 2017–2024, into a **separate dataset**
+(`data/processed/narsnet_trends.{csv,json}`, **558 rows** — 345 *E. coli*, 213
+*S. aureus*), with its own schema. Build it with
+`python -m src.build_narsnet_dataset`.
+
+The two networks are carried **side by side and never pooled**. They do not
+share a comparison value, which is a constraint on the comparison rather than a
+shortcoming of either body — see
+[What this is **not**](#what-this-is-not).
+
+### What was extracted
+
+*E. coli* and *S. aureus* only. Klebsiella, Pseudomonas and Acinetobacter are
+reported at **genus level** in every NARS-Net edition and at species level by
+AMRSN, so comparing them would mean comparing a genus against a species. All
+eight editions were checked for a species-level breakdown in any table, figure
+or annexure; there is none.
+
+Tables are located by **fuzzy caption match, never by table number**, because
+the numbers move between editions — and because several editions print
+different captions in their List of Tables and in the body:
+
+| | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 |
+|---|---|---|---|---|---|---|---|---|
+| *E. coli* | T5 | T6 | T6 | T8 | T6 | T7 | T8 | T8 |
+| *S. aureus* | T4 | T4 | T4 | T5 | T4 | T5 | T6 | T6 |
+
+**Cover-page years are unreliable and are never used as the index.** The
+edition reporting January–December 2019 has a cover reading "AMR Annual report
+**-2020**", and the 2020-data edition's cover reads "Annual Report**-2021**".
+`source_report_year` is always the reporting period; where a cover year differs
+it is recorded separately in `source_cover_year`, so the discrepancy is carried
+in the data rather than resolved silently. Those two editions are the only ones
+with a non-null `source_cover_year`.
+
+### The metric: % resistant, and never % susceptible
+
+**Every value in this dataset is percent RESISTANT.** No NARS-Net edition
+prints a susceptibility percentage anywhere.
+
+**%S is not derived as 100 − %R.** Intermediate isolates are classified
+separately — the methods describe a three-way S/I/R split — so they are in
+neither figure and the two do not sum to 100. Going the other way is worse:
+AMRSN publishes **no % intermediate for *E. coli* or *S. aureus***, so an
+AMRSN % resistant **cannot be computed at all**.
+
+This is enforced structurally rather than by convention. `NarsNetRecord` carries
+`resistant_pct` and has **no field meaning the same thing as**
+`Record.susceptible_pct`, so the two networks cannot be addressed as one series
+by accident. The exports keep the same distance: `narsnet_trends.csv` for
+NARS-Net, `amr_trends.csv` for AMRSN, and nothing joins them on a value.
+
+### What each edition lets you check, and what it does not
+
+What the tables print changes **twice** inside the series, and the checks follow
+it rather than assuming a fixed shape:
+
+| Editions | Printed columns | Check that can run |
+|---|---|---|
+| 2017–2018 | denominator, % | **none** |
+| 2019–2020 | denominator, **numerator**, % | % against its own counts |
+| 2021 | denominator, numerator, % | same, except 15 declared cells |
+| 2022–2024 | denominator, %, **95% CI** | % against its own interval |
+
+**2019–2020 — every cell checkable, 8 of 108 do not agree.** Seven are marginal
+in the same direction: each computes to between .46 and .49 above a whole number
+and is printed as the next integer up. The eighth is different in kind — 2020
+*S. aureus* doxycycline, blood: **24 resistant of 2,638** is 0.91%, printed
+beside a **%R of 12**. All eight are carried exactly as printed and flagged
+`pct_mismatch`; neither figure is corrected.
+
+**2021 — the numerator is partly unusable.** The *E. coli* Blood
+`Number Resistant` sub-column is corrupt at source: 11 of its 13 cells do not
+follow from the denominator and percentage printed beside them, and meropenem
+prints 981 resistant of 854 tested. Reading the column against the printed
+denominators and percentages shows the values are **the column's own, printed
+against the wrong rows** — a one-to-one displacement, not thirteen wrong
+numbers. **Nothing is repaired.** Those cells plus two Urine cells — 15 in all —
+are declared by hand in `CORRUPT_NUMERATORS`, carry
+`numerator_status = corrupt_in_source`, and get no `computed_pct`. The two
+Blood cells that happen to agree are declared along with the rest, because which
+values in a displaced column came to rest on their own row is not something the
+printed table lets a reader establish. The printed `%R` and `Number Tested` are
+sound throughout, and the chapter restates four of the affected percentages in
+prose written independently of the table.
+
+**2022–2024 — a different check, because the numerator column is gone.** These
+258 rows print no numerator, so there is nothing to reconcile a percentage
+against. What they do print is a confidence interval, and a percentage and an
+interval are two printed statements about one quantity, so they can disagree
+with no third figure available. **2 of 258 fall outside their own interval**,
+and they are not the same kind of thing: the 2023 *S. aureus* linezolid blood
+cell is a difference between how two columns are rounded (the chapter gives the
+year's figure as 0.2%, which the interval brackets and which rounds to the
+printed 0), while the 2022 *E. coli* doxycycline OSBF cell prints its interval
+as `24.2- 4.02` — an upper bound below the lower one. **The bounds are carried
+in the order printed and are not swapped**, because swapping them would be a
+repair.
+
+**2017–2018 — neither check reaches a single one of their 108 cells.** They
+print a denominator and a percentage and nothing else. Back-computing a
+numerator as denominator × %R **was considered and rejected**: it would be the
+only invented count in the repository, and a percentage checked against a
+numerator derived from that same percentage cannot disagree with it, so the
+check it appears to buy is empty. The rows are published with the gap visible
+instead, corroborated by 21 specimen-stratified percentages stated in those two
+editions' chapters, all pinned as fixtures.
+
+There is also a **cross-column** check a per-cell check cannot see. In the 2019
+*E. coli* table, nitrofurantoin is reported for urine only; the pooled column
+and the Urine column print the same denominator of **16,741** — necessarily the
+same isolates — but different numerators, 2,026 against 2,042. Both round to
+12%. Composite columns are separately compared against the columns that
+partition them, and that comparison deliberately **raises no flag**: the
+difference is systematic rather than exceptional, so flagging it would mark
+nearly every composite row and bury the findings that are real. All 50
+comparisons are recorded in the extraction report instead.
+
+#### `reconcilable` does not mean "a check ran"
+
+These are two different facts and they come apart in **both** directions:
+
+- `reconcilable` says whether the printed numerator can be trusted as that
+  cell's numerator. It is **false on every 2022–2024 row**, and those rows *are*
+  checked — against their own intervals.
+- `no_internal_check_possible` says whether any check had two printed figures to
+  compare. It sits on **125 cells** across four editions (48 in 2017, 60 in
+  2018, 1 in 2020, 16 in 2021), and it is **true on one 2021 row that is
+  `reconcilable`**.
+
+A consumer filtering on `reconcilable` can never reach a count it must not use.
+A consumer wanting to know whether anything was verified must read the flag.
+
+### Both axes move, and they move independently
+
+`narsnet_panel.json` records, per organism per edition, **the drug panel and the
+specimen columns**, and what changed between consecutive editions. Both matter,
+and a check on one would miss the other:
+
+- **2019 → 2020:** the *E. coli* drug panel is **identical** while the pooled
+  specimen column **disappears**. An edition-over-edition comparison of a pooled
+  figure would be comparing a printed column against one no longer printed.
+- **2020 → 2021:** both axes move at once. The panels grow from 9 to 17 drugs
+  for *E. coli* and 8 to 9 for *S. aureus*, and the pooled and PA+OSBF columns
+  give way to pus aspirate and OSBF reported **separately** — so **no 2021
+  specimen column has the same membership as any 2020 one**.
+- **2022 → 2023:** *E. coli* prints seventeen drugs in both, and they are **not
+  the same seventeen**: cefuroxime leaves, ceftriaxone joins. A check on panel
+  *size* reports nothing across that step, so the check compares **membership**.
+
+**Nothing in the series appears, disappears and returns.** Checked across all
+eight editions on both axes and both organisms: each of the 41 drugs and
+specimen columns is printed over one unbroken run, which is what makes the
+consecutive-edition comparison above a complete account of what moves. Two drugs
+run for a single edition and neither returns — *E. coli* ceftazidime in 2017 and
+*S. aureus* vancomycin in 2018.
+
+Every affected row carries `narsnet_panel_changed(from=…)` or
+`narsnet_specimen_columns_changed(from=…)`.
+
+`narsnet_revisions.json` is **empty by design**, and for a different reason than
+V2's. Each NARS-Net edition reports its own period only, with no retrospective
+multi-year table anywhere in the series, so no key is covered by more than one
+edition and cross-edition revision detection has nothing to compare. Contrast
+`revisions.json`, where three AMRSN editions cover each year and 17 genuine
+revisions surface.
+
+### The comparability matrix
+
+The two panels overlap without matching. `data/processed/comparability_matrix.json`
+(`python -m src.build_comparability`) records **one cell per organism ×
+antibiotic × year** — which network reports it, on which metric, from which
+specimen basis, out of which printed table:
+
+| | Drugs | Cells | Both | NARS-Net only | AMRSN only | Neither |
+|---|---|---|---|---|---|---|
+| *E. coli* | 21 | 168 | 45 | 56 | 35 | 32 |
+| *S. aureus* | 13 | 104 | 55 | 16 | 33 | 0 |
+| | | **272** | **100** | **72** | **68** | **32** |
+
+**It carries no percentage and no count from either network, and that is
+enforced rather than intended.** A matrix carrying values would be exactly the
+join that must not exist, so it joins on **keys** and stops there.
+`assert_carries_no_values()` runs before the file is written, with two checks
+that fail differently: a value-bearing field name at any depth, and **any float
+anywhere** — every legitimate number in the file is a year or a tally of cells,
+and both are integers. A test derives the forbidden-field set independently from
+both row schemas, so a new schema field must be classified rather than silently
+allowed through.
+
+**Panel-level overlap is not cell-level overlap**, and the summary block keeps
+them apart. *E. coli* ceftazidime is in the AMRSN panel in all eight years and
+in a NARS-Net table in **2017 alone**, so it counts as a drug both networks
+report on one of its eight cells; *S. aureus* vancomycin is the same shape, in
+the 2018 edition only.
+
+Unlike the other three builders this one reads no PDFs — it is a second-order
+artefact derived from the two extracted datasets, and must be rebuilt after
+either of them changes.
+
+### Surveillance volume: the one metric the two networks share
+
+`docs/figures/narsnet_surveillance_volume.png` is the **only** figure that puts
+both networks on one axis, and it does so because it plots **counts**. An
+isolate tested is the same unit on both sides in a way the two percentages are
+not.
+
+**The caveat that comes with it:** neither network publishes "isolates tested"
+for an organism — only *isolates tested against each drug* — and those differ
+widely inside a single year. *E. coli* urine in 2024 runs **17,191–41,460**
+across sixteen NARS-Net drugs; the AMRSN 2024 panel runs **94–12,445** across
+ten. Each line is therefore the **largest printed denominator** in that year's
+panel, stated as such. The all-specimen line is *combined* rather than printed,
+because no edition from 2021 prints a pooled column: the rule takes the
+pairwise-disjoint subset of a drug-year's columns covering the most strata,
+preferring the one printed as fewest columns, so a printed pooled figure is used
+where one exists and the strata are summed where none does. Coverage decides,
+never magnitude, and the optimum is unique for **all 172 drug-years** — asserted
+by brute force, because a value settled by iteration order would not be a fact
+about the source.
+
+What the figure shows is a **divergence in trajectory**. NARS-Net grows steadily,
+falling only in 2020 — the edition published from inside the pandemic, which says
+plainly why its counts are down — with *S. aureus* falling once more in 2023.
+AMRSN's *E. coli* denominators do something else: **14,728** tested in 2022,
+**7,559** in 2023, **11,679** in 2024. **That dip is in the source and is not a
+revision.** Every 2023 cell is identical in the 2023 and 2024 editions — both
+organisms, all 21 drugs, numerator and denominator — and the dip is visible
+within a single edition's own retrospective column.
+
+Because the two cover different specimen populations, what is comparable is the
+**shape over time, not the size**.
+
+### There is no site-level V3
+
+**NARS-Net publishes national aggregates only.** There is no site-level or
+state-level breakdown in any edition — not named, not coded. So V2's Regional
+Centre apparatus has **no NARS-Net counterpart**, and that is a property of the
+source rather than an unfinished feature.
+
+Site identification is in fact **inverted** between the two networks: NARS-Net
+names its participating institutions in full, in an annexure from 2018 onward,
+but publishes no data against them; AMRSN de-identifies its centres as
+RC1–RC21 but publishes data against the codes.
+
+### Structural caveats
+
+- **No institutional overlap, for a structural reason.** All 20 publicly named
+  AMRSN institutions were checked against both NCDC network lists. The two
+  recruit from **mutually exclusive strata**: NARS-Net is exclusively state
+  government medical colleges and state/UT institutes, while AMRSN is dominated
+  by central institutes, private and corporate hospitals, a mission hospital and
+  armed forces. The near-misses are same-city, different-institution pairs —
+  PGIMER against GMCH-32 in Chandigarh, JIPMER against IGMC&RI in Puducherry.
+  This is a plausible partial explanation for any systematic difference between
+  the two, and belongs in any interpretation of one.
+- **Specimen mix is the largest confound.** NARS-Net includes **urine**, and it
+  is by far its largest stratum — in 2024 the largest printed *E. coli* urine
+  denominator is 41,460 against 3,254 for blood. AMRSN's *E. coli* trend table
+  is captioned "all samples (except faeces and urine)", while its *S. aureus*
+  table says "all samples" with no exclusion stated, so the mismatch is not even
+  the same for the two organisms. Since NARS-Net is specimen-stratified, the
+  defensible construction is **specimen-matched** — most cleanly blood-only —
+  and never a pooled figure.
+- **2018 → 2019 crosses a change in method documentation.** The de-duplication
+  rule (first isolate per patient × pathogen × specimen type) is first documented
+  in the **2019** edition. The 2017 and 2018 editions state a "unique patient"
+  total with no stated rule and no raw counts. Any trend crossing that boundary
+  compares numbers produced under an undocumented method against a documented
+  one. That is an observation about method documentation maturing, and is worth
+  stating as one.
+- **Three things to disclose rather than bury.** ICMR names ~16–17 regional
+  centres publicly but its reports reference up to RC21, so ~4–5 participating
+  centres are not publicly named and one could in principle also be on NARS-Net.
+  ICMR de-identifies every data row, so **data-level overlap can never be
+  checked** — a permanent limitation, not a research gap. And NCDC's state-level
+  AMR networks funnel additional unenumerated medical colleges into its GLASS
+  submission, which is one more reason not to use GLASS figures as a substitute
+  for either network's report: they cover a different population.
+
+### Source data and citation
+
+Fetched at run time with `python -m src.fetch --network narsnet`; **never
+redistributed here** (see `DATA_LICENSE.md`). All eight are registered in
+`NARSNET_SOURCES` with a **SHA-256 pinned**, verified 2026-09-01. A hash
+mismatch is a hard failure for this registry, because the table locations and
+source defects recorded above were established against exactly those bytes.
+
+| Data year | URL |
+|---|---|
+| 2024 | `ncdc.mohfw.gov.in/uploads/pdf/amr30.pdf` |
+| 2023 | `ncdc.mohfw.gov.in/uploads/pdf/amr32.pdf` |
+| 2022 | `ncdc.mohfw.gov.in/uploads/pdf/amr34.pdf` |
+| 2021 | `ncdc.mohfw.gov.in/uploads/pdf/amr35.pdf` |
+| 2020 | `ncdc.mohfw.gov.in/uploads/pdf/amr36.pdf` |
+| 2019 | `ncdc.mohfw.gov.in/uploads/pdf/amr37.pdf` |
+| 2018 | `ncdc.mohfw.gov.in/uploads/pdf/amr38.pdf` |
+| 2017 | `ncdc.mohfw.gov.in/uploads/pdf/amr39.pdf` |
+
+Use the `/uploads/pdf/` paths. `wp-content` copies exist but the 2024 one
+truncates before its annexure.
+
+**Treat these URLs as ephemeral.** NCDC's have already migrated twice
+(`ncdc.gov.in` → `ncdc.mohfw.gov.in`, and `/WriteReadData/…` →
+`/wp-content/uploads/…` with `/uploads/pdf/amrNN.pdf` running in parallel), and
+citations published in 2022–2024 already point at dead links.
+
+**No edition carries a suggested citation, ISBN, DOI, report number, or named
+authors** — checked in the front matter of all eight. `src/references.py`
+generates a Vancouver entry per edition from the same registry the fetcher uses,
+so the bibliography cannot cite a document the pipeline never read. The form is
+a corporate author, the **reporting period spelled out in the title** (there is
+no ordinal, so "8th ed." has no counterpart here), `doi` and `isbn` left unset,
+and an access date recorded because of the URL churn. Only two editions print a
+publication date anywhere — July 2022 for the 2021-data report and July 2023 for
+the 2022-data one — so the other six carry `[date unknown]` rather than a year
+inferred from those two. The cover year is never substituted for it.
+
 ## Reconciling printed values
 
 Checking each cell's printed percentage against its own numerator and
