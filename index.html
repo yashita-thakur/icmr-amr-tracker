@@ -83,7 +83,7 @@
   .stats{
     margin-top:2.4rem;
     display:grid;
-    grid-template-columns:repeat(6, 1fr);
+    grid-template-columns:repeat(4, 1fr);
     border-top:1px solid var(--rule);
     border-left:1px solid var(--rule);
   }
@@ -220,6 +220,7 @@
       <li><a class="link" href="#scope">scope</a></li>
       <li><a class="link" href="#charts">charts</a></li>
       <li><a class="link" href="#rc">regions</a></li>
+      <li><a class="link" href="#narsnet">narsnet</a></li>
       <li><a class="link" href="#method">method</a></li>
       <li><a class="link" href="#roadmap">roadmap</a></li>
       <li><a class="link" href="#cite">cite</a></li>
@@ -229,21 +230,23 @@
 
 <header class="hero" id="top">
   <div class="wrap">
-    <div class="eyebrow">v2 · icmr-amrsn trend tracker</div>
+    <div class="eyebrow">v3 · icmr-amrsn + ncdc nars-net trend tracker</div>
     <h1 class="title">National AMR trends, <em>read by hand-checkable rule</em>.</h1>
     <p class="subtitle">ICMR publishes India's antimicrobial resistance surveillance results only as annual report PDFs — no API, no bulk download. This project turns the published national trend tables into structured data where every number carries the report edition and table it came from, so it can be traced back and checked against the source PDF.</p>
     <p class="byline">Yashita Thakur · <a href="https://orcid.org/0009-0004-7895-5250" target="_blank" rel="noopener">ORCID 0009-0004-7895-5250</a> · MIT licensed code</p>
 
     <div class="notice">
-      <strong>Independent, unofficial analysis.</strong> Not endorsed by or affiliated with ICMR. Where this dataset and an ICMR report differ, the ICMR report is authoritative and the difference is a limitation of this extraction.
+      <strong>Independent, unofficial analysis.</strong> Not endorsed by or affiliated with ICMR or NCDC. Where this dataset and a published report differ, the published report is authoritative and the difference is a limitation of this extraction.
     </div>
 
     <div class="stats">
-      <div class="stat"><span class="n">1,286</span><span class="l">national rows</span></div>
-      <div class="stat"><span class="n">1,365</span><span class="l">RC rows, v2</span></div>
+      <div class="stat"><span class="n">1,286</span><span class="l">AMRSN national rows</span></div>
+      <div class="stat"><span class="n">1,365</span><span class="l">AMRSN RC rows</span></div>
+      <div class="stat"><span class="n">558</span><span class="l">NARS-Net rows</span></div>
       <div class="stat"><span class="n">2017–24</span><span class="l">years covered</span></div>
-      <div class="stat"><span class="n">3</span><span class="l">report editions</span></div>
-      <div class="stat"><span class="n">129</span><span class="l">tests, pytest</span></div>
+      <div class="stat"><span class="n">3</span><span class="l">AMRSN editions</span></div>
+      <div class="stat"><span class="n">8</span><span class="l">NARS-Net editions</span></div>
+      <div class="stat"><span class="n">418</span><span class="l">tests, pytest</span></div>
       <div class="stat"><span class="n">17 / 432</span><span class="l">genuine revisions found</span></div>
     </div>
   </div>
@@ -290,7 +293,7 @@
       <figure class="chart-figure reveal" data-slug="klebsiella_pneumoniae">
         <img class="chart-static" src="docs/figures/trend_klebsiella_pneumoniae.png" alt="Klebsiella pneumoniae national susceptibility trend, 2017–2024, ten antibiotics">
         <div class="chart-live"></div>
-        <figcaption>K. pneumoniae, same panel. Points with fewer than 30 isolates tested, or where ICMR suppressed the percentage, are omitted rather than estimated.</figcaption>
+        <figcaption>K. pneumoniae, same panel. Points with fewer than 30 isolates tested, or where the source does not print a percentage, are omitted rather than estimated.</figcaption>
       </figure>
 
       <figure class="chart-figure reveal" data-slug="acinetobacter_baumannii">
@@ -347,6 +350,48 @@
     </div>
   </section>
 
+  <section id="narsnet" class="reveal">
+    <div class="wrap">
+      <div class="eyebrow">cross-network</div>
+      <h2 class="section-title">The second network</h2>
+      <p style="color:var(--muted); max-width:68ch; margin-bottom:1.4rem;">India has a second national AMR surveillance network: NCDC's <strong style="color:var(--parchment);">NARS-Net</strong>, which feeds WHO GLASS and draws on a different set of hospitals — state government medical colleges, where AMRSN is dominated by central institutes, private and mission hospitals. No institution appears on both rosters. All eight NARS-Net editions, 2017–2024, are extracted here for the two organisms both networks report at species level: <em>E. coli</em> and <em>S. aureus</em>, 558 rows.</p>
+
+      <div class="notice" style="margin-top:0; margin-bottom:2.5rem;">
+        <strong>These two networks share no comparison value.</strong> AMRSN publishes <em>% susceptible</em>; NARS-Net publishes <em>% resistant</em>. Converting one to the other needs the intermediate fraction, and AMRSN publishes no <em>% intermediate</em> for either organism — so an AMRSN % resistant cannot be computed at all. The two are shown here as parallel series and are never joined on one value or one axis, not even with an inverted axis: a reader who misses the inversion gets the conclusion backwards. Every figure below is one network alone, with a single exception, noted where it appears.
+      </div>
+
+      <figure class="reveal">
+        <img src="docs/figures/narsnet_escherichia_coli.png" alt="E. coli NARS-Net percent resistant, blood and urine isolates, 2017-2024, seven antibiotics">
+        <figcaption><em>E. coli</em>, NARS-Net. <strong style="color:var(--warn);">High is bad here</strong> — this is % resistant, the opposite reading from every chart above. Blood and urine are the only specimen columns NARS-Net prints in all eight editions; the rest are either composites whose membership changes between editions or columns that begin in 2021. Only the drugs both networks report are drawn, and ceftazidime is left out because NARS-Net prints it in one edition only. Amikacin, meropenem and piperacillin-tazobactam start mid-chart because the panel widens from nine drugs to seventeen in 2021.</figcaption>
+      </figure>
+
+      <figure class="reveal">
+        <img src="docs/figures/narsnet_staphylococcus_aureus.png" alt="S. aureus NARS-Net percent resistant, blood isolates, 2017-2024, eight antibiotics">
+        <figcaption><em>S. aureus</em>, blood only — NARS-Net never surveils it from urine, and its pus-aspirate column exists only from 2021. Teicoplanin joins the panel in 2021; tetracycline runs for 2017 and 2018 alone. Linezolid sits near zero throughout. Vancomycin is not drawn: it is a printed row in the 2018 edition only, against 14 isolates, and the 2019 and 2020 editions explain the omission — no site reported vancomycin MICs by broth microdilution. That is a method-availability constraint, not a gap in interest.</figcaption>
+      </figure>
+
+      <h3 style="font-family:'IBM Plex Mono',monospace; font-size:0.85rem; color:var(--patina); text-transform:uppercase; letter-spacing:0.04em; margin:3rem 0 1rem;">Which network reports what</h3>
+      <p style="color:var(--muted); max-width:68ch; margin-bottom:2rem;">The panels overlap without matching. These two grids answer one question per cell — which network reports this organism, drug and year, on which metric, from which specimen basis — and nothing else. The companion file <code class="mono">comparability_matrix.json</code> carries no percentage and no count from either network, enforced at build time rather than intended, because a matrix carrying values would be exactly the join that must not exist.</p>
+
+      <figure class="reveal">
+        <img src="docs/figures/narsnet_comparability_escherichia_coli.png" alt="Grid of 21 E. coli antibiotics by 8 years showing which network reports each cell, with a specimen-basis strip beneath">
+        <figcaption><em>E. coli</em>: 21 drugs × 8 years = 168 cells — 45 reported by both networks, 56 by NARS-Net only, 35 by AMRSN only, 32 by neither. <strong style="color:var(--parchment);">Panel-level overlap is not cell-level overlap.</strong> Eight drugs are reported by both networks somewhere in the series, but only four in every year. Ceftazidime is the sharp case: it is in the AMRSN panel throughout and in a NARS-Net table in 2017 alone, so it counts as a shared drug on one of its eight cells. The strip beneath shows the 2021 break, where the pooled and PA+OSBF columns end and pus aspirate and OSBF begin.</figcaption>
+      </figure>
+
+      <figure class="reveal">
+        <img src="docs/figures/narsnet_comparability_staphylococcus_aureus.png" alt="Grid of 13 S. aureus antibiotics by 8 years showing which network reports each cell, with a specimen-basis strip beneath">
+        <figcaption><em>S. aureus</em>: 13 × 8 = 104 cells — 55 both, 16 NARS-Net only, 33 AMRSN only, none unreported by both. Vancomycin is this organism's sharp case, shared on one cell of eight (2018). Oxacillin is AMRSN-only throughout: it never appears as a row in any NARS-Net edition, which uses cefoxitin as the sole MRSA surrogate. The specimen bases are not equivalent either, and not in the same way for the two organisms — AMRSN's pooled column is captioned "all samples (except faeces and urine)" for <em>E. coli</em> but "all samples", with no exclusion stated, for <em>S. aureus</em>.</figcaption>
+      </figure>
+
+      <h3 style="font-family:'IBM Plex Mono',monospace; font-size:0.85rem; color:var(--patina); text-transform:uppercase; letter-spacing:0.04em; margin:3rem 0 1rem;">The one axis they may share</h3>
+
+      <figure class="reveal">
+        <img src="docs/figures/narsnet_surveillance_volume.png" alt="Isolates tested per year for both networks, E. coli and S. aureus, on a log count axis">
+        <figcaption>Counts, not percentages — which is why this is the single figure here that puts both networks on one axis. An isolate tested is the same unit on both sides in a way the two resistance metrics are not. Each line is the largest printed denominator in that year's panel: neither network publishes "isolates tested" for an organism, only isolates tested against each drug, and those differ widely inside one year. The trajectories diverge — NARS-Net grows steadily while AMRSN's <em>E. coli</em> denominators fall sharply in 2023, from 14,728 tested in 2022 to 7,559, recovering to 11,679 in 2024. That dip is in the source and is not a revision: the 2023 and 2024 editions print every 2023 cell identically. What is comparable here is the shape over time, not the size — the two cover different specimen populations.</figcaption>
+      </figure>
+    </div>
+  </section>
+
   <section id="method" class="reveal" class="reveal">
     <div class="wrap">
       <div class="eyebrow">method</div>
@@ -389,7 +434,7 @@
 &nbsp;&nbsp;<span class="k">"antibiotic"</span>: <span class="s">"meropenem"</span>,<br>
 &nbsp;&nbsp;<span class="k">"year"</span>: 2024,<br>
 &nbsp;&nbsp;<span class="k">"susceptible_n"</span>: 4276, <span class="k">"tested_n"</span>: 12189,<br>
-&nbsp;&nbsp;<span class="k">"susceptible_pct"</span>: 35.1, <span class="c">// as printed by ICMR — null if ICMR suppressed it</span><br>
+&nbsp;&nbsp;<span class="k">"susceptible_pct"</span>: 35.1, <span class="c">// as printed — null where the source does not print a percentage</span><br>
 &nbsp;&nbsp;<span class="k">"computed_pct"</span>: 35.08, <span class="c">// derived, labelled as such</span><br>
 &nbsp;&nbsp;<span class="k">"source_report_year"</span>: 2024, <span class="k">"source_table"</span>: <span class="s">"Table 2.7"</span>,<br>
 &nbsp;&nbsp;<span class="k">"flags"</span>: <span class="s">""</span><br>
@@ -405,9 +450,8 @@
       <ul class="roadmap-list">
         <li><span class="rm-tag">v1</span><span class="rm-desc"><em>E. coli</em> and <em>K. pneumoniae</em>, 2017–2024, 3 editions.</span></li>
         <li><span class="rm-tag">v1.1</span><span class="rm-desc">Six organisms across three chapters — <em>A. baumannii</em>, <em>P. aeruginosa</em> (non-fermenters) and <em>S. aureus</em>/MRSA (staphylococci) added.</span></li>
-        <li><span class="rm-tag current">v2 — now</span><span class="rm-desc">Regional Centre breakdowns for the three organisms with an RC-wise table — flagging editions whose RC panel changed rather than averaging across it as if it were stable.</span></li>
-        <li><span class="rm-tag">v3</span><span class="rm-desc">Cross-reference against NCDC NARS-Net where both networks report the same pathogen/antibiotic, surfacing where they differ rather than pooling.</span></li>
-        <li><span class="rm-tag">v4</span><span class="rm-desc">Extend the series back to 2014 — 2019 and 2021 editions confirmed reachable as plain PDFs, unfetched so far.</span></li>
+        <li><span class="rm-tag">v2</span><span class="rm-desc">Regional Centre breakdowns for the three organisms with an RC-wise table — flagging editions whose RC panel changed rather than averaging across it as if it were stable.</span></li>
+        <li><span class="rm-tag current">v3 — now</span><span class="rm-desc">NCDC NARS-Net carried as a parallel series — all eight editions, 2017–2024, <em>E. coli</em> and <em>S. aureus</em>. The two networks are published side by side and never joined: they share no comparison value.</span></li>
       </ul>
     </div>
   </section>
@@ -435,6 +479,14 @@
         <li class="ref">Indian Council of Medical Research. Annual report: Antimicrobial Resistance Research and Surveillance Network, January 2022 to December 2022. 6th ed. New Delhi: Indian Council of Medical Research; 2022. Available from: <a href="https://www.icmr.gov.in/icmrobject/custom_data/pdf/resource-guidelines/AMRSN_Annual_Report_2022.pdf">https://www.icmr.gov.in/icmrobject/custom_data/pdf/resource-guidelines/AMRSN_Annual_Report_2022.pdf</a></li>
         <li class="ref">Indian Council of Medical Research. Annual report: Antimicrobial Resistance Research and Surveillance Network, January 2023 to December 2023. 7th ed. New Delhi: Indian Council of Medical Research; 2023. Available from: <a href="https://www.icmr.gov.in/icmrobject/uploads/Documents/1725536060_annual_report_2023.pdf">https://www.icmr.gov.in/icmrobject/uploads/Documents/1725536060_annual_report_2023.pdf</a></li>
         <li class="ref">Indian Council of Medical Research. Annual report: Antimicrobial Resistance Research and Surveillance Network, January 2024 to December 2024. 8th ed. New Delhi: Indian Council of Medical Research; 2024. Available from: <a href="https://www.icmr.gov.in/icmrobject/uploads/Report/1763981012_icmramrsnannualreport2024.pdf">https://www.icmr.gov.in/icmrobject/uploads/Report/1763981012_icmramrsnannualreport2024.pdf</a></li>
+        <li class="ref">National Centre for Disease Control. National Antimicrobial Resistance Surveillance Network (NARS-Net) annual report: reporting period January-December 2017 [Internet]. New Delhi: National Centre for Disease Control, Directorate General of Health Services, Ministry of Health and Family Welfare, Government of India; [date unknown] [cited 2026 Sep 1]. Available from: <a href="https://ncdc.mohfw.gov.in/uploads/pdf/amr39.pdf">https://ncdc.mohfw.gov.in/uploads/pdf/amr39.pdf</a></li>
+        <li class="ref">National Centre for Disease Control. National Antimicrobial Resistance Surveillance Network (NARS-Net) annual report: reporting period January-December 2018 [Internet]. New Delhi: National Centre for Disease Control, Directorate General of Health Services, Ministry of Health and Family Welfare, Government of India; [date unknown] [cited 2026 Sep 1]. Available from: <a href="https://ncdc.mohfw.gov.in/uploads/pdf/amr38.pdf">https://ncdc.mohfw.gov.in/uploads/pdf/amr38.pdf</a></li>
+        <li class="ref">National Centre for Disease Control. National Antimicrobial Resistance Surveillance Network (NARS-Net) annual report: reporting period January-December 2019 [Internet]. New Delhi: National Centre for Disease Control, Directorate General of Health Services, Ministry of Health and Family Welfare, Government of India; [date unknown] [cited 2026 Sep 1]. Available from: <a href="https://ncdc.mohfw.gov.in/uploads/pdf/amr37.pdf">https://ncdc.mohfw.gov.in/uploads/pdf/amr37.pdf</a></li>
+        <li class="ref">National Centre for Disease Control. National Antimicrobial Resistance Surveillance Network (NARS-Net) annual report: reporting period January-December 2020 [Internet]. New Delhi: National Centre for Disease Control, Directorate General of Health Services, Ministry of Health and Family Welfare, Government of India; [date unknown] [cited 2026 Sep 1]. Available from: <a href="https://ncdc.mohfw.gov.in/uploads/pdf/amr36.pdf">https://ncdc.mohfw.gov.in/uploads/pdf/amr36.pdf</a></li>
+        <li class="ref">National Centre for Disease Control. National Antimicrobial Resistance Surveillance Network (NARS-Net) annual report: reporting period January-December 2021 [Internet]. New Delhi: National Centre for Disease Control, Directorate General of Health Services, Ministry of Health and Family Welfare, Government of India; 2022 [cited 2026 Sep 1]. Available from: <a href="https://ncdc.mohfw.gov.in/uploads/pdf/amr35.pdf">https://ncdc.mohfw.gov.in/uploads/pdf/amr35.pdf</a></li>
+        <li class="ref">National Centre for Disease Control. National Antimicrobial Resistance Surveillance Network (NARS-Net) annual report: reporting period January-December 2022 [Internet]. New Delhi: National Centre for Disease Control, Directorate General of Health Services, Ministry of Health and Family Welfare, Government of India; 2023 [cited 2026 Sep 1]. Available from: <a href="https://ncdc.mohfw.gov.in/uploads/pdf/amr34.pdf">https://ncdc.mohfw.gov.in/uploads/pdf/amr34.pdf</a></li>
+        <li class="ref">National Centre for Disease Control. National Antimicrobial Resistance Surveillance Network (NARS-Net) annual report: reporting period January-December 2023 [Internet]. New Delhi: National Centre for Disease Control, Directorate General of Health Services, Ministry of Health and Family Welfare, Government of India; [date unknown] [cited 2026 Sep 1]. Available from: <a href="https://ncdc.mohfw.gov.in/uploads/pdf/amr32.pdf">https://ncdc.mohfw.gov.in/uploads/pdf/amr32.pdf</a></li>
+        <li class="ref">National Centre for Disease Control. National Antimicrobial Resistance Surveillance Network (NARS-Net) annual report: reporting period January-December 2024 [Internet]. New Delhi: National Centre for Disease Control, Directorate General of Health Services, Ministry of Health and Family Welfare, Government of India; [date unknown] [cited 2026 Sep 1]. Available from: <a href="https://ncdc.mohfw.gov.in/uploads/pdf/amr30.pdf">https://ncdc.mohfw.gov.in/uploads/pdf/amr30.pdf</a></li>
         <li class="ref">Kaur J, Dhama AS, Buttolia H, Kaur J, Walia K, Ohri V, Kumar V, Lynn AM, Srivastava A, Singh H. ICMR's Antimicrobial Resistance Surveillance system (i-AMRSS): a promising tool for global antimicrobial resistance surveillance. JAC Antimicrob Resist. 2021;3(1):dlab023. doi:10.1093/jacamr/dlab023. Available from: <a href="https://doi.org/10.1093/jacamr/dlab023">https://doi.org/10.1093/jacamr/dlab023</a></li>
       </ol>
       <!-- REFERENCES:END -->
@@ -451,8 +503,8 @@
 
 <footer>
   <div class="wrap" style="display:flex; justify-content:space-between; width:100%; flex-wrap:wrap; gap:0.6rem;">
-    <span>ICMR-AMRSN Trend Tracker · v2</span>
-    <span>independent &amp; unofficial · not affiliated with ICMR</span>
+    <span>ICMR-AMRSN + NCDC NARS-Net Trend Tracker · v3</span>
+    <span>independent &amp; unofficial · not affiliated with ICMR or NCDC</span>
   </div>
 </footer>
 

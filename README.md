@@ -610,14 +610,6 @@ extracted numbers may then differ from previously published results.
 - **V3 (current)** — NCDC NARS-Net carried as a parallel series, all eight
   editions 2017–2024, *E. coli* and *S. aureus*. The two networks are published
   side by side and never pooled: they do not share a comparison value.
-- **V4** — Extend the AMRSN series back to 2014.
-
-> **Note for V4:** the spec assumed pre-2022 editions were reachable only
-> through Joomla "flipbook" viewers needing reverse-engineering. That turns out
-> to be unnecessary — at least the 2019 and 2021 editions are served as plain
-> PDFs from the same `custom_data/pdf/resource-guidelines/` directory as the
-> 2022 edition. Both URLs are recorded in `src/sources.py`
-> (`KNOWN_ARCHIVE_URLS`), unfetched and unverified.
 
 ---
 
