@@ -1,4 +1,4 @@
-# India AMR Trend Tracker — ICMR-AMRSN + NCDC NARS-Net
+# India AMR Trend Tracker: ICMR-AMRSN + NCDC NARS-Net
 
 Extracts India's national antimicrobial resistance surveillance results from the
 annual reports of **both** national networks — ICMR's Antimicrobial Resistance
