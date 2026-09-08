@@ -1,0 +1,19 @@
+# Identity consolidation.
+#
+# CLAUDE.md makes this repository's authorship a standing rule: commits are
+# authored and committed as yashita-thakur-2 <yashitathakur6yt@gmail.com>,
+# because the commit history is part of the provenance chain that CITATION.cff
+# and DATA_LICENSE.md point at.
+#
+# One commit -- fc8346a, a one-character edit to the README title -- was made
+# through the GitHub web editor, which recorded a different address for the same
+# author. It was already published when that was noticed, so it is mapped here
+# rather than rewritten: git log, git shortlog and git blame all report the
+# canonical identity, and no published history is discarded to achieve it.
+#
+# The COMMITTER on that commit remains GitHub <noreply@github.com>, and is
+# deliberately not mapped. A .mailmap is for consolidating alternate addresses
+# of the same person; noreply@github.com is a web interface, not this author,
+# and mapping it would assert something untrue about who made the commit.
+
+yashita-thakur-2 <yashitathakur6yt@gmail.com> <yashitathakur.contact@gmail.com>
