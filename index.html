@@ -322,7 +322,7 @@
 
       <figure class="reveal">
         <img src="docs/figures/cross_report_revisions.png" alt="Chart showing a count revision between report editions for E. coli piperacillin-tazobactam 2022">
-        <figcaption>Where editions report the same year differently. 17 genuine revisions across 432 comparable (organism, antibiotic, year) combinations. Shown here are the count revisions &mdash; changes to the numerator or denominator itself, which a percentage-only comparison would miss entirely.</figcaption>
+        <figcaption>Where editions report the same year differently. 17 genuine revisions across 432 comparable (organism, antibiotic, year) combinations. Shown here are the count revisions &mdash; changes to the numerator or denominator itself, which a percentage-only comparison would miss entirely. Those 432 comparisons exist only because every AMRSN edition reprints the whole series back to 2017 rather than just its own year &mdash; more to publish each time, and what makes a revision like this findable at all.</figcaption>
       </figure>
     </div>
   </section>
@@ -354,7 +354,7 @@
     <div class="wrap">
       <div class="eyebrow">cross-network</div>
       <h2 class="section-title">The second network</h2>
-      <p style="color:var(--muted); max-width:68ch; margin-bottom:1.4rem;">India has a second national AMR surveillance network: NCDC's <strong style="color:var(--parchment);">NARS-Net</strong>, which feeds WHO GLASS and draws on a different set of hospitals — state government medical colleges, where AMRSN is dominated by central institutes, private and mission hospitals. No institution appears on both rosters. All eight NARS-Net editions, 2017–2024, are extracted here for the two organisms both networks report at species level: <em>E. coli</em> and <em>S. aureus</em>, 558 rows.</p>
+      <p style="color:var(--muted); max-width:68ch; margin-bottom:1.4rem;">India has a second national AMR surveillance network: NCDC's <strong style="color:var(--parchment);">NARS-Net</strong>, which feeds WHO GLASS and draws on a different set of hospitals — state government medical colleges, where AMRSN is dominated by central institutes, private and mission hospitals. No institution appears on both rosters. All eight NARS-Net editions, 2017–2024, are extracted here for the two organisms both networks report at species level: <em>E. coli</em> and <em>S. aureus</em>, 558 rows. NARS-Net prints every drug separately by specimen type rather than pooling them into one figure — more work to produce than a single table, and the only reason a specimen-matched comparison between the two networks is possible at all.</p>
 
       <div class="notice" style="margin-top:0; margin-bottom:2.5rem;">
         <strong>These two networks share no comparison value.</strong> AMRSN publishes <em>% susceptible</em>; NARS-Net publishes <em>% resistant</em>. Converting one to the other needs the intermediate fraction, and AMRSN publishes no <em>% intermediate</em> for either organism — so an AMRSN % resistant cannot be computed at all. The two are shown here as parallel series and are never joined on one value or one axis, not even with an inverted axis: a reader who misses the inversion gets the conclusion backwards. Every figure below is one network alone, with a single exception, noted where it appears.
@@ -461,7 +461,7 @@
       <div class="eyebrow">cite / connect</div>
       <h2 class="section-title">Using this</h2>
       <div class="terminal-box">
-        <div class="row"><span class="cmd">$ cite --project</span><span class="arrow">→</span><span>see CITATION.cff — cite this project and the specific ICMR report edition/table for each value used</span></div>
+        <div class="row"><span class="cmd">$ cite --project</span><span class="arrow">→</span><span>see CITATION.cff — cite this project and, for each value used, the network it came from (ICMR-AMRSN or NCDC NARS-Net) with its report edition and table</span></div>
         <div class="row"><span class="cmd">$ license --code</span><span class="arrow">→</span><span>MIT</span></div>
         <div class="row"><span class="cmd">$ license --data</span><span class="arrow">→</span><span>see DATA_LICENSE.md — fetched at run time, never redistributed here</span></div>
         <div class="row"><span class="cmd">$ connect --github</span><span class="arrow">→</span><a href="https://github.com/yashita-thakur" target="_blank" rel="noopener">github.com/yashita-thakur</a></div>
@@ -492,9 +492,11 @@
       <!-- REFERENCES:END -->
       <div class="maint">
         <strong>Scope and maintenance.</strong> Data is current through the ICMR AMRSN
-        8th edition (2024). This repository is not actively maintained against future
-        editions &mdash; for anything published after 2024, check the
-        <a href="https://iamrsn.icmr.org.in/">ICMR AMRSN site</a> directly.
+        8th edition (2024) and through all eight NCDC NARS-Net editions, 2017&ndash;2024.
+        This repository is not actively maintained against future editions &mdash; for
+        anything published after 2024, check the
+        <a href="https://iamrsn.icmr.org.in/">ICMR AMRSN site</a> or the
+        <a href="https://ncdc.mohfw.gov.in/reports/">NCDC reports page</a> directly.
       </div>
     </div>
   </section>

@@ -70,13 +70,17 @@ plainly why that year's isolate counts were down.
 > [NCDC reports page](https://ncdc.mohfw.gov.in/reports/) directly. Stating the
 > boundary is preferable to implying a currency this project does not have.
 
-## Coverage
+## Coverage — ICMR-AMRSN national series
+
+This section describes the AMRSN national dataset only. NARS-Net coverage is set
+out separately in
+[NARS-Net cross-reference](#nars-net-cross-reference-v3).
 
 | | |
 |---|---|
 | **Organisms** | *E. coli*, *K. pneumoniae*, *A. baumannii*, *P. aeruginosa*, *S. aureus*, MRSA |
 | **Chapters** | Enterobacterales, non-fermenting Gram-negative bacilli, staphylococci |
-| **Specimens** | All samples (each chapter's own exclusions; never urine-only tables) |
+| **Specimens** | AMRSN's "all samples" trend tables, with each chapter's own printed exclusions — the *E. coli* and *K. pneumoniae* captions exclude faeces and urine, the staphylococcal ones state no exclusion. The separate urine-only tables are never read. |
 | **Years** | 2017–2024 |
 | **Report editions** | 2022 (6th), 2023 (7th), 2024 (8th) |
 | **Rows** | 1,286 |
@@ -359,9 +363,10 @@ Three independent layers:
    labels read rather than inferred, no susceptibility above 100%, no
    division by a zero denominator.
 
-All 41 national fixtures pass (plus 10 hand-verified RC-cell fixtures for V2).
-`pytest` runs 129 tests; the ones needing the PDFs skip cleanly on a fresh
-clone until `python -m src.fetch` has been run.
+All 41 national fixtures pass, plus 10 hand-verified RC-cell fixtures for V2 and
+86 hand-verified NARS-Net fixtures for V3. `pytest` runs 418 tests; the ones
+needing the PDFs skip cleanly on a fresh clone until `python -m src.fetch` has
+been run.
 
 For MRSA there is also a definitional check available nowhere else: MRSA is
 *defined* by methicillin/cefoxitin resistance, so cefoxitin susceptibility in
@@ -743,8 +748,7 @@ by brute force, because a value settled by iteration order would not be a fact
 about the source.
 
 What the figure shows is a **divergence in trajectory**. NARS-Net grows steadily,
-falling only in 2020 — the edition published from inside the pandemic, which says
-plainly why its counts are down — with *S. aureus* falling once more in 2023.
+falling only in 2020, with *S. aureus* falling once more in 2023.
 AMRSN's *E. coli* denominators do something else: **14,728** tested in 2022,
 **7,559** in 2023, **11,679** in 2024. **That dip is in the source and is not a
 revision.** Every 2023 cell is identical in the 2023 and 2024 editions — both
@@ -842,13 +846,12 @@ inferred from those two. The cover year is never substituted for it.
 ## Reconciling printed values
 
 Checking each cell's printed percentage against its own numerator and
-denominator turned up three cells where the printed percentage and the printed
-counts do not fully reconcile. These are carried exactly as printed and
-flagged — **not adjusted** — because any adjustment would be this project's
-inference, and the point of this repository is that every number can be traced
-to a printed table. A handful of cells not reconciling exactly, across several
-thousand printed values spanning three editions, is an ordinary feature of data
-work at this scale rather than a shortcoming of the reports.
+denominator turned up three rows where the printed percentage and the printed
+counts do not fully reconcile. They are carried exactly as printed and flagged
+`pct_mismatch` — **nothing is corrected and nothing is dropped** — because any
+adjustment would be this project's inference rather than the source's figure,
+and the point of this repository is that every number can be traced to a
+printed table.
 
 **1. A denominator that reads differently across editions.**
 *P. aeruginosa* / piperacillin-tazobactam / 2022 is printed as
@@ -862,7 +865,9 @@ one fewer digit and reconciles with the printed percentage.
 editions, which is 58.88%. The 2022 edition prints the percentage as **58.5**;
 the 2023 and 2024 editions print **58.8**.
 
-Neither is visible from a single edition's table read on its own.
+Neither is visible from a single edition's table read on its own. Three rows out
+of several thousand printed values spanning three editions is an ordinary rate
+for data work at this scale.
 
 `viz/trend_charts.py --revisions` renders these, plotting whichever quantity
 actually moved. Charts elsewhere in this repo use the most recent edition
@@ -949,6 +954,8 @@ extracted numbers may then differ from previously published results.
 
 ## Citing
 
-Cite **both** this project (see `CITATION.cff`) and the underlying ICMR AMRSN
-report edition and table number for each value used. Every row carries the
-fields needed to do so.
+Cite **both** this project (see `CITATION.cff`) and the underlying annual
+report — the network the row came from (ICMR-AMRSN or NCDC NARS-Net), its
+report edition, and its table number — for each value used. Every row in both
+datasets carries the fields needed to do so, and `DATA_LICENSE.md` sets out the
+required attribution in full.
