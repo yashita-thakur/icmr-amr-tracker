@@ -1,11 +1,21 @@
-# ICMR-AMRSN Trend Tracker
+# India AMR Trend Tracker — ICMR-AMRSN + NCDC NARS-Net
 
-Extracts India's national antimicrobial susceptibility trends from the ICMR
-Antimicrobial Resistance Surveillance Network (AMRSN) annual reports, and
-publishes them as structured, fully provenance-annotated data.
+Extracts India's national antimicrobial resistance surveillance results from the
+annual reports of **both** national networks — ICMR's Antimicrobial Resistance
+Surveillance Network (**AMRSN**) and NCDC's National Antimicrobial Resistance
+Surveillance Network (**NARS-Net**) — and publishes them as structured, fully
+provenance-annotated data.
 
-> Derived from publicly available ICMR AMRSN annual reports (2017–2024).
-> Independent, unofficial analysis — not endorsed by or affiliated with ICMR.
+The two are carried as **parallel series and never pooled**. They do not share a
+comparison value: AMRSN publishes % susceptible, NARS-Net publishes % resistant,
+and AMRSN publishes no % intermediate for the organisms both report, so an AMRSN
+% resistant cannot be computed.
+
+> Derived from the publicly available annual reports of two independent Indian
+> national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net
+> (2017-2024). The two are published here as parallel series and are never
+> pooled. Independent, unofficial analysis - not endorsed by or affiliated with
+> ICMR or NCDC.
 
 **Author:** Yashita Thakur ([ORCID 0009-0004-7895-5250](https://orcid.org/0009-0004-7895-5250))
 **Code licence:** MIT · **Data licence:** [see `DATA_LICENSE.md`](DATA_LICENSE.md)

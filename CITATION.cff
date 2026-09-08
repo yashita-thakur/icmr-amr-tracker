@@ -1,19 +1,26 @@
 cff-version: 1.2.0
-title: "ICMR-AMRSN Trend Tracker"
-message: "If you use this software or dataset, please cite it, and also cite the underlying ICMR AMRSN annual reports."
+title: "India AMR Trend Tracker (ICMR-AMRSN + NCDC NARS-Net)"
+message: "If you use this software or dataset, please cite it, and also cite the underlying annual report — the ICMR-AMRSN or NCDC NARS-Net edition and table each value came from."
 type: software
 authors:
   - given-names: Yashita
     family-names: Thakur
     orcid: "https://orcid.org/0009-0004-7895-5250"
-repository-code: "https://github.com/yashita-thakur/icmr-amrsn-trend-tracker"
+repository-code: "https://github.com/yashita-thakur/icmr-amr-tracker"
 abstract: >-
   An open-source, reproducible pipeline that extracts national antimicrobial
-  susceptibility trend tables from the Indian Council of Medical Research (ICMR)
-  Antimicrobial Resistance Surveillance Network (AMRSN) annual reports and
-  publishes them as structured, fully provenance-annotated data. Every extracted
-  value carries the source report year and table number, enabling detection of
-  cross-report revisions of the same underlying year.
+  resistance surveillance results from the annual reports of both of India's
+  national AMR surveillance networks — the Indian Council of Medical Research
+  (ICMR) Antimicrobial Resistance Surveillance Network (AMRSN) and the National
+  Centre for Disease Control (NCDC) National Antimicrobial Resistance
+  Surveillance Network (NARS-Net) — and publishes them as structured, fully
+  provenance-annotated data. Every extracted value carries the source report
+  year and table number, enabling detection of cross-report revisions of the
+  same underlying year. The two networks are published as parallel series and
+  are never pooled: AMRSN reports percent susceptible and NARS-Net percent
+  resistant, and because AMRSN publishes no percent intermediate for the
+  organisms both networks report, an AMRSN percent resistant cannot be computed
+  and the two series share no comparison value.
 keywords:
   - antimicrobial resistance
   - AMR
@@ -21,8 +28,11 @@ keywords:
   - India
   - ICMR
   - AMRSN
+  - NCDC
+  - NARS-Net
+  - data extraction
   - open data
   - reproducible research
 license: MIT
-version: 0.1.0
-date-released: "2026-08-25"
+version: 0.3.0
+date-released: "2026-09-05"
