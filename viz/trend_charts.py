@@ -67,6 +67,42 @@ FIGURES_DIR = REPO_ROOT / "docs" / "figures"
 # lines read first.
 CARBAPENEMS = {"meropenem", "imipenem", "ertapenem"}
 
+# A percentage axis runs 0-100, but drawing it with those as the limits puts any
+# series pinned at either end directly on top of the frame, where the line and
+# the border cannot be told apart. That is not a rare edge case here: MRSA
+# cefoxitin sits at a definitional 0%, vancomycin, teicoplanin, tigecycline and
+# linezolid hold near 100% for the whole series, and NARS-Net linezolid runs
+# along 0%. The axis is padded past both ends and the ticks pinned to 0-100, so
+# the data range is unchanged, the labels still read 0 and 100, and there is
+# always visible whitespace between a line and the frame.
+PCT_AXIS_PAD = 5.0
+
+
+def _percent_axis(ax, label):
+    ax.set_ylabel(label)
+    ax.set_ylim(-PCT_AXIS_PAD, 100 + PCT_AXIS_PAD)
+    ax.set_yticks(range(0, 101, 20))
+    ax.grid(alpha=0.25, linestyle=":")
+
+
+def _margin_legend(fig, ax, fig_h, ncol=4, offset=0.52):
+    """Put the legend in the figure's top margin, never on the axes.
+
+    These panels carry ten or eleven series over a full 0-100 range, so no
+    corner of the plot area is reliably free -- the MRSA legend sat on the
+    93-100% cluster, and the RC legends sat on plotted points in both charts.
+    `loc="best"` only picks the least-bad overlap; the margin has none.
+    """
+    fig.legend(
+        *ax.get_legend_handles_labels(),
+        fontsize=8,
+        ncol=ncol,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 1 - offset / fig_h),
+        frameon=False,
+        title="Antibiotic",
+    )
+
 
 def load_rows():
     csv_path = PROCESSED_DIR / "amr_trends.csv"
@@ -207,7 +243,16 @@ def chart_organism(series, organism, out_path):
     if not abx:
         return None
 
-    fig, ax = plt.subplots(figsize=(9, 5.5))
+    fig_w, panel_h = 9.0, 4.8
+    left, right, top, bottom = 0.85, 0.25, 1.50, 1.25
+    fig_h = top + panel_h + bottom
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
+    fig.subplots_adjust(
+        left=left / fig_w,
+        right=1 - right / fig_w,
+        top=1 - top / fig_h,
+        bottom=bottom / fig_h,
+    )
     cmap = plt.get_cmap("tab10")
     for i, antibiotic in enumerate(abx):
         pts = sorted(
@@ -228,19 +273,15 @@ def chart_organism(series, organism, out_path):
             label=antibiotic,
         )
 
-    ax.set_title(
+    fig.suptitle(
         "{}: national susceptibility trend".format(organism),
         fontsize=13,
         style="italic",
+        y=1 - 0.28 / fig_h,
     )
     ax.set_xlabel("Year")
-    ax.set_ylabel("% susceptible")
-    ax.set_ylim(0, 100)
-    ax.grid(alpha=0.25, linestyle=":")
-    ax.legend(
-        fontsize=8, ncol=2, loc="upper right", frameon=True, title="Antibiotic"
-    )
-    fig.tight_layout(rect=(0, 0.08, 1, 1))
+    _percent_axis(ax, "% susceptible")
+    _margin_legend(fig, ax, fig_h)
     _footer(
         fig,
         "Carbapenems shown as solid lines. Not plotted: points with fewer than "
@@ -324,7 +365,16 @@ def chart_organism_rc(rc_rows, organism, out_path):
     panel = rc_baseline_panel(rc_rows, organism)
     dropped = [rc for rc in panel if rc not in edition_panel]
 
-    fig, ax = plt.subplots(figsize=(9, 5.5))
+    fig_w, panel_h = 9.0, 4.8
+    left, right, top, bottom = 0.85, 0.25, 1.50, 1.40
+    fig_h = top + panel_h + bottom
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
+    fig.subplots_adjust(
+        left=left / fig_w,
+        right=1 - right / fig_w,
+        top=1 - top / fig_h,
+        bottom=bottom / fig_h,
+    )
     cmap = plt.get_cmap("tab10")
     xs = list(range(len(panel)))
     for i, antibiotic in enumerate(abx):
@@ -346,21 +396,17 @@ def chart_organism_rc(rc_rows, organism, out_path):
             label=antibiotic,
         )
 
-    ax.set_title(
+    fig.suptitle(
         "{}: susceptibility by Regional Centre".format(organism),
         fontsize=13,
         style="italic",
+        y=1 - 0.28 / fig_h,
     )
     ax.set_xlabel("Regional Centre")
-    ax.set_ylabel("% susceptible")
-    ax.set_ylim(0, 100)
+    _percent_axis(ax, "% susceptible")
     ax.set_xticks(xs)
     ax.set_xticklabels([rc[2:] for rc in panel], fontsize=8)
-    ax.grid(alpha=0.25, linestyle=":")
-    ax.legend(
-        fontsize=8, ncol=2, loc="upper right", frameon=True, title="Antibiotic"
-    )
-    fig.tight_layout(rect=(0, 0.08, 1, 1))
+    _margin_legend(fig, ax, fig_h)
     dropped_note = (
         " RC {} not in this edition's panel.".format(", ".join(rc[2:] for rc in dropped))
         if dropped
@@ -653,9 +699,7 @@ def chart_narsnet_organism(rows, matrix, organism, out_path):
             loc="left",
             color="#444444",
         )
-        ax.set_ylabel("% resistant")
-        ax.set_ylim(0, 100)
-        ax.grid(alpha=0.25, linestyle=":")
+        _percent_axis(ax, "% resistant")
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
     axes[-1, 0].set_xlabel("Year")
