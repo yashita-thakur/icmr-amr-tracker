@@ -1,17 +1,13 @@
 # India AMR Trend Tracker: ICMR-AMRSN + NCDC NARS-Net
 
-*(Personal Project, Before Medical School)*
-
 Extracts India's national antimicrobial resistance surveillance results from the
 annual reports of **both** national networks — ICMR's Antimicrobial Resistance
 Surveillance Network (**AMRSN**) and NCDC's National Antimicrobial Resistance
 Surveillance Network (**NARS-Net**) — and publishes them as structured, fully
-provenance-annotated data.
+provenance-annotated data, carried as parallel series.
 
-The two are carried as **parallel series and never pooled**. They do not share a
-comparison value: AMRSN publishes % susceptible, NARS-Net publishes % resistant,
-and AMRSN publishes no % intermediate for the organisms both report, so an AMRSN
-% resistant cannot be computed.
+**Author:** Yashita Thakur ([ORCID 0009-0004-7895-5250](https://orcid.org/0009-0004-7895-5250))
+**Code licence:** MIT · **Data licence:** [see `DATA_LICENSE.md`](DATA_LICENSE.md)
 
 > Derived from the publicly available annual reports of two independent Indian
 > national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net
@@ -19,99 +15,70 @@ and AMRSN publishes no % intermediate for the organisms both report, so an AMRSN
 > pooled. Independent, unofficial analysis - not endorsed by or affiliated with
 > ICMR or NCDC.
 
-**Author:** Yashita Thakur ([ORCID 0009-0004-7895-5250](https://orcid.org/0009-0004-7895-5250))
-**Code licence:** MIT · **Data licence:** [see `DATA_LICENSE.md`](DATA_LICENSE.md)
-
 ---
 
-## What this is
+## The two networks
 
-ICMR publishes AMRSN surveillance results as annual report PDFs. There is
-no API, no CSV, and no bulk download; isolate-level data is not part of the
-public release. This repository turns the published national trend tables into a clean,
-citable dataset, where **every single number carries the report edition and
-table number it came from**, so any value can be traced back to a specific
-printed table and checked by hand.
+India runs two national AMR surveillance networks. They publish separately, on
+different metrics, from different hospitals. This repository extracts both.
 
-Running antimicrobial-resistance surveillance across a national network of this
-many laboratories, sustained over several years and published in a consistent
-annual form, is a hard operational and data-management problem; the extraction
-notes in this repository sit inside that context and are not a critique of it.
-NCDC's NARS-Net published its 2020 report from inside the pandemic, and said
-plainly why that year's isolate counts were down.
-
-### What this is **not**
-
-- **Not community prevalence.** These are isolates from tertiary-care
-  laboratories in the AMRSN network — a heavily selected, hospital-skewed
-  population. They do not describe resistance in the general population.
-- **Not patient-level data.** ICMR does not release isolate-level records.
-- **Not a national burden or incidence estimate.** Denominators are "isolates
-  tested for this drug", not people, not infections.
-- **Not a pooled cross-network figure.** ICMR AMRSN and NCDC's NARS-Net (which
-  feeds WHO GLASS) are **different networks** with different participating
-  sites. This repository carries both, in separate files with separate schemas —
-  `amr_trends.csv` for AMRSN, `narsnet_trends.csv` for NARS-Net — and they are
-  never combined. They do not even share a comparison value: AMRSN publishes
-  **% susceptible**, NARS-Net publishes **% resistant**, and AMRSN publishes no
-  % intermediate for *E. coli* or *S. aureus*, so an AMRSN % resistant cannot be
-  computed. Read them as parallel series, never as one.
-- **Not an official ICMR or NCDC product.** Where this dataset and the
-  corresponding published report differ, **the published report is
-  authoritative** and the difference is a limitation of this extraction —
-  please open an issue.
-
----
-
-> **Scope and maintenance.** Data is current through the ICMR AMRSN **8th
-> edition (2024)**, and through **all eight NCDC NARS-Net editions, 2017–2024**,
-> which are extracted in full — every edition NARS-Net has published for the two
-> organisms both networks report at species level. This repository is *not*
-> actively maintained against future editions — for anything published after
-> 2024, check the [ICMR AMRSN site](https://iamrsn.icmr.org.in/) or the
-> [NCDC reports page](https://ncdc.mohfw.gov.in/reports/) directly. Stating the
-> boundary is preferable to implying a currency this project does not have.
-
-## Coverage — ICMR-AMRSN national series
-
-This section describes the AMRSN national dataset only. NARS-Net coverage is set
-out separately in
-[NARS-Net cross-reference](#nars-net-cross-reference-v3).
-
-| | |
-|---|---|
-| **Organisms** | *E. coli*, *K. pneumoniae*, *A. baumannii*, *P. aeruginosa*, *S. aureus*, MRSA |
-| **Chapters** | Enterobacterales, non-fermenting Gram-negative bacilli, staphylococci |
-| **Specimens** | AMRSN's "all samples" trend tables, with each chapter's own printed exclusions — the *E. coli* and *K. pneumoniae* captions exclude faeces and urine, the staphylococcal ones state no exclusion. The separate urine-only tables are never read. |
-| **Years** | 2017–2024 |
-| **Report editions** | 2022 (6th), 2023 (7th), 2024 (8th) |
-| **Rows** | 1,286 |
-
-Each edition carries its own 8-year retrospective trend table, so the same
-calendar year is covered by up to three independent editions — which is what
-makes revision detection possible (see below).
-
-**Panels are per organism, not per chapter**, and are read from each table
-rather than assumed:
-
-| Organism | Drugs | Notes |
+| | **ICMR-AMRSN** | **NCDC NARS-Net** |
 |---|---|---|
-| *E. coli*, *K. pneumoniae* | 10 | |
-| *A. baumannii* | 9 | minocycline; no gentamicin/tobramycin/ciprofloxacin |
-| *P. aeruginosa* | 11 | gentamicin, tobramycin, ciprofloxacin; no minocycline |
-| *S. aureus* | 11 | Gram-positive panel |
-| MRSA | 9 | omits cotrimoxazole and linezolid |
+| Publisher | Indian Council of Medical Research | National Centre for Disease Control |
+| Metric published | **% susceptible** | **% resistant** |
+| Feeds WHO GLASS | no | yes |
+| Participating sites | central institutes, private and corporate hospitals, a mission hospital, armed forces | state government medical colleges and state/UT institutes |
+| Sites in the data | de-identified as `RC1`–`RC21`, with data published against the codes | named in full in an annexure, with no data published against them |
+| Organisms extracted here | *E. coli*, *K. pneumoniae*, *A. baumannii*, *P. aeruginosa*, *S. aureus*, MRSA | *E. coli*, *S. aureus* |
+| Years covered | 2017–2024 | 2017–2024 |
+| Editions read | 3 — the 6th, 7th and 8th, published 2022–2024 | 8 — every edition published |
+| Rows extracted | **1,286** national, plus **1,365** by Regional Centre | **558** — 345 *E. coli*, 213 *S. aureus* |
+| Files | `amr_trends.csv`, `amr_rc_trends.csv` | `narsnet_trends.csv` |
 
-Neither non-fermenter is tested against ertapenem or cefazolin. Daptomycin
-appears in the specimen-wise staphylococcal tables but in neither yearly trend
-table, so it is absent here.
+The two publish at different depths in opposite directions, and the shape of
+each dataset follows from that. Every AMRSN edition carries its own 8-year
+retrospective trend table, so three editions cover the same eight years three
+times over — which is what makes cross-edition revision detection possible.
+Every NARS-Net edition reports its own year alone, so eight editions cover eight
+years once each, and there is nothing to detect.
 
-**Regional Centre breakdowns** are covered separately by V2, for the three
-organisms that have an RC-wise susceptibility table — see
-[Regional Centre breakdowns](#regional-centre-breakdowns-v2).
+### The two series are never pooled
 
-Out of scope: specimen-type splits, OPD/ward/ICU splits, non-priority
-pathogens, resistance-gene data.
+**They share no comparison value.** AMRSN publishes % susceptible; NARS-Net
+publishes % resistant. Converting between them needs the intermediate fraction,
+and AMRSN publishes **no % intermediate** for *E. coli* or *S. aureus* — so an
+AMRSN % resistant cannot be computed at all. Going the other way is no better:
+NARS-Net classifies intermediate isolates separately, under a three-way S/I/R
+split, so a NARS-Net %R and a %S do not sum to 100.
+
+This is enforced structurally rather than by convention. `NarsNetRecord` carries
+`resistant_pct` and has **no field meaning the same thing as**
+`Record.susceptible_pct`, so the two networks cannot be addressed as one series
+by accident. The exports keep the same distance — `narsnet_trends.csv` for
+NARS-Net, `amr_trends.csv` for AMRSN — and nothing joins them on a value. The
+two artefacts that do set the networks side by side join on
+[keys](#the-comparability-matrix) and on
+[counts](#surveillance-volume-the-one-metric-they-share) respectively, never on
+a percentage.
+
+This is a constraint on the comparison rather than a shortcoming of either body.
+
+---
+
+## Contents
+
+- [Quick start](#quick-start) — build the full dataset
+- [Scope and maintenance](#scope-and-maintenance)
+- [What this is, and is not](#what-this-is-and-is-not)
+- [Outputs](#outputs) — files, figures, row schema, flags
+- [The ICMR-AMRSN national series](#the-icmr-amrsn-national-series) — coverage, how tables are located, how values are checked, cross-report revisions
+- [Regional Centre breakdowns](#regional-centre-breakdowns) — AMRSN, by centre
+- [The NCDC NARS-Net series](#the-ncdc-nars-net-series) — all eight editions, and what each one lets you check
+- [Where the two networks meet](#where-the-two-networks-meet) — coverage map, surveillance volume, structural caveats
+- [Source data](#source-data) — both registries, and citation form
+- [The landing page](#the-landing-page)
+- [Project history](#project-history)
+- [Citing](#citing)
 
 ---
 
@@ -121,55 +88,155 @@ pathogens, resistance-gene data.
 pip install -r requirements.txt
 ```
 
+The full dataset is four builders, in this order.
+
 ```bash
 python -m src.build_dataset --fetch
 ```
 
-That downloads the three report PDFs to `data/raw/`, extracts the trend tables,
-validates against known reference values, writes `data/processed/`, and prints
-any places where editions report the same year differently.
+Downloads the three ICMR report PDFs to `data/raw/`, extracts the national trend
+tables, validates against known reference values, writes
+`data/processed/amr_trends.{csv,json}`, and prints any places where editions
+report the same year differently.
 
 ```bash
 python -m src.build_rc_dataset
 ```
 
-That extracts the V2 Regional Centre breakdowns from the same PDFs and writes
-`data/processed/amr_rc_trends.{csv,json}`, `rc_panel.json` and
-`rc_revisions.json` (see [Regional Centre breakdowns](#regional-centre-breakdowns-v2)).
+Extracts the Regional Centre breakdowns from those same three PDFs and writes
+`amr_rc_trends.{csv,json}`, `rc_panel.json` and `rc_revisions.json`.
+
+```bash
+python -m src.build_narsnet_dataset --fetch
+```
+
+Downloads the eight NCDC report PDFs and writes `narsnet_trends.{csv,json}`,
+`narsnet_panel.json` and `narsnet_revisions.json`.
+
+```bash
+python -m src.build_comparability
+```
+
+Writes `comparability_matrix.json`. This one reads no PDFs — it is a
+second-order artefact derived from the two datasets built above, so **both must
+exist first**, and it must be rebuilt after either of them changes.
+
+Then the tests, the figures, and the landing page's bibliography:
 
 ```bash
 pytest -v
 ```
 
 ```bash
-python viz/trend_charts.py --revisions
+python viz/trend_charts.py --revisions && python -m src.references --inject
 ```
+
+`trend_charts.py` reads all four builders' outputs and writes all fifteen
+figures in `docs/figures/`, so it runs last.
+
+To re-check the downloaded PDFs against their pinned hashes at any point:
+
+```bash
+python -m src.fetch --network all --verify-only
+```
+
+---
+
+## Scope and maintenance
+
+Data is current through the ICMR AMRSN **8th edition (2024)**, and through
+**all eight NCDC NARS-Net editions, 2017–2024**, which are extracted in full —
+every edition NARS-Net has published for the two organisms both networks report
+at species level.
+
+Built and completed independently before the author began medical school, and
+not maintained against editions published since. For anything published after
+2024, check the [ICMR AMRSN site](https://iamrsn.icmr.org.in/) or the
+[NCDC reports page](https://ncdc.mohfw.gov.in/reports/) directly.
+
+---
+
+## What this is, and is not
+
+ICMR and NCDC publish their surveillance results as annual report PDFs. There is
+no API, no CSV, and no bulk download; isolate-level data is not part of either
+public release. This repository turns the published national trend tables into a
+clean, citable dataset, where **every single number carries the report edition
+and table number it came from**, so any value can be traced back to a specific
+printed table and checked by hand.
+
+Running antimicrobial-resistance surveillance across a national network of this
+many laboratories, sustained over several years and published in a consistent
+annual form, is a hard operational and data-management problem; the extraction
+notes in this repository sit inside that context and are not a critique of it.
+NCDC's NARS-Net published its 2020 report from inside the pandemic, and said
+plainly why that year's isolate counts were down.
+
+### What this is not
+
+- **Not community prevalence.** These are isolates from tertiary-care
+  laboratories — a heavily selected, hospital-skewed population in both
+  networks. They do not describe resistance in the general population.
+- **Not patient-level data.** Neither network releases isolate-level records.
+- **Not a national burden or incidence estimate.** Denominators are "isolates
+  tested for this drug", not people, not infections.
+- **Not a pooled cross-network figure.** The two are carried in separate files
+  with separate schemas and are never combined — see
+  [The two series are never pooled](#the-two-series-are-never-pooled).
+- **Not an official ICMR or NCDC product.** Where this dataset and the
+  corresponding published report differ, **the published report is
+  authoritative** and the difference is a limitation of this extraction —
+  please open an issue.
+
+Out of scope throughout: specimen-type splits beyond those the sources print,
+OPD/ward/ICU splits, non-priority pathogens, resistance-gene data.
 
 ---
 
 ## Outputs
 
-| File | Contents |
-|---|---|
-| `data/processed/amr_trends.csv` | One row per organism × antibiotic × year × report edition |
-| `data/processed/amr_trends.json` | The same, as JSON |
-| `data/processed/revisions.json` | Where editions report the same year differently |
-| `data/processed/extraction_report.json` | Run metadata: sources, hashes, what parsed |
-| `docs/figures/*.png` | Trend charts |
-| `data/processed/amr_rc_trends.{csv,json}` | **V2** — one row per organism × Regional Centre × antibiotic × edition ([details](#regional-centre-breakdowns-v2)) |
-| `data/processed/rc_panel.json` | **V2** — the RC set each edition printed, and what changed between editions |
-| `data/processed/rc_revisions.json` | **V2** — cross-edition RC revision check (near-empty by design) |
-| `data/processed/rc_extraction_report.json` | **V2** — RC run metadata |
-| `data/processed/narsnet_trends.{csv,json}` | **V3** — NCDC NARS-Net, one row per organism × antibiotic × specimen × edition, all eight editions 2017–2024 |
-| `data/processed/narsnet_panel.json` | **V3** — the drug panel and specimen columns each edition prints, and what changed between them |
-| `data/processed/narsnet_revisions.json` | **V3** — cross-edition revision check (structurally empty; see its own `note`) |
-| `data/processed/narsnet_extraction_report.json` | **V3** — NARS-Net run metadata, per-edition checks, and which cells no check reaches |
+| File | Dataset | Contents |
+|---|---|---|
+| `data/processed/amr_trends.{csv,json}` | AMRSN national | One row per organism × antibiotic × year × report edition |
+| `data/processed/revisions.json` | AMRSN national | Where editions report the same year differently |
+| `data/processed/extraction_report.json` | AMRSN national | Run metadata: sources, hashes, what parsed |
+| `data/processed/amr_rc_trends.{csv,json}` | AMRSN by Regional Centre | One row per organism × Regional Centre × antibiotic × edition |
+| `data/processed/rc_panel.json` | AMRSN by Regional Centre | The RC set each edition printed, and what changed between editions |
+| `data/processed/rc_revisions.json` | AMRSN by Regional Centre | Cross-edition RC revision check — near-empty by design |
+| `data/processed/rc_extraction_report.json` | AMRSN by Regional Centre | RC run metadata |
+| `data/processed/narsnet_trends.{csv,json}` | NARS-Net | One row per organism × antibiotic × specimen × edition, all eight editions 2017–2024 |
+| `data/processed/narsnet_panel.json` | NARS-Net | The drug panel and specimen columns each edition prints, and what changed between them |
+| `data/processed/narsnet_revisions.json` | NARS-Net | Cross-edition revision check — structurally empty; see its own `note` |
+| `data/processed/narsnet_extraction_report.json` | NARS-Net | Run metadata, per-edition checks, and which cells no check reaches |
+| `data/processed/comparability_matrix.json` | cross-network | Which network reports each organism × antibiotic × year, on which metric, from which specimen basis. Carries no percentage and no count from either |
+| `docs/data/trends.json` | AMRSN national | 9 KB chart-data extract read by the landing page |
 
 The `narsnet_*` files deliberately drop the `amr_` prefix the AMRSN exports
-carry. The two datasets are not concatenable and share no comparison column:
-AMRSN publishes **% susceptible**, NARS-Net **% resistant**, and AMRSN publishes
-no % intermediate for either organism, so an AMRSN % resistant cannot be
-computed. Read them as parallel series, never as one.
+carry. The two datasets are not concatenable and share no comparison column.
+
+### Figures
+
+`python viz/trend_charts.py --revisions` writes all fifteen.
+
+| Figure | Series | Shows |
+|---|---|---|
+| `trend_escherichia_coli.png` | AMRSN national | % susceptible by year, 10-drug Enterobacterales panel |
+| `trend_klebsiella_pneumoniae.png` | AMRSN national | % susceptible by year, same panel |
+| `trend_acinetobacter_baumannii.png` | AMRSN national | % susceptible by year, 9-drug panel |
+| `trend_pseudomonas_aeruginosa.png` | AMRSN national | % susceptible by year, 11-drug panel |
+| `trend_staphylococcus_aureus.png` | AMRSN national | % susceptible by year, 11-drug Gram-positive panel |
+| `trend_mrsa.png` | AMRSN national | % susceptible by year, 9-drug panel |
+| `rc_escherichia_coli.png` | AMRSN by Regional Centre | Spread across Regional Centres, per edition |
+| `rc_klebsiella_pneumoniae.png` | AMRSN by Regional Centre | Spread across Regional Centres, per edition |
+| `rc_staphylococcus_aureus.png` | AMRSN by Regional Centre | Spread across Regional Centres, per edition |
+| `narsnet_escherichia_coli.png` | NARS-Net | **% resistant** by year, blood and urine |
+| `narsnet_staphylococcus_aureus.png` | NARS-Net | **% resistant** by year, blood only |
+| `narsnet_comparability_escherichia_coli.png` | cross-network | 21 drugs × 8 years, which network reports each cell |
+| `narsnet_comparability_staphylococcus_aureus.png` | cross-network | 13 drugs × 8 years, which network reports each cell |
+| `narsnet_surveillance_volume.png` | cross-network | Isolates tested per year, both networks — the one shared axis |
+| `cross_report_revisions.png` | AMRSN national | The 17 genuine cross-edition revisions |
+
+The AMRSN national trends:
 
 ![E. coli national susceptibility trend](docs/figures/trend_escherichia_coli.png)
 
@@ -218,6 +285,9 @@ anyone who wants it, clearly labelled as derived rather than reported.
 `reported_pct` and `computed_pct` should agree to within rounding. Any row
 where they do not is flagged, not dropped.
 
+The NARS-Net rows use a different schema, described under
+[The metric: % resistant](#the-metric--resistant).
+
 #### `flags` values
 
 | Flag | Meaning |
@@ -247,7 +317,41 @@ excluded from the trend charts for this reason.
 
 ---
 
-## Methodology
+## The ICMR-AMRSN national series
+
+### Coverage
+
+| | |
+|---|---|
+| **Organisms** | *E. coli*, *K. pneumoniae*, *A. baumannii*, *P. aeruginosa*, *S. aureus*, MRSA |
+| **Chapters** | Enterobacterales, non-fermenting Gram-negative bacilli, staphylococci |
+| **Specimens** | AMRSN's "all samples" trend tables, with each chapter's own printed exclusions — the *E. coli* and *K. pneumoniae* captions exclude faeces and urine, the staphylococcal ones state no exclusion. The separate urine-only tables are never read. |
+| **Years** | 2017–2024 |
+| **Report editions** | 2022 (6th), 2023 (7th), 2024 (8th) |
+| **Rows** | 1,286 |
+
+Each edition carries its own 8-year retrospective trend table, so the same
+calendar year is covered by up to three independent editions — which is what
+makes [revision detection](#cross-report-revisions) possible.
+
+**Panels are per organism, not per chapter**, and are read from each table
+rather than assumed:
+
+| Organism | Drugs | Notes |
+|---|---|---|
+| *E. coli*, *K. pneumoniae* | 10 | |
+| *A. baumannii* | 9 | minocycline; no gentamicin/tobramycin/ciprofloxacin |
+| *P. aeruginosa* | 11 | gentamicin, tobramycin, ciprofloxacin; no minocycline |
+| *S. aureus* | 11 | Gram-positive panel |
+| MRSA | 9 | omits cotrimoxazole and linezolid |
+
+Neither non-fermenter is tested against ertapenem or cefazolin. Daptomycin
+appears in the specimen-wise staphylococcal tables but in neither yearly trend
+table, so it is absent here.
+
+Breakdowns by Regional Centre are a separate dataset, covering the three
+organisms that have an RC-wise susceptibility table — see
+[Regional Centre breakdowns](#regional-centre-breakdowns).
 
 ### How tables are located
 
@@ -271,11 +375,11 @@ cites the number that edition actually printed.
 **The caption wording is not uniform either.** Three grammars occur, and a
 parser written for the first alone finds nothing at all in the other chapters:
 
-| Wording | Where |
-|---|---|
-| `Yearly susceptibility trend of X isolated from ...` | Enterobacterales; non-fermenters in 2023/2024 |
-| `Yearly **susceptible** trend of X isolated from ...` | Non-fermenters in the 2022 edition |
-| `**Year-wise** susceptibility **trends** of X from ...` | Staphylococci, all editions |
+| Caption, as printed | What differs | Where |
+|---|---|---|
+| `Yearly susceptibility trend of X isolated from ...` | — | Enterobacterales; non-fermenters in 2023/2024 |
+| `Yearly susceptible trend of X isolated from ...` | **susceptible** | Non-fermenters in the 2022 edition |
+| `Year-wise susceptibility trends of X from ...` | **Year-wise**, **trends** | Staphylococci, all editions |
 
 Three further wrinkles this handles:
 
@@ -300,7 +404,7 @@ detection. Three strategies are tried (lines/lines, lines/text, text/lines) and
 the best-formed result wins. **If all three fail, the parser raises** rather
 than degrading to text matching.
 
-Three specific failure modes were found in these PDFs and are defended against,
+Five specific failure modes were found in these PDFs and are defended against,
 because each one produces plausible-looking wrong numbers rather than an error:
 
 1. **Column indices are not trustworthy.** In the 2023 edition the header row
@@ -365,10 +469,9 @@ Three independent layers:
    labels read rather than inferred, no susceptibility above 100%, no
    division by a zero denominator.
 
-All 41 national fixtures pass, plus 10 hand-verified RC-cell fixtures for V2 and
-86 hand-verified NARS-Net fixtures for V3. `pytest` runs 418 tests; the ones
-needing the PDFs skip cleanly on a fresh clone until `python -m src.fetch` has
-been run.
+All 41 national fixtures pass, plus 10 hand-verified Regional Centre cells and
+86 hand-verified NARS-Net cells. `pytest` runs 418 tests; the ones needing the
+PDFs skip cleanly on a fresh clone until `python -m src.fetch` has been run.
 
 For MRSA there is also a definitional check available nowhere else: MRSA is
 *defined* by methicillin/cefoxitin resistance, so cefoxitin susceptibility in
@@ -395,90 +498,37 @@ Take any row, e.g. *E. coli* / meropenem / 2024:
 `data/processed/extraction_report.json` records the SHA-256 of every PDF used,
 so you can confirm you are reading byte-identical source material.
 
----
+### Reconciling printed values
 
-## Regional Centre breakdowns (V2)
+Checking each cell's printed percentage against its own numerator and
+denominator turned up three rows where the printed percentage and the printed
+counts do not fully reconcile. They are carried exactly as printed and flagged
+`pct_mismatch` — **nothing is corrected and nothing is dropped** — because any
+adjustment would be this project's inference rather than the source's figure,
+and the point of this repository is that every number can be traced to a
+printed table.
 
-The reports also publish, alongside the national trend tables, **RC-wise**
-tables: susceptibility broken down by Regional Centre (RC) — one column per
-antibiotic, one row per RC, for the report's own year. V2 extracts these into a
-**separate dataset** (`data/processed/amr_rc_trends.{csv,json}`, **1,365
-rows**), with the same provenance fields as V1 plus a `regional_centre` column.
-Build it with `python -m src.build_rc_dataset`.
+**1. A denominator that reads differently across editions.**
+*P. aeruginosa* / piperacillin-tazobactam / 2022 is printed as
+`9017/113156 (68.5)` in the 2022 and 2023 editions; `9017/113156` would be
+7.97%, not the stated 68.5%. The 2024 edition prints `9017/13156`, which is
+68.54% and matches the stated percentage. The later edition's denominator has
+one fewer digit and reconciles with the printed percentage.
 
-Tables are located by caption meaning, never table number, exactly as the
-national logic is — the two grammars in use ("… Percentage RC wise of *X* …" in
-2022/2023, "RC-wise … percentages of *X* …" in 2024) both carry the tokens
-"RC wise" and "(AMS)", which is what tells them apart from the national trend
-captions and from the "Regional centre wise distribution" isolate-count tables.
+**2. A percentage that does not fully reconcile with its counts.**
+*A. baumannii* / minocycline / 2022 is printed as `6207/10542` by all three
+editions, which is 58.88%. The 2022 edition prints the percentage as **58.5**;
+the 2023 and 2024 editions print **58.8**.
 
-Coverage is narrower than the national set — only three organisms have an
-RC-wise **susceptibility** table for the non-urine population:
+Neither is visible from a single edition's table read on its own. Three rows out
+of several thousand printed values spanning three editions is an ordinary rate
+for data work at this scale.
 
-| Organism | 2022 ed. | 2023 ed. | 2024 ed. | Panel |
-|---|---|---|---|---|
-| *E. coli* | — *(urine-only that edition)* | Table 3.10 | Table 2.10 | 9 drugs (no cefazolin) |
-| *K. pneumoniae* | — *(urine-only that edition)* | Table 3.11 | Table 2.11 | 9 drugs (no cefazolin) |
-| *S. aureus* | Table 6.3 | Table 7.3 | Table 6.3 | 11 drugs (as national) |
+`viz/trend_charts.py --revisions` renders these, plotting whichever quantity
+actually moved. Charts elsewhere in this repo use the most recent edition
+reporting each point.
 
-*A. baumannii*, *P. aeruginosa* and MRSA have **no** RC-wise susceptibility
-table in any edition. The 2022 edition breaks *E. coli* / *K. pneumoniae* down
-by RC for **urine** isolates only, which is out of scope here exactly as it is
-for V1.
-
-### Regional Centre tables are a single-year cross-section
-
-**The RC-wise tables have no year axis.** Each edition's RC table reports that
-edition's year and nothing else — there is no 8-year retrospective column like
-the national trend tables carry. So no `(organism, RC, antibiotic, year)` value
-is ever reported by more than one edition, and **cross-edition revision
-detection at RC level has essentially nothing to compare**.
-
-`rc_revisions.json` is therefore near-empty *by design*. It is produced by the
-same detector as V1's `revisions.json` (`find_rc_cross_report_revisions`), kept
-and run so that if a future edition ever *does* republish a prior year's RC
-table the guard fires — but on the 2022–2024 data it correctly returns nothing.
-At a glance, "no RC revisions found" can look like a broken feature; it is the
-opposite. Contrast `revisions.json`, where every calendar year is covered up to
-three times and 17 genuine revisions surface.
-
-### The RC panel changes between editions, and the codes carry no key
-
-RC codes (`RC1`…`RC21`) are **de-identified** in the reports, and the
-code-to-institution mapping is not part of the published tables. `RC5` in the
-2023 edition cannot be assumed to be the same laboratory as `RC5` in 2024, and a
-change in numbering between editions would not be signposted in the tables. On
-top of that, the set itself moves:
-
-- **`RC15` is absent from every 2024 table** (*E. coli*, *K. pneumoniae*,
-  *S. aureus*), though present in 2022 and 2023.
-- **`RC18` is absent from the *S. aureus* table in 2023 and 2024**; the 2024
-  *S. aureus* table also omits `RC1`.
-- The 2024 participating-centres annexure adds two hospitals (Artemis and
-  Fortis, Gurugram) that were not in the 2022/2023 network.
-
-So an RC set is compared against **that organism's earliest edition**, and every
-row from an edition whose set differs carries an
-`rc_panel_changed(baseline=…,added=[…],dropped=[…])` flag. `rc_panel.json`
-records the full picture. Averaging a metric "across RCs" from one edition to
-the next without checking this flag compares different panels.
-
-### Reconciling printed values (V2)
-
-In the **2023 edition**, three RC cells print a susceptibility of **0%** where
-the cell's own counts would round differently. They are carried exactly as
-printed and flagged `pct_mismatch` — the same policy as V1: the dataset reports
-what the table shows and leaves any reconciliation to the reader.
-
-| Cell | Printed | n/N as a percentage |
-|---|---|---|
-| *K. pneumoniae* / RC7 / levofloxacin (Table 3.11) | `1 / 16 (0)` | 6.25% |
-| *S. aureus* / RC2 / tigecycline (Table 7.3) | `2 / 3 (0)` | 66.7% |
-| *S. aureus* / RC3 / teicoplanin (Table 7.3) | `1 / 1 (0)` | 100% |
-
----
-
-## Cross-report revisions
+### Cross-report revisions
 
 The same calendar year is not always reported with the same number in
 successive editions — figures are revised and isolate sets de-duplicated as the
@@ -493,11 +543,9 @@ Crucially, two things that look alike are **not** conflated:
   more than rounding can explain.
 - *Printing precision alone* — the 2023 edition prints `14.94%` where the 2024
   edition prints `14.9%` for an identical `1021/6833` — is **not** a revision
-  and is excluded. Six of the seven raw differences across V1 are of exactly
-  this kind; reporting them as revisions would overstate how much the
+  and is excluded. Six of the seven raw differences in the national series are
+  of exactly this kind; reporting them as revisions would overstate how much the
   underlying figures actually move.
-
-### What this found
 
 Across **432** (organism, antibiotic, year) combinations covered by two or more
 editions, there are **17** genuine revisions — 16 count revisions and 1
@@ -524,19 +572,103 @@ and 2024 editions.
 
 ---
 
-## NARS-Net cross-reference (V3)
+## Regional Centre breakdowns
 
-India runs a **second** national AMR surveillance network: NCDC's **NARS-Net**,
-which feeds WHO GLASS and is entirely separate from ICMR's AMRSN. V3 extracts
-all eight of its published editions, 2017–2024, into a **separate dataset**
-(`data/processed/narsnet_trends.{csv,json}`, **558 rows** — 345 *E. coli*, 213
-*S. aureus*), with its own schema. Build it with
+The ICMR reports also publish, alongside the national trend tables, **RC-wise**
+tables: susceptibility broken down by Regional Centre (RC) — one column per
+antibiotic, one row per RC, for the report's own year. These are extracted into
+a **separate dataset** (`data/processed/amr_rc_trends.{csv,json}`, **1,365
+rows**), with the same provenance fields as the national series plus a
+`regional_centre` column. Build it with `python -m src.build_rc_dataset`.
+
+Tables are located by caption meaning, never table number, exactly as the
+national logic is — the two grammars in use ("… Percentage RC wise of *X* …" in
+2022/2023, "RC-wise … percentages of *X* …" in 2024) both carry the tokens
+"RC wise" and "(AMS)", which is what tells them apart from the national trend
+captions and from the "Regional centre wise distribution" isolate-count tables.
+
+Coverage is narrower than the national set — only three organisms have an
+RC-wise **susceptibility** table for the non-urine population:
+
+| Organism | 2022 ed. | 2023 ed. | 2024 ed. | Panel |
+|---|---|---|---|---|
+| *E. coli* | — *(urine-only that edition)* | Table 3.10 | Table 2.10 | 9 drugs (no cefazolin) |
+| *K. pneumoniae* | — *(urine-only that edition)* | Table 3.11 | Table 2.11 | 9 drugs (no cefazolin) |
+| *S. aureus* | Table 6.3 | Table 7.3 | Table 6.3 | 11 drugs (as national) |
+
+*A. baumannii*, *P. aeruginosa* and MRSA have **no** RC-wise susceptibility
+table in any edition. The 2022 edition breaks *E. coli* / *K. pneumoniae* down
+by RC for **urine** isolates only, which is out of scope here exactly as it is
+for the national series.
+
+### Regional Centre tables are a single-year cross-section
+
+**The RC-wise tables have no year axis.** Each edition's RC table reports that
+edition's year and nothing else — there is no 8-year retrospective column like
+the national trend tables carry. So no `(organism, RC, antibiotic, year)` value
+is ever reported by more than one edition, and **cross-edition revision
+detection at RC level has essentially nothing to compare**.
+
+`rc_revisions.json` is therefore near-empty *by design*. It is produced by the
+same detector as the national `revisions.json`
+(`find_rc_cross_report_revisions`), kept and run so that if a future edition
+ever *does* republish a prior year's RC table the guard fires — but on the
+2022–2024 data it correctly returns nothing. At a glance, "no RC revisions
+found" can look like a broken feature; it is the opposite. Contrast
+`revisions.json`, where every calendar year is covered up to three times and 17
+genuine revisions surface.
+
+### The RC panel changes between editions, and the codes carry no key
+
+RC codes (`RC1`…`RC21`) are **de-identified** in the reports, and the
+code-to-institution mapping is not part of the published tables. `RC5` in the
+2023 edition cannot be assumed to be the same laboratory as `RC5` in 2024, and a
+change in numbering between editions would not be signposted in the tables. On
+top of that, the set itself moves:
+
+- **`RC15` is absent from every 2024 table** (*E. coli*, *K. pneumoniae*,
+  *S. aureus*), though present in 2022 and 2023.
+- **`RC18` is absent from the *S. aureus* table in 2023 and 2024**; the 2024
+  *S. aureus* table also omits `RC1`.
+- The 2024 participating-centres annexure adds two hospitals (Artemis and
+  Fortis, Gurugram) that were not in the 2022/2023 network.
+
+So an RC set is compared against **that organism's earliest edition**, and every
+row from an edition whose set differs carries an
+`rc_panel_changed(baseline=…,added=[…],dropped=[…])` flag. `rc_panel.json`
+records the full picture. Averaging a metric "across RCs" from one edition to
+the next without checking this flag compares different panels.
+
+### Reconciling printed values in the RC tables
+
+In the **2023 edition**, three RC cells print a susceptibility of **0%** where
+the cell's own counts would round differently. They are carried exactly as
+printed and flagged `pct_mismatch` — the same policy as the national series: the
+dataset reports what the table shows and leaves any reconciliation to the
+reader.
+
+| Cell | Printed | n/N as a percentage |
+|---|---|---|
+| *K. pneumoniae* / RC7 / levofloxacin (Table 3.11) | `1 / 16 (0)` | 6.25% |
+| *S. aureus* / RC2 / tigecycline (Table 7.3) | `2 / 3 (0)` | 66.7% |
+| *S. aureus* / RC3 / teicoplanin (Table 7.3) | `1 / 1 (0)` | 100% |
+
+---
+
+## The NCDC NARS-Net series
+
+NCDC's NARS-Net feeds WHO GLASS and is entirely separate from ICMR's AMRSN. All
+eight of its published editions, 2017–2024, are extracted into a **separate
+dataset** (`data/processed/narsnet_trends.{csv,json}`, **558 rows** — 345
+*E. coli*, 213 *S. aureus*), with its own schema. Build it with
 `python -m src.build_narsnet_dataset`.
 
-The two networks are carried **side by side and never pooled**. They do not
-share a comparison value, which is a constraint on the comparison rather than a
-shortcoming of either body — see
-[What this is **not**](#what-this-is-not).
+![E. coli NARS-Net percent resistant](docs/figures/narsnet_escherichia_coli.png)
+
+![S. aureus NARS-Net percent resistant](docs/figures/narsnet_staphylococcus_aureus.png)
+
+**High is bad in these two figures** — they plot % resistant, the opposite
+reading from every AMRSN chart above.
 
 ### What was extracted
 
@@ -556,29 +688,19 @@ different captions in their List of Tables and in the body:
 | *S. aureus* | T4 | T4 | T4 | T5 | T4 | T5 | T6 | T6 |
 
 **Cover-page years are unreliable and are never used as the index.** The
-edition reporting January–December 2019 has a cover reading "AMR Annual report
-**-2020**", and the 2020-data edition's cover reads "Annual Report**-2021**".
-`source_report_year` is always the reporting period; where a cover year differs
-it is recorded separately in `source_cover_year`, so the discrepancy is carried
-in the data rather than resolved silently. Those two editions are the only ones
-with a non-null `source_cover_year`.
+edition reporting January–December 2019 has a cover reading
+`AMR Annual report-2020`, and the 2020-data edition's cover reads
+`Annual Report-2021`. `source_report_year` is always the reporting period; where
+a cover year differs it is recorded separately in `source_cover_year`, so the
+discrepancy is carried in the data rather than resolved silently. Those two
+editions are the only ones with a non-null `source_cover_year`.
 
-### The metric: % resistant, and never % susceptible
+### The metric: % resistant
 
 **Every value in this dataset is percent RESISTANT.** No NARS-Net edition
-prints a susceptibility percentage anywhere.
-
-**%S is not derived as 100 − %R.** Intermediate isolates are classified
-separately — the methods describe a three-way S/I/R split — so they are in
-neither figure and the two do not sum to 100. Going the other way is worse:
-AMRSN publishes **no % intermediate for *E. coli* or *S. aureus***, so an
-AMRSN % resistant **cannot be computed at all**.
-
-This is enforced structurally rather than by convention. `NarsNetRecord` carries
-`resistant_pct` and has **no field meaning the same thing as**
-`Record.susceptible_pct`, so the two networks cannot be addressed as one series
-by accident. The exports keep the same distance: `narsnet_trends.csv` for
-NARS-Net, `amr_trends.csv` for AMRSN, and nothing joins them on a value.
+prints a susceptibility percentage anywhere, and none is derived here — see
+[The two series are never pooled](#the-two-series-are-never-pooled) for why
+`%S = 100 − %R` does not hold and is not attempted.
 
 ### What each edition lets you check, and what it does not
 
@@ -689,11 +811,19 @@ Every affected row carries `narsnet_panel_changed(from=…)` or
 `narsnet_specimen_columns_changed(from=…)`.
 
 `narsnet_revisions.json` is **empty by design**, and for a different reason than
-V2's. Each NARS-Net edition reports its own period only, with no retrospective
-multi-year table anywhere in the series, so no key is covered by more than one
-edition and cross-edition revision detection has nothing to compare. Contrast
-`revisions.json`, where three AMRSN editions cover each year and 17 genuine
-revisions surface.
+the RC file's. Each NARS-Net edition reports its own period only, with no
+retrospective multi-year table anywhere in the series, so no key is covered by
+more than one edition and cross-edition revision detection has nothing to
+compare. Contrast `revisions.json`, where three AMRSN editions cover each year
+and 17 genuine revisions surface.
+
+---
+
+## Where the two networks meet
+
+Two artefacts set the networks beside each other, and neither joins them on a
+value: the comparability matrix joins on **keys**, and the surveillance-volume
+figure plots **counts**.
 
 ### The comparability matrix
 
@@ -707,6 +837,10 @@ specimen basis, out of which printed table:
 | *E. coli* | 21 | 168 | 45 | 56 | 35 | 32 |
 | *S. aureus* | 13 | 104 | 55 | 16 | 33 | 0 |
 | | | **272** | **100** | **72** | **68** | **32** |
+
+![E. coli comparability grid](docs/figures/narsnet_comparability_escherichia_coli.png)
+
+![S. aureus comparability grid](docs/figures/narsnet_comparability_staphylococcus_aureus.png)
 
 **It carries no percentage and no count from either network, and that is
 enforced rather than intended.** A matrix carrying values would be exactly the
@@ -724,16 +858,14 @@ in a NARS-Net table in **2017 alone**, so it counts as a drug both networks
 report on one of its eight cells; *S. aureus* vancomycin is the same shape, in
 the 2018 edition only.
 
-Unlike the other three builders this one reads no PDFs — it is a second-order
-artefact derived from the two extracted datasets, and must be rebuilt after
-either of them changes.
-
-### Surveillance volume: the one metric the two networks share
+### Surveillance volume: the one metric they share
 
 `docs/figures/narsnet_surveillance_volume.png` is the **only** figure that puts
 both networks on one axis, and it does so because it plots **counts**. An
 isolate tested is the same unit on both sides in a way the two percentages are
 not.
+
+![Isolates tested per year, both networks](docs/figures/narsnet_surveillance_volume.png)
 
 **The caveat that comes with it:** neither network publishes "isolates tested"
 for an organism — only *isolates tested against each drug* — and those differ
@@ -760,12 +892,13 @@ within a single edition's own retrospective column.
 Because the two cover different specimen populations, what is comparable is the
 **shape over time, not the size**.
 
-### There is no site-level V3
+### There is no site-level NARS-Net series
 
 **NARS-Net publishes national aggregates only.** There is no site-level or
-state-level breakdown in any edition — not named, not coded. So V2's Regional
-Centre apparatus has **no NARS-Net counterpart**, and that is a property of the
-source rather than an unfinished feature.
+state-level breakdown in any edition — not named, not coded. So the
+[Regional Centre apparatus](#regional-centre-breakdowns) has **no NARS-Net
+counterpart**, and that is a property of the source rather than an unfinished
+feature.
 
 Site identification is in fact **inverted** between the two networks: NARS-Net
 names its participating institutions in full, in an annexure from 2018 onward,
@@ -807,13 +940,32 @@ RC1–RC21 but publishes data against the codes.
   submission, which is one more reason not to use GLASS figures as a substitute
   for either network's report: they cover a different population.
 
-### Source data and citation
+---
 
-Fetched at run time with `python -m src.fetch --network narsnet`; **never
-redistributed here** (see `DATA_LICENSE.md`). All eight are registered in
-`NARSNET_SOURCES` with a **SHA-256 pinned**, verified 2026-09-01. A hash
-mismatch is a hard failure for this registry, because the table locations and
-source defects recorded above were established against exactly those bytes.
+## Source data
+
+Both registries are fetched at run time from the publishers' own servers;
+**never redistributed here** (see `DATA_LICENSE.md`). `src/fetch.py` pins a
+SHA-256 for every file in both, and a mismatch is a hard failure rather than a
+warning — the table locations and source defects recorded above were established
+against exactly those bytes.
+
+### ICMR-AMRSN
+
+| Edition | Year covered | URL |
+|---|---|---|
+| 8th | 2024 | `icmr.gov.in/icmrobject/uploads/Report/1763981012_icmramrsnannualreport2024.pdf` |
+| 7th | 2023 | `icmr.gov.in/icmrobject/uploads/Documents/1725536060_annual_report_2023.pdf` |
+| 6th | 2022 | `icmr.gov.in/icmrobject/custom_data/pdf/resource-guidelines/AMRSN_Annual_Report_2022.pdf` |
+
+A hash change means ICMR re-uploaded the report — the fetcher reports it loudly
+instead of overwriting, because extracted numbers may then differ from
+previously published results.
+
+### NCDC NARS-Net
+
+Fetched with `python -m src.fetch --network narsnet`. All eight are registered
+in `NARSNET_SOURCES`, verified 2026-09-01.
 
 | Data year | URL |
 |---|---|
@@ -834,8 +986,10 @@ truncates before its annexure.
 `/wp-content/uploads/…` with `/uploads/pdf/amrNN.pdf` running in parallel), and
 citations published in 2022–2024 already point at dead links.
 
-**No edition carries a suggested citation, ISBN, DOI, report number, or named
-authors** — checked in the front matter of all eight. `src/references.py`
+### Citation form
+
+**No NARS-Net edition carries a suggested citation, ISBN, DOI, report number, or
+named authors** — checked in the front matter of all eight. `src/references.py`
 generates a Vancouver entry per edition from the same registry the fetcher uses,
 so the bibliography cannot cite a document the pipeline never read. The form is
 a corporate author, the **reporting period spelled out in the title** (there is
@@ -845,35 +999,7 @@ publication date anywhere — July 2022 for the 2021-data report and July 2023 f
 the 2022-data one — so the other six carry `[date unknown]` rather than a year
 inferred from those two. The cover year is never substituted for it.
 
-## Reconciling printed values
-
-Checking each cell's printed percentage against its own numerator and
-denominator turned up three rows where the printed percentage and the printed
-counts do not fully reconcile. They are carried exactly as printed and flagged
-`pct_mismatch` — **nothing is corrected and nothing is dropped** — because any
-adjustment would be this project's inference rather than the source's figure,
-and the point of this repository is that every number can be traced to a
-printed table.
-
-**1. A denominator that reads differently across editions.**
-*P. aeruginosa* / piperacillin-tazobactam / 2022 is printed as
-`9017/113156 (68.5)` in the 2022 and 2023 editions; `9017/113156` would be
-7.97%, not the stated 68.5%. The 2024 edition prints `9017/13156`, which is
-68.54% and matches the stated percentage. The later edition's denominator has
-one fewer digit and reconciles with the printed percentage.
-
-**2. A percentage that does not fully reconcile with its counts.**
-*A. baumannii* / minocycline / 2022 is printed as `6207/10542` by all three
-editions, which is 58.88%. The 2022 edition prints the percentage as **58.5**;
-the 2023 and 2024 editions print **58.8**.
-
-Neither is visible from a single edition's table read on its own. Three rows out
-of several thousand printed values spanning three editions is an ordinary rate
-for data work at this scale.
-
-`viz/trend_charts.py --revisions` renders these, plotting whichever quantity
-actually moved. Charts elsewhere in this repo use the most recent edition
-reporting each point.
+---
 
 ## The landing page
 
@@ -911,11 +1037,11 @@ Regenerate everything with:
 python viz/trend_charts.py --revisions && python -m src.references --inject
 ```
 
-## A note on charts
+### A note on charts
 
-Trend charts omit points where ICMR published no percentage, where the cell is
-asterisked as low-count, or where fewer than 30 isolates were tested. This is
-presentational only — every such row is still in the dataset.
+Trend charts omit points where the source published no percentage, where the
+cell is asterisked as low-count, or where fewer than 30 isolates were tested.
+This is presentational only — every such row is still in the dataset.
 
 The reason is concrete: cefazolin is tested against a handful of *E. coli*
 isolates a year (`*0/8`, `*0/1`, `*2/6`), and charting it draws a line swinging
@@ -924,33 +1050,17 @@ invites exactly the misreading this project exists to prevent.
 
 ---
 
-## Source data
+## Project history
 
-Fetched at run time from ICMR's own servers; **never redistributed here**
-(see `DATA_LICENSE.md`).
+Releases are tagged `v0.1` through `v0.4` and the `CHANGELOG.md` refers to them
+as V1–V3. The mapping:
 
-| Edition | Year covered | URL |
+| Release | In this README | What it added |
 |---|---|---|
-| 8th | 2024 | `icmr.gov.in/icmrobject/uploads/Report/1763981012_icmramrsnannualreport2024.pdf` |
-| 7th | 2023 | `icmr.gov.in/icmrobject/uploads/Documents/1725536060_annual_report_2023.pdf` |
-| 6th | 2022 | `icmr.gov.in/icmrobject/custom_data/pdf/resource-guidelines/AMRSN_Annual_Report_2022.pdf` |
-
-`src/fetch.py` pins a SHA-256 for each. A hash change means ICMR re-uploaded
-the report — the fetcher reports it loudly instead of overwriting, because
-extracted numbers may then differ from previously published results.
-
----
-
-## Roadmap
-
-- **V1.1** — six organisms across three chapters, 2017–2024, 3 editions.
-- **V2** — Regional Centre breakdowns for the three organisms that have an
-  RC-wise susceptibility table, flagging editions whose RC panel changed rather
-  than averaging across it as if it were stable. See
-  [Regional Centre breakdowns](#regional-centre-breakdowns-v2).
-- **V3 (current)** — NCDC NARS-Net carried as a parallel series, all eight
-  editions 2017–2024, *E. coli* and *S. aureus*. The two networks are published
-  side by side and never pooled: they do not share a comparison value.
+| V1 | the AMRSN national series | *E. coli* and *K. pneumoniae*, 2017–2024, three editions |
+| V1.1 | the AMRSN national series | Four more organisms across two more chapters — *A. baumannii*, *P. aeruginosa*, *S. aureus* and MRSA |
+| V2 | the AMRSN Regional Centre series | Regional Centre breakdowns for the three organisms that have an RC-wise susceptibility table, flagging editions whose RC panel changed rather than averaging across it as if it were stable |
+| V3 (current) | the NARS-Net series | NCDC NARS-Net carried as a parallel series, all eight editions 2017–2024, *E. coli* and *S. aureus*, plus the cross-network coverage map |
 
 ---
 

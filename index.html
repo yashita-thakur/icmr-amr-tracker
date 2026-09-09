@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>India AMR Trend Tracker: ICMR-AMRSN + NCDC NARS-Net (Personal Project, Before Medical School)</title>
-<meta name="description" content="Two Indian national AMR surveillance networks — ICMR-AMRSN and NCDC NARS-Net — extracted from report PDFs into checkable, citable data, published as parallel series. (Personal Project, Before Medical School)">
+<title>India AMR Trend Tracker: ICMR-AMRSN + NCDC NARS-Net</title>
+<meta name="description" content="Two Indian national AMR surveillance networks — ICMR-AMRSN and NCDC NARS-Net — extracted from report PDFs into checkable, citable data, published as parallel series.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -232,7 +232,7 @@
   <div class="wrap">
     <div class="eyebrow">v3 · icmr-amrsn + ncdc nars-net trend tracker</div>
     <h1 class="title">National AMR trends, <em>read by hand-checkable rule</em>.</h1>
-    <p class="subtitle">ICMR publishes India's antimicrobial resistance surveillance results only as annual report PDFs — no API, no bulk download. This project turns the published national trend tables into structured data where every number carries the report edition and table it came from, so it can be traced back and checked against the source PDF.</p>
+    <p class="subtitle">India runs two national AMR surveillance networks — ICMR's <strong style="color:var(--parchment);">AMRSN</strong> and NCDC's <strong style="color:var(--parchment);">NARS-Net</strong> — and both publish their results only as annual report PDFs. No API, no bulk download. This project turns the published national trend tables from both into structured data where every number carries the report edition and table it came from, so it can be traced back and checked against the source PDF. The two are carried as parallel series and never pooled.</p>
     <p class="byline">Yashita Thakur · <a href="https://orcid.org/0009-0004-7895-5250" target="_blank" rel="noopener">ORCID 0009-0004-7895-5250</a> · MIT licensed code</p>
 
     <div class="notice">
@@ -254,7 +254,7 @@
 
 <main>
 
-  <section id="scope" class="reveal" class="reveal">
+  <section id="scope" class="reveal">
     <div class="wrap">
       <div class="eyebrow">scope</div>
       <h2 class="section-title">What this is — and isn't</h2>
@@ -262,8 +262,8 @@
         <div class="yes">
           <h3>This is</h3>
           <ul>
-            <li>National trend data for <em>E. coli</em> and <em>K. pneumoniae</em> against a 10-drug Enterobacterales panel, 2017–2024, from AMRSN's own printed tables.</li>
-            <li>Fully provenance-annotated: every value cites its report edition and table number.</li>
+            <li>National trend data from both networks' own printed tables, 2017–2024: six organisms across three chapters from AMRSN's three editions, and <em>E. coli</em> and <em>S. aureus</em> from all eight NARS-Net editions.</li>
+            <li>Fully provenance-annotated: every value cites its network, report edition and table number.</li>
             <li>Cross-checked three ways — internal arithmetic, narrative cross-check against report prose, and structural assertions.</li>
           </ul>
         </div>
@@ -272,14 +272,14 @@
           <ul>
             <li>Community prevalence — these are tertiary-care lab isolates, a hospital-skewed population.</li>
             <li>Patient-level data, or a national burden/incidence estimate.</li>
-            <li>A pooled cross-network figure. AMRSN and NCDC's NARS-Net are different networks; NARS-Net is carried here as a separate parallel series, in its own files, and the two are never combined.</li>
+            <li>A pooled cross-network figure — the two are carried in separate files and never combined. <a href="#narsnet">Why, in full, below.</a></li>
           </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="charts" class="reveal" class="reveal">
+  <section id="charts" class="reveal">
     <div class="wrap">
       <div class="eyebrow">charts</div>
       <h2 class="section-title">The trends</h2>
@@ -327,7 +327,7 @@
     </div>
   </section>
 
-  <section id="rc" class="reveal" class="reveal">
+  <section id="rc" class="reveal">
     <div class="wrap">
       <div class="eyebrow">regional centres</div>
       <h2 class="section-title">By Regional Centre</h2>
@@ -392,7 +392,7 @@
     </div>
   </section>
 
-  <section id="method" class="reveal" class="reveal">
+  <section id="method" class="reveal">
     <div class="wrap">
       <div class="eyebrow">method</div>
       <h2 class="section-title">Three ways this PDF fights back</h2>
@@ -443,7 +443,7 @@
     </div>
   </section>
 
-  <section id="roadmap" class="reveal" class="reveal">
+  <section id="roadmap" class="reveal">
     <div class="wrap">
       <div class="eyebrow">roadmap</div>
       <h2 class="section-title">Where this goes next</h2>
@@ -456,7 +456,7 @@
     </div>
   </section>
 
-  <section id="cite" class="reveal" class="reveal" style="border-bottom:none;">
+  <section id="cite" class="reveal" style="border-bottom:none;">
     <div class="wrap">
       <div class="eyebrow">cite / connect</div>
       <h2 class="section-title">Using this</h2>
@@ -493,7 +493,8 @@
       <div class="maint">
         <strong>Scope and maintenance.</strong> Data is current through the ICMR AMRSN
         8th edition (2024) and through all eight NCDC NARS-Net editions, 2017&ndash;2024.
-        This repository is not actively maintained against future editions &mdash; for
+        Built and completed independently before the author began medical school, and
+        not maintained against editions published since &mdash; for
         anything published after 2024, check the
         <a href="https://iamrsn.icmr.org.in/">ICMR AMRSN site</a> or the
         <a href="https://ncdc.mohfw.gov.in/reports/">NCDC reports page</a> directly.
