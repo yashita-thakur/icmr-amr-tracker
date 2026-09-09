@@ -3,7 +3,7 @@
 Every ingested report edition and every revised value found is logged here
 (spec section 5).
 
-## [Unreleased] — 0.4.0 (V3 — NARS-Net cross-reference)
+## 0.4.0 — 2026-09-09 (V3 — NARS-Net cross-reference)
 
 V3 cross-references the ICMR AMRSN series against NCDC's **NARS-Net**, a second,
 independent Indian national AMR surveillance network. Scope and constraints are
@@ -620,7 +620,7 @@ nothing to compare and returns an empty list on the 2022–2024 data. This is
 its `note` field. Contrast `revisions.json`, where every calendar year is
 covered up to three times.
 
-## [Unreleased] — 0.2.0 (V1.1)
+## 0.2.0 — 2026-08-27 (V1.1)
 
 ### Added
 - Four more organisms across two more chapters: *Acinetobacter baumannii* and
@@ -741,7 +741,7 @@ a single edition.
 
 ---
 
-## 0.1.0 — V1 (*E. coli*, *K. pneumoniae*)
+## 0.1.0 — 2026-08-27 (V1 — *E. coli*, *K. pneumoniae*)
 
 ### Added
 - V1 pipeline: fetch → parse → validate → export for the Enterobacterales

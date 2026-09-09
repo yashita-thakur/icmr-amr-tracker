@@ -1,4 +1,5 @@
-# Spec §7: raw ICMR PDFs are copyrighted and must NEVER be committed.
+# Source report PDFs from both networks (ICMR-AMRSN and NCDC NARS-Net) are
+# never committed. They are fetched at run time; see DATA_LICENSE.md.
 data/raw/
 *.pdf
 
@@ -17,4 +18,3 @@ env/
 Thumbs.db
 .vscode/
 .idea/
-.claude/

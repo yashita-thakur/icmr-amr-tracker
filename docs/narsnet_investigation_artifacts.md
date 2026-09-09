@@ -1,8 +1,15 @@
-# NARS-Net V3 investigation — retained artifacts
+# NARS-Net source record — report registry and 2024 site roster
 
-Untracked scratch record from the V3 investigation phase. Not part of the
-dataset or the build. Kept so the fetched source material and the 2024 site
-roster are not lost when the session scratchpad is cleared.
+The durable record of the eight NCDC NARS-Net annual report editions this
+project extracts from, and of the 2024 edition's full site roster. The source
+PDFs are not redistributed here (see `DATA_LICENSE.md`), so this file and
+`NARSNET_SOURCES` in `src/sources.py` are together what let a third party fetch
+the same documents and confirm they got the same bytes.
+
+**The SHA-256 table in section 1 is read at test time.**
+`tests/test_narsnet_sources.py::test_hashes_match_the_investigation_record`
+parses those rows and asserts them against the registry in `src/sources.py`, so
+the two cannot drift apart. If you edit the table, keep its column layout.
 
 ## 1. The 8 NARS-Net annual report PDFs
 
@@ -23,20 +30,17 @@ edition's cover says "Annual Report-2021").
 | Jan–Dec 2023 | `narsnet_2023.pdf` | https://ncdc.mohfw.gov.in/uploads/pdf/amr32.pdf | `1c5c9fbe3c6320c9b1e31852f0892aecf705d10c243fbb4505551b4032ebca56` |
 | Jan–Dec 2024 | `narsnet_2024.pdf` | https://ncdc.mohfw.gov.in/uploads/pdf/amr30.pdf | `48b4bdf8f7f8706a110f9f8b3b95aa792b813b18ecedc7b1bb94b49c8a63c4e5` |
 
-### Local save path
+### Working copies
 
-The 8 PDFs, the per-page text dumps (`text_2017.txt` … `text_2024.txt`), the
-extraction helper scripts, and the rendered image of the 2021 E. coli table
-were saved under:
+The PDFs, per-page text dumps, extraction helper scripts and a rendered image of
+the 2021 *E. coli* table were held in a temporary working directory during
+extraction and were not retained. Nothing in the build depends on them:
+`python -m src.fetch --network narsnet` re-fetches the eight PDFs from the URLs
+above and verifies each against the hash in the same table.
 
-```
-C:\Users\yashi\AppData\Local\Temp\claude\C--Users-yashi\159f0dcb-e4a6-40d6-b731-608abc4a34eb\scratchpad\narsnet\
-```
-
-This is a session scratchpad and will not survive indefinitely. When V3 work
-begins, re-fetch from the URLs above, confirm the SHA-256 values match, and
-archive each PDF (Wayback or Zenodo) — NCDC has migrated these URLs twice
-before.
+Archiving each PDF independently (Wayback or Zenodo) would still be worth doing.
+NCDC has already migrated these URLs twice, and the hashes above are this
+project's only fixed reference to the exact bytes it read.
 
 ## 2. NARS-Net 2024 edition — Annexure I, full site list (entries 1–54)
 
