@@ -55,6 +55,8 @@ from matplotlib.ticker import (  # noqa: E402
     MaxNLocator,
     NullLocator,
 )
+from matplotlib.text import Text  # noqa: E402
+from matplotlib.transforms import Bbox  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
@@ -83,6 +85,82 @@ def _percent_axis(ax, label):
     ax.set_ylim(-PCT_AXIS_PAD, 100 + PCT_AXIS_PAD)
     ax.set_yticks(range(0, 101, 20))
     ax.grid(alpha=0.25, linestyle=":")
+
+
+# Candidate label placements in points, tried in order: directly above the
+# point, then alternating below and above at growing distance, then out to the
+# sides. The first that hits nothing already placed wins.
+LABEL_OFFSETS = [
+    (0, 10), (0, -20), (0, 26), (0, -36), (0, 42), (0, -52),
+    (34, 10), (-34, 10), (34, -20), (-34, -20),
+]
+
+
+def _resolve_label_overlaps(fig, ax, annotations, points, pad=2.0):
+    """Move any label that would print on top of another label or a marker.
+
+    Two revisions with close values land within a few pixels of each other on
+    adjacent rows and their two-line labels then overprint into something
+    unreadable: S. aureus tigecycline is 2,452 in 2022 and 2,470 in 2023, and
+    the second label was printing across the first one's marker. Hand-placing
+    that pair would fix this chart at this size and nothing else, since which
+    labels collide depends on the values, the row count and the DPI. So every
+    label is tested against every box already placed and moved to its first
+    free candidate, and any label that had to move gets a leader line so it
+    stays visibly attached to its own point.
+
+    Boxes are translated arithmetically rather than re-rendered per candidate:
+    an offset-points annotation just shifts, so one draw is enough to measure
+    all of them.
+    """
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    scale = fig.dpi / 72.0
+    axes_box = ax.get_window_extent(renderer=renderer)
+
+    # Markers are obstacles too, not just other labels.
+    occupied = [
+        Bbox.from_bounds(px - 7, py - 7, 14, 14)
+        for px, py in (ax.transData.transform(pt) for pt in points)
+    ]
+
+    base_dx, base_dy = LABEL_OFFSETS[0]
+    for ann in annotations:
+        # Text.get_window_extent, NOT ann.get_window_extent. Annotation
+        # overrides it to span from the annotated point all the way to the
+        # text, so the box it returns grows with the offset -- 25px of text
+        # measured as 50px at one offset and 78px at another. Boxes that wrong
+        # let real collisions through. The parent method returns the text alone,
+        # which is the only thing that must not overprint.
+        base = Text.get_window_extent(ann, renderer=renderer)
+        chosen, chosen_box = LABEL_OFFSETS[0], None
+        for dx, dy in LABEL_OFFSETS:
+            box = Bbox.from_bounds(
+                base.x0 + (dx - base_dx) * scale,
+                base.y0 + (dy - base_dy) * scale,
+                base.width,
+                base.height,
+            )
+            grown = box.expanded(
+                1.0 + pad / max(box.width, 1.0), 1.0 + pad / max(box.height, 1.0)
+            )
+            # Containment is checked on BOTH axes. Testing x alone leaves a
+            # label on the first or last row free to run outside the frame --
+            # 1,281 on the top row was doing exactly that, over the title.
+            inside = (
+                axes_box.containsx(grown.x0)
+                and axes_box.containsx(grown.x1)
+                and axes_box.containsy(grown.y0)
+                and axes_box.containsy(grown.y1)
+            )
+            if inside and not any(grown.overlaps(o) for o in occupied):
+                chosen, chosen_box = (dx, dy), grown
+                break
+        if chosen_box is None:  # nothing free; keep the default and move on
+            chosen_box = Bbox.from_bounds(base.x0, base.y0, base.width, base.height)
+        ann.set_position(chosen)
+        ann.arrow_patch.set_visible(chosen != LABEL_OFFSETS[0])
+        occupied.append(chosen_box)
 
 
 def _margin_legend(fig, ax, fig_h, ncol=4, offset=0.52):
@@ -456,8 +534,11 @@ def chart_revisions(out_path, top_n=12):
         len(panels), 1, figsize=(9, sum(heights) + 1.6), squeeze=False
     )
 
+    to_place = []
     for ax, (key, items, xlabel) in zip(axes[:, 0], panels):
         labels = []
+        annotations, points = [], []
+        to_place.append((ax, annotations, points))
         is_count = key.startswith("tested_n")
         for i, rev in enumerate(items):
             by_report = {int(k): v for k, v in rev[key].items() if v is not None}
@@ -477,18 +558,31 @@ def chart_revisions(out_path, top_n=12):
             for value, editions in sorted(shared.items()):
                 ax.scatter(value, i, s=70, zorder=2, color="#2c6fb5")
                 fmt = "{:,.0f}" if is_count else "{:g}"
-                ax.annotate(
-                    "{}\n{}".format(
-                        fmt.format(value),
-                        ", ".join(str(e) for e in editions),
-                    ),
-                    (value, i),
-                    textcoords="offset points",
-                    xytext=(0, 10),
-                    ha="center",
-                    fontsize=7,
-                    linespacing=1.3,
+                annotations.append(
+                    ax.annotate(
+                        "{}\n{}".format(
+                            fmt.format(value),
+                            ", ".join(str(e) for e in editions),
+                        ),
+                        (value, i),
+                        textcoords="offset points",
+                        xytext=LABEL_OFFSETS[0],
+                        ha="center",
+                        fontsize=7,
+                        linespacing=1.3,
+                        zorder=3,
+                        # Hidden unless the label has to move; see
+                        # _resolve_label_overlaps.
+                        arrowprops={
+                            "arrowstyle": "-",
+                            "linewidth": 0.6,
+                            "color": "#999999",
+                            "shrinkA": 1,
+                            "shrinkB": 4,
+                        },
+                    )
                 )
+                points.append((value, i))
             org = rev["organism"]
             labels.append(
                 "{}. {} {} ({})".format(
@@ -498,7 +592,9 @@ def chart_revisions(out_path, top_n=12):
 
         ax.set_yticks(range(len(labels)))
         ax.set_yticklabels(labels, fontsize=8)
-        ax.set_ylim(-0.9, max(len(labels) - 0.3, 0.9))
+        # Headroom above the first row and below the last, so a two-line label
+        # on an end row has somewhere to go -- 1,281 on the top row had not.
+        ax.set_ylim(-2.2, max(len(labels) - 0.3, 0.9) + 1.2)
         ax.invert_yaxis()
         ax.set_xlabel("{}  (labelled with the report editions reporting it)".format(
             xlabel
@@ -524,6 +620,11 @@ def chart_revisions(out_path, top_n=12):
         "ICMR editions.\nThis reflects revision in the source reports, not "
         "extraction error.",
     )
+    # After tight_layout and the footer, so the axes are in their final
+    # position: label boxes are measured in display coordinates, and moving an
+    # axis afterwards would invalidate every placement decided here.
+    for ax, annotations, points in to_place:
+        _resolve_label_overlaps(fig, ax, annotations, points)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=150)
     plt.close(fig)
