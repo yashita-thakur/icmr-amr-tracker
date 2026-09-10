@@ -1033,8 +1033,9 @@ summarise. Both are written to be read on their own.
 
 ## The landing page
 
-`index.html` is a self-contained static page (suitable for GitHub Pages, though
-hosting is not set up here). It has two rendering paths for the same charts:
+`index.html` is a self-contained static page, published at
+**[yashita-thakur.github.io/icmr-amr-tracker](https://yashita-thakur.github.io/icmr-amr-tracker/)**
+from the `main` branch. It has two rendering paths for the same charts:
 
 - **Static PNGs** from `viz/trend_charts.py` — what you get with no JavaScript.
 - **Interactive SVG charts** that load `docs/data/trends.json` and let you
@@ -1082,8 +1083,9 @@ invites exactly the misreading this project exists to prevent.
 
 ## Project history
 
-Releases are tagged `v0.1` through `v0.4` and the `CHANGELOG.md` refers to them
-as V1–V3. The mapping:
+Releases are tagged `v0.1.0` through `v0.4.0`, matching the version numbers in
+`CHANGELOG.md` and `CITATION.cff`. The changelog additionally refers to them as
+V1–V3, which is the vocabulary the commit history uses. The mapping:
 
 | Release | In this README | What it added |
 |---|---|---|

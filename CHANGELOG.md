@@ -3,7 +3,7 @@
 Every ingested report edition and every revised value found is logged here
 (spec section 5).
 
-## 0.4.0 — 2026-09-09 (V3 — NARS-Net cross-reference)
+## 0.4.0 — 2026-09-10 (V3 — NARS-Net cross-reference)
 
 V3 cross-references the ICMR AMRSN series against NCDC's **NARS-Net**, a second,
 independent Indian national AMR surveillance network. Scope and constraints are
