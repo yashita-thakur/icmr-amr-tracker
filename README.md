@@ -76,6 +76,7 @@ This is a constraint on the comparison rather than a shortcoming of either body.
 - [The NCDC NARS-Net series](#the-ncdc-nars-net-series) — all eight editions, and what each one lets you check
 - [Where the two networks meet](#where-the-two-networks-meet) — coverage map, surveillance volume, structural caveats
 - [Source data](#source-data) — both registries, and citation form
+- [Supporting research](#supporting-research) — the edition-by-edition readings behind the NARS-Net material
 - [The landing page](#the-landing-page)
 - [Project history](#project-history)
 - [Citing](#citing)
@@ -663,6 +664,10 @@ dataset** (`data/processed/narsnet_trends.{csv,json}`, **558 rows** — 345
 *E. coli*, 213 *S. aureus*), with its own schema. Build it with
 `python -m src.build_narsnet_dataset`.
 
+What this section summarises is set out edition by edition, with the readings it
+rests on, in [`docs/narsnet_v3_research.md`](docs/narsnet_v3_research.md) — see
+[Supporting research](#supporting-research).
+
 ![E. coli NARS-Net percent resistant](docs/figures/narsnet_escherichia_coli.png)
 
 ![S. aureus NARS-Net percent resistant](docs/figures/narsnet_staphylococcus_aureus.png)
@@ -867,12 +872,19 @@ not.
 
 ![Isolates tested per year, both networks](docs/figures/narsnet_surveillance_volume.png)
 
-**The caveat that comes with it:** neither network publishes "isolates tested"
-for an organism — only *isolates tested against each drug* — and those differ
-widely inside a single year. *E. coli* urine in 2024 runs **17,191–41,460**
-across sixteen NARS-Net drugs; the AMRSN 2024 panel runs **94–12,445** across
-ten. Each line is therefore the **largest printed denominator** in that year's
-panel, stated as such. The all-specimen line is *combined* rather than printed,
+**The caveat that comes with it:** what each network prints as a count is not
+the same thing on both sides. Isolates tested *against each drug* differ widely
+inside a single year — *E. coli* urine in 2024 runs **17,191–41,460** across
+sixteen NARS-Net drugs, and the AMRSN 2024 panel runs **94–12,445** across ten.
+NARS-Net also prints an organism-level count per specimen in some editions: the
+2022–2024 tables carry it in the column header, as `Urine (N=44,711)` on the
+2024 *E. coli* table, and the 2017 and 2018 pooled columns carry one too.
+**AMRSN prints no organism-level count anywhere in these trend tables.** Each
+line is therefore the **largest printed denominator** in that year's panel —
+not because no other count is published, but because it is the one rule that can
+be applied identically to both networks and to every year. Where NARS-Net prints
+a column-header N as well, it is the larger figure, and the two are not
+interchangeable. The all-specimen line is *combined* rather than printed,
 because no edition from 2021 prints a pooled column: the rule takes the
 pairwise-disjoint subset of a drug-year's columns covering the most strata,
 preferring the one printed as fewest columns, so a printed pooled figure is used
@@ -998,6 +1010,24 @@ and an access date recorded because of the URL churn. Only two editions print a
 publication date anywhere — July 2022 for the 2021-data report and July 2023 for
 the 2022-data one — so the other six carry `[date unknown]` rather than a year
 inferred from those two. The cover year is never substituted for it.
+
+---
+
+## Supporting research
+
+Two documents in `docs/` carry the material the NARS-Net sections above
+summarise. Both are written to be read on their own.
+
+- [**`docs/narsnet_v3_research.md`**](docs/narsnet_v3_research.md) — what each
+  of the eight editions prints and what can be checked against what: the drug
+  panels per edition, the table locations, the column structures and how they
+  change twice mid-series, the cells that do not reconcile and why, and the
+  structural differences that constrain any comparison between the two networks.
+  Its section labels are cited from the code and tests, so they are stable.
+- [**`docs/narsnet_investigation_artifacts.md`**](docs/narsnet_investigation_artifacts.md)
+  — the registry of the eight editions with their pinned SHA-256 hashes, and
+  the 2024 edition's full 54-site roster. The hash table is read by
+  `tests/test_narsnet_sources.py` and asserted against `src/sources.py`.
 
 ---
 

@@ -1,14 +1,24 @@
-# NARS-Net V3 cross-reference — research findings, gap analysis, and investigation prompt
+# NARS-Net source research — what the eight editions print, and what can be checked against what
 
-Prepared 1 September 2026 for `icmr-amr-tracker` V3 scoping.
-Every factual claim below is sourced to a document that was actually retrieved and read. Where something could
-not be determined, it says so rather than filling the gap with a plausible guess.
+This is the evidence behind the NARS-Net material in `README.md`: what each of the eight NCDC NARS-Net annual
+reports prints, edition by edition, and what that allows a reader to verify. The README states the conclusions;
+this document holds the readings they rest on — the per-edition drug panels, the table locations, the column
+structures, the cells that do not reconcile and why, and the structural differences that constrain any comparison
+against ICMR-AMRSN.
 
-**Status: V3 is built. All eight NARS-Net editions, 2017 through 2024, are extracted and verified — both organisms,
-558 rows, no edition outstanding.** This document has been amended as each group of editions landed, so parts of it
-record what was expected before the pages were read and parts record what reading them established. Where the two
-differ the later reading wins, and the corrections are set out under A4 rather than applied silently to the earlier
-text.
+All eight editions, 2017 through 2024, are extracted: both comparable organisms, 558 rows, no edition outstanding.
+Every factual claim below is sourced to a document that was retrieved and read. Where something could not be
+determined, it says so rather than filling the gap with a plausible guess. The cell-level findings were established
+by reading the rendered pages by eye, independently of this document, so that a transcription slip here could not
+propagate into a finding.
+
+This document was written as the work proceeded, so parts of it record what was expected before the pages were read
+and parts record what reading them established. Where the two differ the later reading wins, and the correction is
+set out where it belongs rather than applied silently to the earlier text.
+
+**The section labels below are stable.** `A1`–`A7` and `B1`–`B7` are cited by name from `src/parsers/`, `src/`,
+`tests/` and `CHANGELOG.md` as the source of specific values, so they are part of this document's interface and are
+not renumbered.
 
 ---
 
@@ -170,16 +180,16 @@ Table 8 (E. coli), in the same document. Normalisation must be per-cell, not per
 All eight were fetched and returned extractable text. **None are scanned images, none require login, none 404.**
 The legacy `/uploads/pdf/amrNN.pdf` path is the one to use — it renders reliably where the `wp-content` copies truncate.
 
-| Data year | URL | Verified |
+| Data year | URL | Text extractable |
 |---|---|---|
-| 2017 | https://ncdc.mohfw.gov.in/uploads/pdf/amr39.pdf | text ✓ |
-| 2018 | https://ncdc.mohfw.gov.in/uploads/pdf/amr38.pdf | text ✓ |
-| 2019 | https://ncdc.mohfw.gov.in/uploads/pdf/amr37.pdf | text ✓ |
-| 2020 | https://ncdc.mohfw.gov.in/uploads/pdf/amr36.pdf | text ✓ |
-| 2021 | https://ncdc.mohfw.gov.in/uploads/pdf/amr35.pdf | text ✓ |
-| 2022 | https://ncdc.mohfw.gov.in/uploads/pdf/amr34.pdf | text ✓ |
-| 2023 | https://ncdc.mohfw.gov.in/uploads/pdf/amr32.pdf | text ✓ |
-| 2024 | https://ncdc.mohfw.gov.in/uploads/pdf/amr30.pdf | text ✓ |
+| 2017 | https://ncdc.mohfw.gov.in/uploads/pdf/amr39.pdf | confirmed |
+| 2018 | https://ncdc.mohfw.gov.in/uploads/pdf/amr38.pdf | confirmed |
+| 2019 | https://ncdc.mohfw.gov.in/uploads/pdf/amr37.pdf | confirmed |
+| 2020 | https://ncdc.mohfw.gov.in/uploads/pdf/amr36.pdf | confirmed |
+| 2021 | https://ncdc.mohfw.gov.in/uploads/pdf/amr35.pdf | confirmed |
+| 2022 | https://ncdc.mohfw.gov.in/uploads/pdf/amr34.pdf | confirmed |
+| 2023 | https://ncdc.mohfw.gov.in/uploads/pdf/amr32.pdf | confirmed |
+| 2024 | https://ncdc.mohfw.gov.in/uploads/pdf/amr30.pdf | confirmed |
 
 `wp-content` equivalents also exist and work, with one caveat — the 2024 one truncates before Annexure I:
 2023 = `/wp-content/uploads/2024/09/Final-Annual-Report-2023-06_08_2024.pdf`,
@@ -516,7 +526,12 @@ constraint on the comparison, not a shortcoming of either body.
 NARS-Net includes **five specimen types**: blood, urine, pus aspirate, other sterile body fluids (OSBF), and stool.
 
 **Urine is included, and it is the largest stratum** — 46% of all specimens in 2023, with E. coli urine N=44,711 in
-2024 versus blood N=3,621. AMRSN's main trend tables exclude urine. Since urinary isolates differ systematically in
+2024 versus blood N=3,621. Those two are the **column-header** counts printed on Table 8 of the 2024 edition
+(`Blood (N=3,621) … Urine (N=44,711)`), which count isolates in the stratum. They are not the same quantity as the
+largest denominator printed against any one drug in those columns, which is 41,460 for urine and 3,254 for blood
+and is the figure the surveillance-volume chart uses. Both are printed; not every isolate is tested against every
+drug, so the two differ and neither substitutes for the other. AMRSN's main trend tables exclude urine. Since
+urinary isolates differ systematically in
 susceptibility profile from bloodstream isolates, **a pooled NARS-Net figure compared against an AMRSN
 non-urine figure would differ for reasons that have nothing to do with underlying resistance trends.**
 
@@ -622,18 +637,18 @@ having it discovered.
   ([WHONET guidance manual](https://ncdc.mohfw.gov.in/uploads/pdf/amr7.pdf)). Nothing public comes out of that chain
   but the report PDF and the semi-annual bulletins
   ([bulletin index](https://ncdc.mohfw.gov.in/amr-semi-annual-bulletin/), Issues 01–06, Jan 2023–Dec 2025).
-- **data.gov.in:** no AMR or NCDC datasets found. ⚠️ **Soft negative** — the portal was displaying a maintenance
-  banner and returned "No Result Found" even for known-good catalogues, so the index was likely broken. Worth one
-  manual re-check before asserting this in print.
+- **data.gov.in:** no AMR or NCDC datasets found. This is a **soft negative**: the portal was displaying a
+  maintenance banner and returned "No Result Found" even for known-good catalogues, so the index was likely broken
+  at the time of the search. It is recorded as unconfirmed rather than as an established absence.
 - **WHO GLASS:** India's data is in GLASS (enrolled 2017, submitting since 2018), but only as per-figure CSV
   downloads from the [Shiny dashboard](https://worldhealthorg.shinyapps.io/glass-dashboard/) (2016–2023) and PDF
   annex tables in the 2025 report. GLASS-AMR is **not** in the WHO GHO OData API. And as noted above, the GLASS
   submission covers a different population than the NARS-Net report.
 - **Prior digitisation:** Shinde et al. (2026), *Frontiers in Antibiotics*, doi:10.3389/frabi.2026.1632790, extracted
-  NARS-Net 2018–23 into heatmaps and tables but **deposited no data file** — worth emailing the authors.
+  NARS-Net 2018–23 into heatmaps and tables but **deposited no data file**.
   Leclerc's [GLASS2022 compilation](https://github.com/qleclerc/GLASS2022) (DOI 10.5281/zenodo.7486150) is clean and
   well-documented but its inclusion filter may exclude India — check `Iso3 == "IND"` before relying on it.
-  ⚠️ A HuggingFace/Kaggle set named `amr-india-surveillance-2017-2024` exists — **do not use it**: it is
+  A HuggingFace/Kaggle set named `amr-india-surveillance-2017-2024` exists, and **should not be used**: it is
   AMRSN-derived rather than NARS-Net, unreviewed, self-cited, claims geocoded hospital locations for a network whose
   centres ICMR de-identifies, and ships a file literally named `amr_data_real.csv` alongside its others.
 
@@ -680,70 +695,68 @@ What exists versus what V3 needs. Concrete items only.
 
 | Item | Status |
 |---|---|
-| NARS-Net 2017–2024 PDF URLs identified and verified reachable | ✅ Done (A3) |
-| **NARS-Net PDFs downloaded into the local extraction pipeline** | ✅ **Done — all 8.** Registered in `NARSNET_SOURCES` with SHA-256 pinned as verified on 2026-09-01, fetched by `fetch.py --network narsnet`, and extracted. A hash mismatch is a hard failure for this registry, since the table locations and source defects recorded here were established against exactly those bytes |
-| ICMR AMRSN 2022/2023/2024 PDFs | ✅ Already held |
-| NARS-Net semi-annual bulletins (Issues 01–06, 2023–2025) | ⬜ Not assessed — out of V3 scope unless intra-year granularity is wanted |
-| Archival copies (Wayback/Zenodo) of all 8 NARS-Net PDFs | ❌ Not done — needed, given documented URL churn |
+| NARS-Net 2017–2024 PDF URLs identified and verified reachable | Done (A3) |
+| **NARS-Net PDFs downloaded into the local extraction pipeline** | **Done, all eight.** Registered in `NARSNET_SOURCES` with SHA-256 pinned as verified on 2026-09-01, fetched by `fetch.py --network narsnet`, and extracted. A hash mismatch is a hard failure for this registry, since the table locations and source defects recorded here were established against exactly those bytes |
+| ICMR AMRSN 2022/2023/2024 PDFs | Already held |
+| NARS-Net semi-annual bulletins (Issues 01–06, 2023–2025) | Not assessed. Out of scope unless intra-year granularity is wanted |
+| Archival copies (Wayback/Zenodo) of all 8 NARS-Net PDFs | Not done. Worth doing, given the documented URL churn; the pinned hashes are meanwhile the only fixed reference to the bytes read |
 
 ## B2. Scope questions — resolved
 
 | Question | Answer |
 |---|---|
-| Are Klebsiella / Pseudomonas / Acinetobacter comparable? | ❌ **No** — genus-level in all 8 NARS-Net editions, species-level in AMRSN. Out of scope, confirmed. |
-| Is there any species-level breakdown in an annex? | ❌ **No** — checked all 8 editions exhaustively |
-| Which organisms are comparable? | ✅ **E. coli and S. aureus only** |
-| Which years overlap both networks? | ✅ **2017–2024** for both (AMRSN historical tables 2017–2024; NARS-Net editions 2017–2024) |
+| Are Klebsiella / Pseudomonas / Acinetobacter comparable? | **No** — genus-level in all 8 NARS-Net editions, species-level in AMRSN. Out of scope, confirmed. |
+| Is there any species-level breakdown in an annex? | **No** — checked all eight editions exhaustively |
+| Which organisms are comparable? | **E. coli and S. aureus only** |
+| Which years overlap both networks? | **2017–2024** for both (AMRSN historical tables 2017–2024; NARS-Net editions 2017–2024) |
 
 ## B3. Panel overlap
 
 | Item | Status |
 |---|---|
-| NARS-Net E. coli panel, all 8 editions, as printed | ✅ Extracted (A2) |
-| NARS-Net S. aureus panel, all 8 editions, as printed | ✅ Extracted (A2) |
-| S. aureus overlap vs AMRSN 11-drug panel | ✅ **7 of 11** for 2021–2024; 6 of 11 for 2019–2020 |
-| E. coli overlap vs AMRSN 10-drug panel | ✅ **7 of 10** for 2021–2024 (5 of 10 for 2017, 4 of 10 for 2018–2020), checked against the repo's actual `CANONICAL_PANEL`. `cefazolin` and `levofloxacin` are never in any NARS-Net E. coli panel; `ceftazidime` is in one in 2017 only |
-| Drug-name normalisation map | ✅ **Written** — `src/parsers/narsnet_antibiotics.py`, a second alias table consulted before the shared one, which is not edited. `normalise_antibiotic` ends in a substring scan, so a key added to the shared table would become a candidate substring for every AMRSN label too; a separate table leaves the AMRSN path unchanged by construction |
+| NARS-Net E. coli panel, all 8 editions, as printed | Extracted (A2) |
+| NARS-Net S. aureus panel, all 8 editions, as printed | Extracted (A2) |
+| S. aureus overlap vs AMRSN 11-drug panel | **7 of 11** for 2021–2024; 6 of 11 for 2019–2020 |
+| E. coli overlap vs AMRSN 10-drug panel | **7 of 10** for 2021–2024 (5 of 10 for 2017, 4 of 10 for 2018–2020), checked against the repo's actual `CANONICAL_PANEL`. `cefazolin` and `levofloxacin` are never in any NARS-Net E. coli panel; `ceftazidime` is in one in 2017 only |
+| Drug-name normalisation map | **Written** — `src/parsers/narsnet_antibiotics.py`, a second alias table consulted before the shared one, which is not edited. `normalise_antibiotic` ends in a substring scan, so a key added to the shared table would become a candidate substring for every AMRSN label too; a separate table leaves the AMRSN path unchanged by construction |
 
 ## B4. Schema changes V3 requires
 
 | Gap | Detail |
 |---|---|
-| **Metric direction** | ✅ **Done.** `NarsNetRecord` carries `resistant_pct` and has no field meaning the same thing as `Record.susceptible_pct`, so the separation is structural rather than a convention to remember. **%S is not derived as 100−%R** — intermediates are classified separately and are in neither figure. |
-| **Numerator absence** | ✅ **Done.** `numerator_status` carries `printed`, `not_printed_in_source` and `corrupt_in_source`, and `reconcilable` is true for the first alone, so a consumer filtering on it can never reach a count it must not use. Printed and usable for 2019–2020; for **2021** usable for S. aureus and for the E. coli PA/OSBF columns only; not printed at all for 2017–2018 or 2022–2024. A numerator is never back-computed |
-| **Reconciliation scope** | ✅ **Done**, and then found insufficient on its own. `reconcilable` says whether the printed numerator can be trusted as that cell's numerator; it does **not** say whether a check ran, and the two come apart in both directions — false on every 2022–2024 row, which are checked against their intervals, and true on one 2021 row that is checked against nothing. Whether a check ran is the separate flag `no_internal_check_possible`, on 125 cells across four editions |
-| **Confidence intervals** | ✅ **Done.** 2022–2024 print 95% CIs; AMRSN does not. `ci_low` and `ci_high` are optional fields, and the percentage against its own interval is the check those editions support |
-| **Specimen stratum** | ✅ **Done.** NARS-Net rows are **per specimen type**, with no pooled column from 2021. The `specimen` dimension has no AMRSN counterpart, which remains the main schema divergence; composites keep every constituent in their value rather than collapsing to one "pooled" label, because the composites are not the same set across editions |
-| **Network / source dimension** | ✅ **Done.** Every row carries `network` (`amrsn` \| `narsnet`), and `source_report_year` is the reporting period throughout, with `source_cover_year` recording a cover year that differs from it — which it does for the 2019 and 2020 editions |
-| **Site-level data** | ❌ **Not available at all for NARS-Net** — only national aggregates are published. The repo's RC-level (V2) apparatus has no NARS-Net counterpart. V3 is national-level only. |
+| **Metric direction** | **Done.** `NarsNetRecord` carries `resistant_pct` and has no field meaning the same thing as `Record.susceptible_pct`, so the separation is structural rather than a convention to remember. **%S is not derived as 100−%R** — intermediates are classified separately and are in neither figure. |
+| **Numerator absence** | **Done.** `numerator_status` carries `printed`, `not_printed_in_source` and `corrupt_in_source`, and `reconcilable` is true for the first alone, so a consumer filtering on it can never reach a count it must not use. Printed and usable for 2019–2020; for **2021** usable for S. aureus and for the E. coli PA/OSBF columns only; not printed at all for 2017–2018 or 2022–2024. A numerator is never back-computed |
+| **Reconciliation scope** | **Done**, and then found insufficient on its own. `reconcilable` says whether the printed numerator can be trusted as that cell's numerator; it does **not** say whether a check ran, and the two come apart in both directions — false on every 2022–2024 row, which are checked against their intervals, and true on one 2021 row that is checked against nothing. Whether a check ran is the separate flag `no_internal_check_possible`, on 125 cells across four editions |
+| **Confidence intervals** | **Done.** 2022–2024 print 95% CIs; AMRSN does not. `ci_low` and `ci_high` are optional fields, and the percentage against its own interval is the check those editions support |
+| **Specimen stratum** | **Done.** NARS-Net rows are **per specimen type**, with no pooled column from 2021. The `specimen` dimension has no AMRSN counterpart, which remains the main schema divergence; composites keep every constituent in their value rather than collapsing to one "pooled" label, because the composites are not the same set across editions |
+| **Network / source dimension** | **Done.** Every row carries `network` (`amrsn` \| `narsnet`), and `source_report_year` is the reporting period throughout, with `source_cover_year` recording a cover year that differs from it — which it does for the 2019 and 2020 editions |
+| **Site-level data** | **Not available at all for NARS-Net** — only national aggregates are published. The repo's RC-level (V2) apparatus has no NARS-Net counterpart. V3 is national-level only. |
 
 ## B5. Known source-data issues to encode as flags
 
 | Item | Status |
 |---|---|
-| 2017 Table 1 header says `Klebsiella pneumoniae`, rest of document says `Klebsiella species` | ✅ **No longer reachable.** 2017 is ingested, but only its Table 4 (*S. aureus*) and Table 5 (*E. coli*). Table 1 is a specimen-count table for every pathogen and is not parsed, and Klebsiella is not in V3 scope at either genus or species level |
-| 2019 ceftazidime appears in figures (Figs. 13–16) but not in Tables 6/7 | ⚠️ Documented — figure-only value, not table-extractable |
-| **2021 E. coli Table 6, Blood column: `Number Resistant` does not reconcile** (e.g. Amikacin `1510 1088 29`; Ampicillin `1294 584 84`; Ciprofloxacin `1551 135 63`; Meropenem `854 981 25`, resistant > tested) | ✅ **Resolved by rendering the page.** The printed table itself is wrong — the Blood `Number Resistant` sub-column is corrupt at source, as are the Urine `Pip/Taz` and `TMP/SMX` cells (`Number Resistant` = `Number Tested`) and the Urine `Colistin` % (blank). The printed `%R` and `Number Tested` are sound; Pus Aspirate and OSBF columns reconcile; Klebsiella Table 7 Blood reconciles, so it is a one-table defect. Flag the affected cells; do not use the 2021 E. coli Blood numerator |
-| 2023 Table 7 (Enterococcus): caption N=11,072 vs column headers summing to 14,705 | ⚠️ Flagged — out of V3 scope (Enterococcus), but indicates the 2023 edition has at least one caption/column inconsistency |
-| 2023 Table 6 Linezolid blood row prints point estimate `0` with CI `0.1-0.4` | ✅ **Ingested and flagged** as `ci_excludes_point_estimate`. Refined by the cell-by-cell reading above: the percentage column is printed to whole numbers and the interval to one decimal, and the chapter gives the year's figure as 0.2%, which the interval brackets and which rounds to the printed 0 — a difference between two columns' rounding rather than a disagreement about the figure |
-| **2022 Table 7, E. coli, OSBF doxycycline: 95% CI printed `24.2- 4.02`** | ✅ **Found during extraction and flagged** as `ci_bounds_inverted` and `ci_excludes_point_estimate`. The upper bound is printed below the lower, so the interval as printed is empty. Bounds are carried in the printed order and not swapped; no intended upper bound is reconstructed |
-| 2018 report names **no interpretive standard** | ⚠️ Documented |
-| CLSI edition unstated in all editions except 2024 (M100 34th Ed.) | ⚠️ Documented |
-| 2022 ToC calls its annexure "…for the 2023 AMR Surveillance report" in a 2022-data report | ⚠️ Cosmetic, documented |
+| 2017 Table 1 header says `Klebsiella pneumoniae`, rest of document says `Klebsiella species` | **No longer reachable.** 2017 is ingested, but only its Table 4 (*S. aureus*) and Table 5 (*E. coli*). Table 1 is a specimen-count table for every pathogen and is not parsed, and Klebsiella is not in V3 scope at either genus or species level |
+| 2019 ceftazidime appears in figures (Figs. 13–16) but not in Tables 6/7 | Documented — figure-only value, not table-extractable |
+| **2021 E. coli Table 6, Blood column: `Number Resistant` does not reconcile** (e.g. Amikacin `1510 1088 29`; Ampicillin `1294 584 84`; Ciprofloxacin `1551 135 63`; Meropenem `854 981 25`, resistant > tested) | **Resolved by rendering the page.** The printed table itself is wrong — the Blood `Number Resistant` sub-column is corrupt at source, as are the Urine `Pip/Taz` and `TMP/SMX` cells (`Number Resistant` = `Number Tested`) and the Urine `Colistin` % (blank). The printed `%R` and `Number Tested` are sound; Pus Aspirate and OSBF columns reconcile; Klebsiella Table 7 Blood reconciles, so it is a one-table defect. Flag the affected cells; do not use the 2021 E. coli Blood numerator |
+| 2023 Table 7 (Enterococcus): caption N=11,072 vs column headers summing to 14,705 | Flagged — out of scope here (Enterococcus), but indicates the 2023 edition has at least one caption/column inconsistency |
+| 2023 Table 6 Linezolid blood row prints point estimate `0` with CI `0.1-0.4` | **Ingested and flagged** as `ci_excludes_point_estimate`. Refined by the cell-by-cell reading above: the percentage column is printed to whole numbers and the interval to one decimal, and the chapter gives the year's figure as 0.2%, which the interval brackets and which rounds to the printed 0 — a difference between two columns' rounding rather than a disagreement about the figure |
+| **2022 Table 7, E. coli, OSBF doxycycline: 95% CI printed `24.2- 4.02`** | **Found during extraction and flagged** as `ci_bounds_inverted` and `ci_excludes_point_estimate`. The upper bound is printed below the lower, so the interval as printed is empty. Bounds are carried in the printed order and not swapped; no intended upper bound is reconstructed |
+| 2018 report names **no interpretive standard** | Documented |
+| CLSI edition unstated in all editions except 2024 (M100 34th Ed.) | Documented |
+| 2022 ToC calls its annexure "…for the 2023 AMR Surveillance report" in a 2022-data report | Cosmetic, documented |
 
-## B6. Verification still outstanding
+## B6. What this research did not establish
 
-Nothing here concerns the extraction, which is complete for all eight editions. These are loose ends in the
-surrounding research.
+None of this concerns the extraction, which is complete for all eight editions. These are the points where the
+surrounding research stopped short, recorded so that a claim resting on one of them can be weighed accordingly.
 
-| Item | Why it matters |
+| Not established | What follows from it |
 |---|---|
-| ~~Visual inspection of 2021 E. coli Table 6 Blood column~~ | ✅ Done — see B5, and the cell-by-cell reading above. Blood `Number Resistant` is corrupt at source and not recoverable; `%R` and `Number Tested` are sound. Encoded as `CORRUPT_NUMERATORS`; 11 of the 13 cells fail, and the printed values are the column's own, displaced across rows |
-| ~~2024 Annexure I, entries 11–54~~ | ✅ Done — full 54-site list read from `amr30.pdf`, recorded in `docs/narsnet_investigation_artifacts.md` |
-| **2020 Fig. 1 site list** | Rendered as an image — 2020 site names are not text-extractable. Cosmetic unless the roster timeline is published |
-| **ICMR-AMRSN Annexure I (full named participant list)** | Would close the ~4–5 unnamed regional centres and let the zero-overlap claim be stated without qualification. In `1725536060_annual_report_2023.pdf`, beyond the point where extraction truncated |
-| **data.gov.in re-check** | Current negative was returned while the portal was in maintenance |
-| **Contact Shinde et al. (2026)** | They digitised NARS-Net 2018–23; a shared file would provide an independent cross-check on extraction accuracy |
+| **The 2020 site list** | Figure 1 of the 2020 edition is a rendered image, so the 2020 site names are not text-extractable. The roster timeline in A2 therefore rests on counts rather than on named sites for that year |
+| **The full ICMR-AMRSN named participant list** | Annexure I of `1725536060_annual_report_2023.pdf` lies beyond the point where extraction truncated. This is why the zero-overlap finding in A5 carries its qualifier about the ~4–5 regional centres AMRSN does not name publicly, rather than being stated flatly |
+| **Whether data.gov.in holds any NCDC AMR dataset** | The negative in A6 was returned while the portal was displaying a maintenance banner and failing on known-good catalogues. It is recorded as unconfirmed, not as an established absence |
+| **An independent cross-check on extraction accuracy** | No second digitisation of these tables is available to compare against. Shinde et al. (2026) published derived heatmaps and tables from the 2018–23 editions but deposited no data file (A6), so the checks this project relies on are the internal ones set out in A4 |
 
 ## B7. Not needed
 
@@ -753,152 +766,25 @@ surrounding research.
 
 ---
 
-# PART C — THE ORIGINAL INVESTIGATION BRIEF, AS ISSUED
+# PART C — How this research was scoped
 
-**This brief was executed and is kept as a record of how the work was commissioned. Do not follow it.** Its
-instructions — investigate the eight PDFs, report before building, write no extraction code — describe work that is
-finished; Parts A and B above are its output, and the extraction it asked for is in `src/parsers/narsnet_parser.py`.
-Figures inside it are as they stood on 1 September 2026 and were not updated afterwards: the test count it quotes,
-the provisional panel-overlap numbers it asks to be checked, and the open questions it poses have all since been
-answered above.
+The work recorded above was commissioned as a written brief before any extraction code was written, and carried out
+against it. The brief set the scope question (which organisms are comparable across the two networks, and on what
+evidence), required that the eight PDFs be read directly rather than trusted from a summary, and required the
+findings to be reported and reviewed before the schema was touched. Parts A and B are its output.
 
----
+Two constraints in it shaped what the repository does, and are worth recording because they are visible in the
+result. The first was that the comparison be factual and even-handed — reconciliation gaps and method changes
+documented specifically and without softening, and without language implying either body is careless or at fault.
+The second was that nothing be repaired: where a printed figure is defective, the defect is carried and flagged
+rather than corrected. Both are why the dataset reports 15 corrupt-numerator cells and an inverted confidence
+interval as printed, instead of quietly fixing them.
 
-```
-V3 INVESTIGATION PHASE — NARS-Net cross-reference. Investigate and report only; write no extraction code yet.
+The brief itself is not reproduced here. Its factual content is entirely superseded by Parts A and B, which were
+written from readings of the source pages rather than from it, and the figures inside it were never updated as the
+work progressed — its test count, its provisional panel-overlap numbers and its open questions are all answered
+above. The verbatim text is preserved in the repository's history and can be read at any time with:
 
-## What V3 is
-
-V1/V2 of this repo extract ICMR-AMRSN annual report data. V3 adds a cross-reference against a second, independent
-Indian national AMR surveillance network: NCDC's NARS-Net. The goal is a factual, respectful comparison between two
-legitimate national surveillance efforts — never a "which one is right" framing. Both networks' reconciliation gaps
-and method changes are to be documented as ordinary features of large-scale multi-year surveillance data, fully and
-specifically, with no vagueness and no softening of actual numbers, and with no language implying either body is
-careless, secretive, or at fault. Match the register already established in this repo's docs.
-
-## Step 1 — read the codebase first (do this before any source investigation)
-
-Read and report back on, in this order:
-- the extraction module(s) and how a report PDF becomes rows
-- the row schema as actually implemented (field names, types, nullability), and how `computed_pct` is kept distinct
-  from the printed percentage
-- the flag vocabulary in use (`pct_mismatch`, `low_isolate_count_asterisk`, `panel_changed`, any others) and where
-  flags are set
-- how `source_report_year` and `source_table` are populated, and how the P. aeruginosa/piperacillin-tazobactam 2022
-  cross-edition count revision is represented
-- the test fixture conventions (all 129 tests) and how hand-verified fixtures are structured
-- CITATION.cff, LICENSE, and the docs' tone conventions
-- **the full 10-drug AMRSN Enterobacterales panel and the full 11-drug S. aureus panel, as drug-name strings actually
-  used in the data** — I need the exact canonical spellings
-
-Report what you found before moving on. Do not propose schema changes yet.
-
-## Step 2 — known context (established research; do NOT re-derive any of this)
-
-Eight NARS-Net annual reports, all verified live, text-extractable, no login:
-  2017 https://ncdc.mohfw.gov.in/uploads/pdf/amr39.pdf
-  2018 https://ncdc.mohfw.gov.in/uploads/pdf/amr38.pdf
-  2019 https://ncdc.mohfw.gov.in/uploads/pdf/amr37.pdf
-  2020 https://ncdc.mohfw.gov.in/uploads/pdf/amr36.pdf
-  2021 https://ncdc.mohfw.gov.in/uploads/pdf/amr35.pdf
-  2022 https://ncdc.mohfw.gov.in/uploads/pdf/amr34.pdf
-  2023 https://ncdc.mohfw.gov.in/uploads/pdf/amr32.pdf
-  2024 https://ncdc.mohfw.gov.in/uploads/pdf/amr30.pdf
-Use the /uploads/pdf/ paths, not the /wp-content/ ones (the 2024 wp-content copy truncates before its annexure).
-Cover-page years are unreliable: the 2019-data cover says "-2020", the 2020-data cover says "-2021". Index by
-reporting period. wp-content/uploads/2024/03/87909365291642417515.pdf is a duplicate of the 2020 edition.
-
-SCOPE, already settled: Klebsiella, Pseudomonas and Acinetobacter are reported at GENUS level ("Klebsiella species")
-in all eight editions, with no species breakdown in any table, figure or annexure. AMRSN reports these at species
-level. They are therefore NOT comparable and are out of V3 scope. E. coli and S. aureus are species-level in both
-networks and are the primary comparable pair. (The one exception found: the 2017 edition's Table 1 column header
-reads "Klebsiella pneumoniae" while Table 2 and results Table 6 in the same document say "Klebsiella species" — a
-labelling inconsistency, not species data.) NARS-Net covered 7 pathogens 2017-2022; Shigella and V. cholerae were
-added in 2023, making 9.
-
-TABLE LOCATIONS (numbers are NOT stable — match on caption, fuzzily, since List-of-Tables and in-body captions
-differ in several editions):
-  E. coli:    2017 T5 | 2018 T6 | 2019 T6 | 2020 T8 | 2021 T6 | 2022 T7 | 2023 T8 | 2024 T8
-  S. aureus:  2017 T4 | 2018 T4 | 2019 T4 | 2020 T5 | 2021 T4 | 2022 T5 | 2023 T6 | 2024 T6
-
-DATA FORMAT — changes twice mid-series, this is the critical extraction fact:
-  2017              "No. tested" + "% Resistance"                    → denominator only, no CI
-  2018              "Number" + "%R", percentages printed "63%"     → denominator only, no CI
-  2019, 2020, 2021  "Number tested" + "Number Resistant" + "%R"      → NUMERATOR PRINTED, no CI
-  2022, 2023, 2024  "Number Tested" + "(%R)" + "95% CI"              → denominator only, CI printed
-Every edition prints %RESISTANT. %Susceptible is never printed in any edition. Do not derive %S as 100−%R:
-intermediates are classified separately (S/I/R) and appear in neither figure.
-Results are stratified by specimen type. 2017-2019 carry a pooled all-specimen column; 2020 has one for S. aureus
-only; 2021-2024 have NO pooled column, so a single national %R across specimens is not printed anywhere.
-
-PANELS as printed (E. coli): 2017 = 7 drugs; 2018 = 8; 2019 = 9; 2020 = 9; 2021 = 17; 2022 = 17 (same molecules as
-2021, different abbreviations); 2023 = 17 but cefuroxime dropped and ceftriaxone added; 2024 = same as 2023.
-PANELS as printed (S. aureus): 2017 = 9; 2018 = 10 (vancomycin present, n=14, footnoted low validity); 2019 = 8
-(vancomycin and tetracycline removed); 2020 = 8; 2021 = 9 (teicoplanin added); 2022-2024 = same 9.
-Oxacillin never appears in any edition — cefoxitin is the sole MRSA surrogate. Vancomycin is a printed row only in
-2018; 2019/2020 state no site reported BMD MICs, 2022 reports screening in prose only.
-
-NAMING VARIANTS needing normalisation (note the 2024 report is internally inconsistent — "TMP/SMX" in Table 6 but
-"TMP-SMX" in Table 8, same document, so normalise per cell, not per edition):
-  TMP/SMX | TMP-SMX | TMP / SMX | Trimethoprim/Sulfamethoxazole   → repo's "cotrimoxazole"
-  Pip/Taz | Pip-Taz | Piperacillin/ Tazobactam                     → repo's "piperacillin-tazobactam"
-  Amox/Clav | Amox-clav | Amox-Clav | Amoxicillin/ Clavulanic acid
-  Gentamycin (2017) → Gentamicin (2018+)
-Ceftazidime is in the AMRSN panel but appears in a NARS-Net E. coli table ONLY in 2017. In 2019 it appears in the
-E. coli figures (Figs 13-14) but not in Table 6 — figure-only, not table-extractable.
-
-STRUCTURAL CAVEATS that constrain any comparison:
-- Urine is INCLUDED in NARS-Net and is its largest stratum (46% of specimens in 2023; E. coli urine N=44,711 vs
-  blood N=3,621 in 2024). AMRSN's trend tables exclude urine. Because NARS-Net is specimen-stratified, the
-  defensible construction is a SPECIMEN-MATCHED comparison — blood-only, or blood+pus aspirate+OSBF — never a
-  pooled figure. Treat this as a hard design constraint.
-- Stool is restricted to enteric pathogens; E. coli and S. aureus are never surveilled from stool.
-- Dedup unit is first isolate per patient × pathogen × specimen type. Documented from 2019 onward; 2017 and 2018
-  assert a "unique patient" total with no stated rule, so 2018→2019 crosses a method-documentation change.
-- CLSI throughout, EUCAST never. Edition unstated except 2024 (M100 34th Ed.); 2018 names no standard at all. [Superseded by the investigation — see A5 "Interpretive standard": EUCAST is named once, in the 2023 methods text, among the international guidelines the SOPs draw on; it is not used to interpret results. Classification is CLSI in every edition that names one.]
-- No institution-level overlap between the two networks: NARS-Net is exclusively state government medical colleges;
-  AMRSN is dominated by central institutes, private/corporate and mission hospitals. Nearest cases are same-city,
-  different-institution (PGIMER vs GMCH-32; JIPMER vs IGMC&RI). ~4-5 AMRSN regional centres are not publicly named,
-  and AMRSN de-identifies all data rows as RC1-RC21, so data-level overlap can never be checked.
-- NARS-Net publishes NATIONAL AGGREGATES ONLY. There is no site-level or state-level breakdown, named or coded.
-  V3 has no counterpart to V2's RC-level work.
-- No machine-readable release of NARS-Net data exists anywhere (no NCDC portal/API/CSV, nothing on data.gov.in,
-  and WHO GLASS covers a different population — national plus state networks). PDF extraction is necessary.
-- No edition carries a suggested citation, ISBN or DOI. NCDC URLs have migrated twice and published citations
-  already contain dead links — archive the PDFs and record access dates.
-
-## Step 3 — investigate the real source PDFs directly
-
-Fetch and read the eight PDFs yourself. Verify rather than trust the summary above, and report concrete findings:
-
-1. Confirm the table numbers and exact captions for the E. coli and S. aureus national tables in each edition.
-2. Transcribe the exact column header structure per edition, and quote one full sample row per organism per edition.
-3. Confirm exactly which editions print a numerator, and confirm no edition prints %Susceptible anywhere.
-4. Produce the exact drug-name string list per organism per edition, and build a normalisation map from those
-   strings to this repo's existing canonical drug names. Report the E. coli and S. aureus panel overlap counts
-   against the repo's actual AMRSN panels (I have a provisional 7/11 for S. aureus and 7-of-8-named for E. coli —
-   compute the real numbers from the repo's canonical lists).
-5. DOUBLE-CHECK THE SCOPE DECISION: search every edition — including annexures, figure captions, footnotes and
-   discussion — for any species-level breakdown of Klebsiella, Pseudomonas or Acinetobacter. If you find one
-   anywhere, stop and report it, because it would widen V3's scope beyond E. coli and S. aureus. Report a clear
-   negative if you find none.
-6. Investigate the 2021 E. coli Table 6 Blood column: several rows do not reconcile (Amikacin "1510 1088 29";
-   Ampicillin "1294 584 84"; Ciprofloxacin "1551 135 63"). Two independent fetchers returned identical values, so
-   this looks like a PDF layout artefact rather than a read error. Determine whether the blood numerators are
-   recoverable; if not, report exactly which cells are unusable.
-7. Report the specimen column structure per edition (2020 merges pus aspirate and OSBF into one "PA + OSBF" column;
-   2021 onward splits them into four columns), since this determines whether a specimen-matched join is even
-   possible per year.
-
-## Step 4 — report before building
-
-Produce a written findings report covering: per-edition table locations and column structures; the drug-name
-normalisation map; the real panel-overlap counts; which year-organism-drug-specimen combinations are actually
-joinable against existing AMRSN data; which NARS-Net rows can support the repo's existing reconciliation check
-(expected: 2019-2021 only) and which cannot; and a proposed set of schema additions and new flags — including how
-to represent metric direction (%R vs %S), a nullable numerator that distinguishes "not printed in source" from
-zero, the specimen dimension, and optional confidence intervals.
-
-Do not write extraction code, do not modify the schema, and do not touch existing tests until I have reviewed that
-report and confirmed the approach.
+```bash
+git show ff3df31:docs/narsnet_v3_research.md
 ```
