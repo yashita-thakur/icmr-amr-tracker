@@ -74,8 +74,9 @@ NCDC_PUBLICATION_YEAR = {2021: 2022, 2022: 2023}
 # eight. So `doi` and `isbn` stay unset, the author is corporate, and the six
 # undated editions carry "[date unknown]" rather than a year inferred from the
 # pattern the two dated ones set. The cover year is never used as a substitute:
-# it is wrong for two editions in the series, the 2019-data report reading
-# "AMR Annual report -2020" and the 2020-data one "Annual Report-2021".
+# it differs from the reporting period for two editions in the series, the
+# 2019-data report reading "AMR Annual report -2020" and the 2020-data one
+# "Annual Report-2021".
 NCDC_DATE_UNKNOWN = "[date unknown]"
 
 

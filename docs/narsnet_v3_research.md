@@ -196,7 +196,7 @@ The legacy `/uploads/pdf/amrNN.pdf` path is the one to use — it renders reliab
 2024 = `/wp-content/uploads/2025/09/Final_Annual-Report-2025_Jan-to-Dec-2024.pdf`.
 
 **Three traps:**
-- **Cover-page years lie.** The 2019-data report's cover reads "AMR Annual report **-2020**"; the 2020-data report's
+- **Cover-page years are not the reporting period.** The 2019-data report's cover reads "AMR Annual report **-2020**"; the 2020-data report's
   cover reads "Annual Report**-2021**". Cite by reporting period, never by the cover number.
 - `wp-content/uploads/2024/03/87909365291642417515.pdf` is a **duplicate of the 2020 edition**, not a distinct year.
   It is the URL cited by several published papers, which compounds the year confusion.

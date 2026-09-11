@@ -819,8 +819,8 @@ Every affected row carries `narsnet_panel_changed(from=…)` or
 the RC file's. Each NARS-Net edition reports its own period only, with no
 retrospective multi-year table anywhere in the series, so no key is covered by
 more than one edition and cross-edition revision detection has nothing to
-compare. Contrast `revisions.json`, where three AMRSN editions cover each year
-and 17 genuine revisions surface.
+compare. The AMRSN series is the opposite case: three editions cover each year,
+which is what gives `revisions.json` something to find.
 
 ---
 
