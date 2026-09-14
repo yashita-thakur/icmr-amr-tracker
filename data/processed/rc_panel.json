@@ -1,6 +1,6 @@
 {
   "description": "Regional Centre codes (RC1..RCn) are de-identified in the reports, and the code-to-institution mapping is not part of the published tables. Treat them as edition-scoped: an RC that appears in two editions need not be the same laboratory, and a change in numbering between editions would not be signposted. This file records, per organism, the RC set each edition printed and how it differs from that organism's earliest edition. Every data row from an edition listed under 'changes' also carries an rc_panel_changed(...) flag.",
-  "attribution": "Derived from publicly available ICMR AMRSN annual reports (2017-2024). Independent, unofficial analysis - not endorsed by or affiliated with ICMR.",
+  "attribution": "Derived from the publicly available annual reports of two independent Indian national AMR surveillance networks: ICMR-AMRSN (2017-2024) and NCDC NARS-Net (2017-2024). The two are published here as parallel series and are never pooled. Independent, unofficial analysis - not endorsed by or affiliated with ICMR or NCDC.",
   "generated": "2026-08-31",
   "panel_by_edition": {
     "Escherichia coli": {
