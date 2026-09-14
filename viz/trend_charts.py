@@ -1,7 +1,7 @@
-"""Trend charts for the README (spec section 6).
+"""Trend charts for the README section "Figures".
 
 One chart per organism: susceptibility % by year, one line per antibiotic.
-Every figure carries the attribution line required by spec section 7.
+Every figure carries the attribution line, `ATTRIBUTION` from `src/sources.py`.
 
 By default each (organism, antibiotic, year) point is taken from the most
 recent report edition that reports it, since later editions supersede earlier

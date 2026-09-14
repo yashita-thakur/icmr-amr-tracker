@@ -1,4 +1,4 @@
-"""Fixture tests (spec section 4.5 / step 3).
+"""Fixture tests (README "How values are checked").
 
 Two tiers:
 
@@ -6,7 +6,7 @@ Two tiers:
   PDFs and always run.
 * Integration tests that parse the real 2024 report and assert every fixture in
   `src.validate.FIXTURES`. These skip (rather than fail) when data/raw/ is
-  empty, because the PDFs are gitignored per spec section 7 and a fresh clone
+  empty, because the PDFs are gitignored (DATA_LICENSE.md) and a fresh clone
   will not have them until `python -m src.fetch` has been run.
 
 Run:  pytest -v
@@ -206,10 +206,10 @@ def test_no_positional_fallback_was_needed(records_2024):
 
 
 @needs_pdf
-def test_spec_fixture_ecoli_meropenem_2024(records_2024):
-    """Spec section 4: E. coli / meropenem / 2024 = 62.9%.
+def test_anchor_fixture_ecoli_meropenem_2024(records_2024):
+    """Anchor fixture: E. coli / meropenem / 2024 = 62.9%.
 
-    The spec guessed the numerator as 7594; Table 2.6 prints 7587/12061.
+    The numerator was first guessed as 7594; Table 2.6 prints 7587/12061.
     """
     rec = index_records(records_2024)[
         ("Escherichia coli", "meropenem", 2024, 2024)
@@ -220,8 +220,8 @@ def test_spec_fixture_ecoli_meropenem_2024(records_2024):
 
 
 @needs_pdf
-def test_spec_fixture_kpneumoniae_meropenem_2024(records_2024):
-    """Spec section 4: K. pneumoniae / meropenem / 2024 = 35.1%."""
+def test_anchor_fixture_kpneumoniae_meropenem_2024(records_2024):
+    """Anchor fixture: K. pneumoniae / meropenem / 2024 = 35.1%."""
     rec = index_records(records_2024)[
         ("Klebsiella pneumoniae", "meropenem", 2024, 2024)
     ]

@@ -1,4 +1,4 @@
-"""Orchestrate fetch -> parse -> validate -> export (spec section 5).
+"""Orchestrate fetch -> parse -> validate -> export (README "Quick start").
 
 Usage:
     python -m src.build_dataset               # parse what is in data/raw/
@@ -8,7 +8,7 @@ Usage:
 Exports to data/processed/:
     amr_trends.csv         one row per organism x antibiotic x year x report
     amr_trends.json        same, as a JSON array
-    revisions.json         cross-report differences (spec section 2.1)
+    revisions.json         cross-report differences (README "Cross-report revisions")
     extraction_report.json run metadata: what was parsed, from where, and how
 """
 
@@ -171,7 +171,7 @@ def main(argv=None) -> int:
         print("\nNo records extracted. Aborting.")
         return 1
 
-    print("\n== validate (spec section 4) ==")
+    print("\n== validate (fixtures in src/validate.py) ==")
     passes, failures = check_fixtures(records)
     for line in passes:
         print("  " + line)
@@ -193,7 +193,7 @@ def main(argv=None) -> int:
             )
 
     revisions = find_cross_report_revisions(records)
-    print("\n== cross-report revisions (spec section 2.1) ==")
+    print("\n== cross-report revisions (revisions.json) ==")
     if not revisions:
         print("  none detected")
     else:

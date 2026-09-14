@@ -1,7 +1,7 @@
 # Changelog
 
 Every ingested report edition and every revised value found is logged here
-(spec section 5).
+(the machine-readable files are listed in the README section "Outputs").
 
 ## 0.4.0 — 2026-09-10 (V3 — NARS-Net cross-reference)
 
@@ -814,23 +814,23 @@ covered by two or more editions:
   unchanged at 5170. The printed percentage is 35.1% in all three, so this is
   invisible to any comparison based on percentages alone.
 
-### Corrections to the build spec
+### Corrections to fixtures, the schema example and source URLs
 
-- **Spec section 4 fixture.** *E. coli* / meropenem / 2024 was listed as
-  `62.9% (7594/12061)` with the numerator marked uncertain. The 2024 edition,
-  Table 2.6, prints **7587/12061** = 62.90%. (7594/12061 rounds to 63.0%.) The
-  verified value is now the fixture.
-- **Spec section 3 schema example.** The illustrative row gave *K. pneumoniae* /
-  meropenem / 2024 as `4283/12189`. Table 2.7 of the 2024 edition prints
-  **4276/12189**. Both round to 35.1%, so this was invisible at the printed
-  precision. (The spec presented this as an illustrative schema example rather
-  than a verified figure.)
-- **Spec sections 2 and 8 (V4).** Pre-2022 editions were assumed to be reachable
+- **Fixture, now in `src/validate.py`.** *E. coli* / meropenem / 2024 was
+  listed as `62.9% (7594/12061)` with the numerator marked uncertain. The 2024
+  edition, Table 2.6, prints **7587/12061** = 62.90%. (7594/12061 rounds to
+  63.0%.) The verified value is now the fixture.
+- **Schema example, now in the README section "Schema".** The illustrative row
+  gave *K. pneumoniae* / meropenem / 2024 as `4283/12189`. Table 2.7 of the 2024
+  edition prints **4276/12189**. Both round to 35.1%, so this was invisible at
+  the printed precision. (It was presented as an illustrative schema example
+  rather than a verified figure.)
+- **Archive editions.** Pre-2022 editions were assumed to be reachable
   only via Joomla flipbook viewers requiring reverse-engineering. At least the
   2019 and 2021 editions are in fact served as plain PDFs from the same
   `custom_data/pdf/resource-guidelines/` directory as the 2022 edition. URLs
   recorded in `src/sources.py` as `KNOWN_ARCHIVE_URLS` (unfetched, unverified).
-- **Spec section 2, 2022/2023 URLs.** Resolved and pinned with SHA-256 in
+- **2022/2023 source URLs.** Resolved and pinned with SHA-256 in
   `src/sources.py`. The 2023 edition is served from `uploads/Documents/` under
   the generic filename `1725536060_annual_report_2023.pdf`, which does not
   follow the `icmramrsnannualreport<year>.pdf` pattern of the 2024 edition;

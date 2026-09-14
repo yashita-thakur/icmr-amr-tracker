@@ -303,9 +303,10 @@ The NARS-Net rows use a different schema, described under
 
 In the current dataset (1,286 rows) no row carries
 `antibiotic_assigned_positionally` — every antibiotic label was read from the
-table rather than inferred. Exactly **3 rows carry `pct_mismatch`**, and in all
-three the printed figures themselves do not fully reconcile — this is not an
-extraction failure (see [Reconciling printed values](#reconciling-printed-values)).
+table rather than inferred. Exactly **3 rows carry `pct_mismatch`**: two cells,
+one of them printed identically in the 2022 and 2023 editions. In all three the
+printed figures themselves do not fully reconcile — this is not an extraction
+failure (see [Reconciling printed values](#reconciling-printed-values)).
 
 ### Colistin is not what it looks like
 
@@ -479,8 +480,8 @@ For MRSA there is also a definitional check available nowhere else: MRSA is
 that table must be ~0%. It is. Any other value would mean the wrong table or
 the wrong row had been read.
 
-> **Correction to the build spec.** The spec listed the *E. coli* / meropenem /
-> 2024 fixture as `62.9% (7594/12061)`, with the numerator flagged uncertain.
+> **Correction to a fixture.** The *E. coli* / meropenem / 2024 fixture was
+> first listed as `62.9% (7594/12061)`, with the numerator flagged uncertain.
 > Table 2.6 of the 2024 edition prints **7587/12061**, which is 62.90%.
 > (7594/12061 would round to 63.0%.) The verified value is used here.
 
@@ -694,7 +695,7 @@ different captions in their List of Tables and in the body:
 
 **Cover-page years are unreliable and are never used as the index.** The
 edition reporting January–December 2019 has a cover reading
-`AMR Annual report-2020`, and the 2020-data edition's cover reads
+`AMR Annual report -2020`, and the 2020-data edition's cover reads
 `Annual Report-2021`. `source_report_year` is always the reporting period; where
 a cover year differs it is recorded separately in `source_cover_year`, so the
 discrepancy is carried in the data rather than resolved silently. Those two
@@ -1084,7 +1085,8 @@ invites exactly the misreading this project exists to prevent.
 ## Project history
 
 Releases are tagged `v0.1.0` through `v0.4.0`, matching the version numbers in
-`CHANGELOG.md` and `CITATION.cff`. The changelog additionally refers to them as
+`CHANGELOG.md` and `CITATION.cff`. The changelog, the code comments, docstrings
+and tests, and `docs/narsnet_v3_research.md` additionally refer to them as
 V1–V3, which is the vocabulary the commit history uses. The mapping:
 
 | Release | In this README | What it added |
@@ -1093,6 +1095,10 @@ V1–V3, which is the vocabulary the commit history uses. The mapping:
 | V1.1 | the AMRSN national series | Four more organisms across two more chapters — *A. baumannii*, *P. aeruginosa*, *S. aureus* and MRSA |
 | V2 | the AMRSN Regional Centre series | Regional Centre breakdowns for the three organisms that have an RC-wise susceptibility table, flagging editions whose RC panel changed rather than averaging across it as if it were stable |
 | V3 (current) | the NARS-Net series | NCDC NARS-Net carried as a parallel series, all eight editions 2017–2024, *E. coli* and *S. aureus*, plus the cross-network coverage map |
+
+`v0.1.0` and `v0.2.0` point at the same commit. V1 and V1.1 were published
+together in the initial commit, so there is no snapshot of V1 on its own; the
+changelog records what each added.
 
 ---
 

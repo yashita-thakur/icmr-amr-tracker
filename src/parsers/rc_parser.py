@@ -187,7 +187,8 @@ TOTAL_LABEL_RE = re.compile(r"^total$", re.IGNORECASE)
 OUTER_PAD = 12.0
 # Fraction of parsed cells whose printed % must reconcile with n/N for the grid
 # to be trusted. Below this the column boundaries are wrong and we raise rather
-# than emit plausible-looking mis-paired numbers (base.py, spec section 4.2).
+# than emit plausible-looking mis-paired numbers (the no-fallback rule in
+# base.py).
 MIN_CONSISTENT = 0.80
 
 # The unit row printed under every column heading ("n(%)" in 2022/2023,
@@ -239,7 +240,7 @@ def _data_column_centres(words, label_right, data_top):
     if len(centres) < 9:
         raise RuntimeError(
             "RC table: resolved only {} antibiotic columns from the data grid "
-            "(spec section 4.2 -- not falling back to text).".format(len(centres))
+            "(not falling back to text; see base.py).".format(len(centres))
         )
     return centres
 
@@ -250,7 +251,8 @@ def _name_columns(header_words, centres):
     Each header word is assigned to the single column whose centre is closest,
     then that column's words are joined and normalised. Raises if a column does
     not resolve, or if two columns resolve to the same drug -- an unreadable
-    header means the geometry is not to be trusted (base.py, spec section 4.2).
+    header means the geometry is not to be trusted (the no-fallback rule in
+    base.py).
     """
     buckets: list[list] = [[] for _ in centres]
     pitch = (
@@ -599,7 +601,7 @@ def parse_rc_report(source, spec: RCOrganismSpec, extracted_date=None):
             raise RuntimeError(
                 "{} {} ({}): only {}/{} cells reconcile with their printed %. "
                 "Column boundaries are probably wrong -- refusing to emit "
-                "(spec section 4.2).".format(
+                "(see the no-fallback rule in base.py).".format(
                     source.report_year, hit.table_number, spec.name,
                     consistent, checked,
                 )

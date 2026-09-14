@@ -1,6 +1,7 @@
 """Shared machinery for locating and parsing AMRSN yearly-trend tables.
 
-Design notes (these encode findings from the source PDFs, spec section 4):
+Design notes (these encode findings from the source PDFs, set out in the
+README section "The ICMR-AMRSN national series"):
 
 * Table NUMBERS are not stable across report editions. Enterobacterales is
   Chapter 3 in the 2022 and 2023 editions (Tables 3.6 / 3.7) but Chapter 2 in
@@ -18,9 +19,9 @@ Design notes (these encode findings from the source PDFs, spec section 4):
   alignment: antibiotic labels and their values land in separate blocks, and
   later year columns are vertically offset. Regex over `page.extract_text()`
   therefore silently mis-assigns values to the wrong antibiotic. All extraction
-  goes through pdfplumber's ruling-line table detection. Per spec section 4.2
-  this is deliberate: if the table strategies below all fail we raise, rather
-  than degrade to text-regex.
+  goes through pdfplumber's ruling-line table detection. That is deliberate
+  (README "Why not regex over the PDF text"): if the table strategies below
+  all fail we raise, rather than degrade to text-regex.
 
 * Values are matched to years by X-COORDINATE, not by column index. Column
   indices are not trustworthy: in the 2023 edition the header row carries an
@@ -47,7 +48,7 @@ from __future__ import annotations
 import re
 from dataclasses import asdict, dataclass, field
 
-# --- schema (spec section 3) ------------------------------------------------
+# --- schema (README "Schema") -----------------------------------------------
 
 
 @dataclass
@@ -62,7 +63,7 @@ class Record:
     source_table: str
     source_url: str
     extracted_date: str
-    # Provenance / quality annotations beyond the minimal spec schema.
+    # Provenance / quality annotations beyond the core fields above.
     reported_pct: float | None = None
     computed_pct: float | None = None
     flags: list[str] = field(default_factory=list)
@@ -581,8 +582,9 @@ def extract_trend_table(page, label_ok=None) -> TrendTable:
     True if it names something the caller recognises; supplying it materially
     improves strategy selection.
 
-    Raises if none produce a usable grid. Per spec section 4.2 we do NOT fall
-    back to regex over raw text -- that path silently mis-aligns rows.
+    Raises if none produce a usable grid. We do NOT fall back to regex over raw
+    text (README "Why not regex over the PDF text") -- that path silently
+    mis-aligns rows.
     """
     best, best_score = None, 0
     for settings in TABLE_STRATEGIES:
@@ -594,7 +596,8 @@ def extract_trend_table(page, label_ok=None) -> TrendTable:
     if best is None:
         raise RuntimeError(
             "pdfplumber could not resolve a yearly-trend grid on page {}.\n"
-            "STOP: do not fall back to regex over raw text (spec section 4.2) -- "
+            "STOP: do not fall back to regex over raw text (README 'Why not "
+            "regex over the PDF text') -- "
             "the text layer of these PDFs does not preserve row/column "
             "alignment. Switching table-extraction library (e.g. to camelot-py) "
             "is a decision to raise with the maintainer first.".format(

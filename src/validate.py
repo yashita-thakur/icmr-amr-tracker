@@ -1,4 +1,4 @@
-"""Fixture validation (spec section 4.5).
+"""Fixture validation (README "How values are checked").
 
 Every fixture below is a value printed in an ICMR report that we can check our
 extraction against. If the pipeline disagrees with any of these, the parser is
@@ -13,7 +13,7 @@ Provenance of each fixture is recorded in `note`. Two kinds appear:
                  underlying number, so agreement is real corroboration rather
                  than a tautology.
 
-Note on spec section 4: the spec listed E. coli / meropenem / 2024 as
+Note on the E. coli / meropenem / 2024 fixture: it was first listed as
 "62.9% (7594/12061...)" with the numerator marked uncertain. The 2024 edition,
 Table 2.6, prints **7587/12061**, which is 62.90%. (7594/12061 would round to
 63.0%.) The fixture below uses the verified value.
@@ -46,14 +46,14 @@ class Fixture:
 # --- fixtures verified against the 2024 edition (8th) -----------------------
 
 FIXTURES: list[Fixture] = [
-    # Spec section 4 anchor, with the numerator corrected against Table 2.6.
+    # Anchor fixture, with the numerator corrected against Table 2.6.
     Fixture(
         "Escherichia coli", "meropenem", 2024, 2024, 62.9,
         "2024 edition Table 2.6, corroborated by Ch.2 narrative "
         "('meropenem susceptibility decreased from 73.2% to 62.9%')",
         expected_susceptible_n=7587, expected_tested_n=12061,
     ),
-    # Spec section 4 anchor.
+    # Anchor fixture.
     Fixture(
         "Klebsiella pneumoniae", "meropenem", 2024, 2024, 35.1,
         "2024 edition Table 2.7, corroborated by Ch.2 narrative "
@@ -108,7 +108,7 @@ FIXTURES: list[Fixture] = [
 # conversions exact rather than approximate.
 
 FIXTURES += [
-    # A. baumannii. The spec's own anchor: "meropenem ... resistance 91.0%".
+    # A. baumannii. An anchor fixture: "meropenem ... resistance 91.0%".
     Fixture(
         "Acinetobacter baumannii", "meropenem", 2024, 2024, 9.0,
         "2024 exec summary: 'Resistance to meropenem in A. baumannii was "
@@ -253,7 +253,7 @@ ROUNDING_TOLERANCE = 0.15
 
 def find_cross_report_revisions(records):
     """Detect the same (organism, antibiotic, year) reported differently by
-    different report editions -- spec section 2.1.
+    different report editions -- see README "Cross-report revisions".
 
     This is a genuine data-integrity finding about ICMR's own publications, not
     a bug in this pipeline.

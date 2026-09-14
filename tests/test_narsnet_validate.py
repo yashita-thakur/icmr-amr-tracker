@@ -843,7 +843,7 @@ def test_the_summary_separates_the_three_reasons(records):
 
 
 @needs_export
-def test_the_report_warns_against_reading_reconcilable_for_this(records):
+def test_the_report_warns_against_reading_reconcilable_for_this():
     """The report has to say what the flag is for, because `reconcilable` is
     the column a reader would otherwise reach for."""
     with open(
@@ -906,6 +906,7 @@ def test_every_panel_member_is_present_over_one_unbroken_run(records):
 
 
 @needs_export
+@needs_pdfs
 def test_the_panel_export_records_that_no_member_returns(records):
     """The claim above is one a reader of the data has no way to re-derive from
     the `changes` list alone, so the export states it."""

@@ -10,9 +10,9 @@ They cannot share one dict in any case: both are keyed by year and both cover
 addressed as one series, which is the standing constraint on V3 -- see the
 metric mismatch note on `NARSNET_SOURCES`.
 
-Spec §7: no source PDF of either network is committed to this repo. This module
-records only *where they live* and *what they should hash to*, so that any third
-party can fetch byte-identical inputs and reproduce our numbers.
+No source PDF of either network is committed to this repo (DATA_LICENSE.md).
+This module records only *where they live* and *what they should hash to*, so
+that any third party can fetch byte-identical inputs and reproduce our numbers.
 
 The `sha256` values were recorded on the date in `verified_on`. Both publishers
 occasionally re-upload a report at the same URL; a hash mismatch is therefore a
@@ -58,7 +58,7 @@ class ReportSource:
         return RAW_DIR / self.filename
 
 
-# --- V1 scope (spec §2.1): the three most recent editions -------------------
+# --- V1 scope (README "Coverage"): the three most recent editions -----------
 # Each of these contains an 8-year retrospective trend table, so three PDFs are
 # enough to cover 2017-2024 three times over -- which is what makes cross-report
 # revision detection possible at all.
@@ -98,10 +98,10 @@ SOURCES: dict[int, ReportSource] = {
     ),
 }
 
-# --- Out of V1 scope, but resolved and kept here so V4 need not re-research --
-# Spec §2/§8 assumed pre-2022 editions were reachable only through Joomla
-# "flipbook" viewers requiring reverse-engineering. That is not the case: at
-# least the 2019 and 2021 editions are served as plain PDFs from the same
+# --- Out of V1 scope, resolved and kept so it need not be re-researched ------
+# Pre-2022 editions were assumed to be reachable only through Joomla "flipbook"
+# viewers requiring reverse-engineering. That is not the case: at least the
+# 2019 and 2021 editions are served as plain PDFs from the same
 # `custom_data/pdf/resource-guidelines/` directory as the 2022 edition.
 # Hashes are deliberately None -- these have not been fetched or verified.
 KNOWN_ARCHIVE_URLS: dict[int, str] = {

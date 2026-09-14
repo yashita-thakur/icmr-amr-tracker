@@ -1,7 +1,8 @@
-"""Download annual report PDFs into data/raw/ (spec §4.1).
+"""Download annual report PDFs into data/raw/ (README "Source data").
 
-data/raw/ is gitignored. Per spec §7 these PDFs are never redistributed by this
-repository -- every user fetches them from the publisher directly.
+data/raw/ is gitignored. As DATA_LICENSE.md sets out, these PDFs are never
+redistributed by this repository -- every user fetches them from the publisher
+directly.
 
 Two registries are served, selected with --network: ICMR AMRSN (V1/V2) and NCDC
 NARS-Net (V3). The default is the AMRSN registry, so every invocation that

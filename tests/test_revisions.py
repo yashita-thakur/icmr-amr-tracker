@@ -1,4 +1,4 @@
-"""Cross-report revision detection (spec section 2.1).
+"""Cross-report revision detection (README "Cross-report revisions").
 
 The headline claim of this project is that it can tell a genuine revision in
 ICMR's data apart from a change in how ICMR printed the same number. These
