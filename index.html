@@ -499,7 +499,7 @@
         not maintained against editions published since &mdash; for
         anything published after 2024, check the
         <a href="https://iamrsn.icmr.org.in/">ICMR AMRSN site</a> or the
-        <a href="https://ncdc.mohfw.gov.in/reports/">NCDC reports page</a> directly.
+        <a href="https://ncdc.mohfw.gov.in/includes/About/CentresAndDivision/amr.php">NCDC's AMR Containment programme page</a> directly.
       </div>
     </div>
   </section>
@@ -624,6 +624,12 @@
     });
     ylab.textContent = "% susceptible";
     svg.appendChild(ylab);
+    var xlab = el("text", {
+      x: M.l + (W - M.l - M.r) / 2, y: H - 8, "text-anchor": "middle",
+      fill: "#a3906f", "font-size": 12, "font-family": "IBM Plex Mono, monospace"
+    });
+    xlab.textContent = "Year";
+    svg.appendChild(xlab);
 
     // series
     var groups = {};

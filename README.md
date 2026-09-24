@@ -153,7 +153,7 @@ at species level.
 Built and completed independently before the author began medical school, and
 not maintained against editions published since. For anything published after
 2024, check the [ICMR AMRSN site](https://iamrsn.icmr.org.in/) or the
-[NCDC reports page](https://ncdc.mohfw.gov.in/reports/) directly.
+[NCDC's AMR Containment programme page](https://ncdc.mohfw.gov.in/includes/About/CentresAndDivision/amr.php) directly.
 
 ---
 
