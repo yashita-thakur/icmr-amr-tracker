@@ -42,7 +42,7 @@ Four of the seven starting assumptions held. Three need adjusting:
 
 Confirmed as stated: NCDC-run and separate from ICMR; genus-level reporting for Klebsiella/Pseudomonas/Acinetobacter;
 E. coli and S. aureus as the comparable pair; WHONET-based validation; reports for 2017–2024 at
-[ncdc.mohfw.gov.in/reports/](https://ncdc.mohfw.gov.in/reports/).
+[ncdc.mohfw.gov.in/includes/About/CentresAndDivision/amr.php](https://ncdc.mohfw.gov.in/includes/About/CentresAndDivision/amr.php).
 
 ---
 
